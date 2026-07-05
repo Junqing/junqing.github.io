@@ -275,6 +275,17 @@ main{display:flex;flex:1;overflow:hidden}
 .drawer-link{display:inline-block;margin-top:4px;font-size:11px;color:var(--accent)}
 .drawer-link:hover{text-decoration:underline}
 
+/* ─── Recipe Modal ─── */
+.rmodal{display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.72);overflow-y:auto;padding:20px 16px}
+.rmodal.open{display:flex;align-items:flex-start;justify-content:center}
+.rmodal-inner{position:relative;width:100%;max-width:760px;margin:auto;background:var(--bg);border-radius:var(--r2);overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.55)}
+.rmodal-close{position:absolute;top:10px;right:10px;z-index:10;background:var(--surf2);border:1px solid var(--border);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--text2);line-height:1}
+.rmodal-close:hover{background:var(--border);color:var(--text)}
+#rmodal-body .card{border-radius:0;border:none;margin:0;box-shadow:none}
+#rmodal-body .cexpand{display:block!important}
+#rmodal-body .chead{cursor:default}
+@media(max-width:680px){.rmodal{padding:0}.rmodal-inner{border-radius:0;min-height:100dvh}.rmodal-close{top:8px;right:8px}}
+
 /* ─── Custom Slots ─── */
 .cs-section{margin-bottom:28px}
 .cs-section-title{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
@@ -295,7 +306,8 @@ main{display:flex;flex:1;overflow:hidden}
 .cs-pill{font-size:10px;padding:2px 7px;border-radius:99px;background:var(--surf2);border:1px solid var(--border);color:var(--text2)}
 .cs-pill strong{color:var(--text);font-weight:600}
 .cs-sim-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:7px}
-.cs-sim-item{padding:7px 9px;background:var(--surf2);border-radius:var(--r);border:1px solid var(--border)}
+.cs-sim-item{padding:7px 9px;background:var(--surf2);border-radius:var(--r);border:1px solid var(--border);transition:border-color .15s,background .15s}
+.cs-sim-item[style*="pointer"]:hover{border-color:var(--accent);background:rgba(212,168,67,.07)}
 .cs-sim-fs{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.03em;margin-bottom:2px}
 .cs-sim-label{font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px}
 .cs-sim-char{font-size:10px;color:var(--text3);line-height:1.45}
@@ -452,6 +464,13 @@ main{display:flex;flex:1;overflow:hidden}
   <button id="lightbox-next">›</button>
 </div>
 
+<div id="recipe-modal" class="rmodal" role="dialog" aria-modal="true">
+  <div class="rmodal-inner">
+    <button class="rmodal-close" id="rmodal-close" aria-label="Close">✕</button>
+    <div id="rmodal-body"></div>
+  </div>
+</div>
+
 <script src="gear.js"></script>
 <script>
 // ══════════════════════════════════════════
@@ -555,6 +574,31 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowRight'){lbIdx=(lbIdx+1)%lbImages.length;$('lightbox-img').src=lbImages[lbIdx]}
   if(e.key==='Escape')$('lightbox').classList.remove('show')
 })
+
+// ══════════════════════════════════════════
+// RECIPE MODAL
+// ══════════════════════════════════════════
+;(()=>{
+  const modal  = $('recipe-modal')
+  const body   = $('rmodal-body')
+  const close  = $('rmodal-close')
+  function closeModal() { modal.classList.remove('open'); body.innerHTML = '' }
+  close.addEventListener('click', closeModal)
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal() })
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) closeModal() })
+
+  window.openRecipeModal = function(recipeName) {
+    const r = RECIPES.find(x => x.name === recipeName)
+    if (!r) return
+    body.innerHTML = ''
+    const card = makeCard(r)
+    card.classList.add('open')
+    card.querySelector('.cexpand') && (card.querySelector('.cexpand').style.display = 'block')
+    body.appendChild(card)
+    modal.classList.add('open')
+    modal.scrollTop = 0
+  }
+})()
 
 // ══════════════════════════════════════════
 // RECIPE FINGERPRINT SVG
@@ -1699,6 +1743,15 @@ function renderCustomSlots() {
         const item = document.createElement('div')
         item.className = 'cs-sim-item'
         item.innerHTML = `<div class="cs-sim-fs">${sim.film_sim}</div><div class="cs-sim-label">${sim.label}</div><div class="cs-sim-char">${sim.character}</div>`
+        if (sim.recipe_name) {
+          item.style.cursor = 'pointer'
+          item.title = 'View recipe details'
+          const hint = document.createElement('div')
+          hint.style.cssText = 'font-size:10px;color:var(--accent);margin-top:5px'
+          hint.textContent = 'View samples →'
+          item.appendChild(hint)
+          item.addEventListener('click', () => openRecipeModal(sim.recipe_name))
+        }
         simGrid.appendChild(item)
       })
       body.appendChild(simGrid)
@@ -1738,6 +1791,14 @@ function renderCustomSlots() {
         body.appendChild(tbl)
       }
 
+      if (slot.recipe_name) {
+        const viewBtn = document.createElement('button')
+        viewBtn.style.cssText = 'margin-top:12px;font-size:11px;color:var(--accent);background:none;border:1px solid var(--accent);border-radius:var(--r);padding:4px 10px;cursor:pointer;display:block'
+        viewBtn.textContent = 'View sample images →'
+        viewBtn.addEventListener('click', () => openRecipeModal(slot.recipe_name))
+        body.appendChild(viewBtn)
+      }
+
       card.appendChild(body)
       singleGrid.appendChild(card)
       hasSingle = true
@@ -1761,10 +1822,7 @@ function renderMyRecipes() {
   container.innerHTML = ''
 
   const myList = (typeof MY_RECIPES !== 'undefined') ? MY_RECIPES : []
-  if (!myList.length) {
-    container.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="big">🎞</div><p>No saved recipes yet. Edit <strong>gear.js</strong> on GitHub to add your 7 custom recipes.</p></div>'
-    return
-  }
+  if (!myList.length) return
 
   // Build lookup from dataset
   const byName = Object.fromEntries(RECIPES.map(r => [r.name, r]))
