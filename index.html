@@ -210,6 +210,11 @@ main{display:flex;flex:1;overflow:hidden}
   h1 span{display:none}
 }
 
+/* ─── Footer ─── */
+.site-footer{padding:14px 20px;font-size:11px;color:var(--text3);border-top:1px solid var(--border);line-height:1.6;text-align:center}
+.site-footer a{color:var(--accent);text-decoration:none}
+.site-footer a:hover{text-decoration:underline}
+
 /* ─── Settings Guide ─── */
 .sg-grid{display:flex;flex-direction:column;gap:32px;padding-bottom:40px}
 .sg-section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
@@ -287,10 +292,17 @@ main{display:flex;flex:1;overflow:hidden}
 @media(max-width:680px){.rmodal{padding:0}.rmodal-inner{border-radius:0;min-height:100dvh}.rmodal-close{top:8px;right:8px}}
 
 /* ─── Custom Slots ─── */
-.cs-section{margin-bottom:28px}
-.cs-section-title{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
-.cs-multi-col{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
-.cs-single-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.cs-subtabs{display:flex;gap:5px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-bottom:14px}
+.cs-subtabs::-webkit-scrollbar{display:none}
+.cs-subtab{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 12px;border-radius:var(--r);border:1px solid var(--border);background:var(--surf2);color:var(--text2);cursor:pointer;-webkit-tap-highlight-color:transparent;text-align:center;min-width:52px;transition:background .12s,border-color .12s}
+.cs-subtab-slot{font-weight:800;font-size:13px;line-height:1}
+.cs-subtab-name{font-size:9px;color:var(--text3);line-height:1.3;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cs-subtab.active{background:var(--accent2);border-color:var(--accent2);color:#000}
+.cs-subtab.active .cs-subtab-name{color:rgba(0,0,0,.55)}
+.cs-slot-pane{display:none}
+.cs-slot-pane.active{display:block}
+.cs-usage-bar{background:rgba(212,168,67,.09);border:1px solid rgba(212,168,67,.28);border-left:3px solid var(--accent2);border-radius:var(--r);padding:9px 12px;font-size:12px;color:var(--text);line-height:1.55;margin-bottom:12px}
+.cs-usage-bar strong{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--accent2);margin-bottom:3px;font-weight:800}
 .cs-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
 .cs-head{padding:11px 14px 9px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
 .cs-slot{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:rgba(212,168,67,.18);color:var(--accent2);flex-shrink:0}
@@ -318,6 +330,17 @@ main{display:flex;flex:1;overflow:hidden}
 .cs-filter-tbl tr:last-child td{border-bottom:none}
 .cs-filter-active{background:rgba(212,168,67,.07)}
 .cs-filter-active td:first-child::after{content:" ✓";color:var(--accent2)}
+.cs-pc-wrap{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.cs-pc-col{background:var(--surf2);border-radius:var(--r);padding:8px 10px;border:1px solid var(--border)}
+.cs-pc-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.cs-pc-label-pros{color:#4caf81}
+.cs-pc-label-cons{color:#c97b5a}
+.cs-pros{border-left:3px solid #4caf81}
+.cs-cons{border-left:3px solid #c97b5a}
+.cs-pc-list{margin:0;padding-left:14px;list-style:disc}
+.cs-pc-list li{font-size:10px;color:var(--text2);line-height:1.55;margin-bottom:3px}
+.cs-pc-list li:last-child{margin-bottom:0}
+@media(max-width:520px){.cs-pc-wrap{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -367,14 +390,13 @@ main{display:flex;flex:1;overflow:hidden}
     Filters
   </button>
   <div class="tabs">
-    <div class="tab on" data-tab="grid">Grid</div>
-    <div class="tab" data-tab="charts">Charts</div>
+    <div class="tab" data-tab="myrecipes">My Recipes</div>
+    <div class="tab" data-tab="gear">My Gear</div>
+    <div class="tab on" data-tab="grid">Recipes</div>
+    <div class="tab" data-tab="settings">Settings Guide</div>
     <div class="tab" data-tab="clouds">Keywords</div>
     <div class="tab" data-tab="directions">Directions</div>
     <div class="tab" data-tab="correlations">Correlation</div>
-    <div class="tab" data-tab="settings">Settings Guide</div>
-    <div class="tab" data-tab="gear">My Gear</div>
-    <div class="tab" data-tab="myrecipes">My Recipes</div>
   </div>
 
   <!-- GRID -->
@@ -1655,39 +1677,43 @@ function renderCustomSlots() {
   const slots = (typeof MY_CUSTOM_SLOTS !== 'undefined') ? MY_CUSTOM_SLOTS : []
   if (!slots.length) return
 
-  const section = document.createElement('div')
-  section.className = 'cs-section'
-  const stitle = document.createElement('div')
-  stitle.className = 'cs-section-title'
-  stitle.textContent = 'Custom Slots C1–C7'
-  section.appendChild(stitle)
+  const tabBar   = document.createElement('div')
+  tabBar.className = 'cs-subtabs'
+  const paneWrap = document.createElement('div')
 
-  const multiCol   = document.createElement('div')
-  multiCol.className = 'cs-multi-col'
-  const singleGrid = document.createElement('div')
-  singleGrid.className = 'cs-single-grid'
-  let hasMulti = false, hasSingle = false
+  slots.forEach((slot, idx) => {
+    // ── tab button
+    const tab = document.createElement('button')
+    tab.className = 'cs-subtab' + (idx === 0 ? ' active' : '')
+    tab.innerHTML = `<span class="cs-subtab-slot">${slot.slot}</span><span class="cs-subtab-name">${slot.name}</span>`
+    tab.addEventListener('click', () => {
+      tabBar.querySelectorAll('.cs-subtab').forEach(t => t.classList.remove('active'))
+      paneWrap.querySelectorAll('.cs-slot-pane').forEach(p => p.classList.remove('active'))
+      tab.classList.add('active')
+      paneWrap.querySelectorAll('.cs-slot-pane')[idx].classList.add('active')
+    })
+    tabBar.appendChild(tab)
 
-  slots.forEach(slot => {
-    const card = document.createElement('div')
-    card.className = 'cs-card'
+    // ── pane
+    const pane = document.createElement('div')
+    pane.className = 'cs-slot-pane cs-card' + (idx === 0 ? ' active' : '')
 
-    // ── head
+    // head
     const head = document.createElement('div')
     head.className = 'cs-head'
-    const slotBadge = document.createElement('span')
-    slotBadge.className = 'cs-slot'
-    slotBadge.textContent = slot.slot
-    head.appendChild(slotBadge)
+    const badge = document.createElement('span')
+    badge.className = 'cs-slot'
+    badge.textContent = slot.slot
+    head.appendChild(badge)
     const nameEl = document.createElement('span')
     nameEl.className = 'cs-name'
     nameEl.textContent = slot.name
     head.appendChild(nameEl)
     if (slot.camera && slot.camera !== 'both') {
-      const camEl = document.createElement('span')
-      camEl.className = 'cs-cam'
-      camEl.textContent = slot.camera
-      head.appendChild(camEl)
+      const cam = document.createElement('span')
+      cam.className = 'cs-cam'
+      cam.textContent = slot.camera
+      head.appendChild(cam)
     }
     if (slot.source_url) {
       const lnk = document.createElement('a')
@@ -1697,27 +1723,56 @@ function renderCustomSlots() {
       lnk.textContent = 'FujiXWeekly ↗'
       head.appendChild(lnk)
     }
-    card.appendChild(head)
+    pane.appendChild(head)
 
-    // ── body
     const body = document.createElement('div')
     body.className = 'cs-body'
 
+    // ── usage bar
+    if (slot.usage) {
+      const u = document.createElement('div')
+      u.className = 'cs-usage-bar'
+      u.innerHTML = `<strong>When to use</strong>${slot.usage}`
+      body.appendChild(u)
+    }
+
+    // ── description
     if (slot.description) {
       const desc = document.createElement('div')
       desc.className = 'cs-desc'
       desc.textContent = slot.description
       body.appendChild(desc)
     }
-    if (slot.usage) {
-      const usage = document.createElement('div')
-      usage.className = 'cs-usage'
-      usage.textContent = '↳ ' + slot.usage
-      body.appendChild(usage)
+
+    // ── pros & cons
+    if ((slot.pros && slot.pros.length) || (slot.cons && slot.cons.length)) {
+      const pcWrap = document.createElement('div')
+      pcWrap.className = 'cs-pc-wrap'
+      if (slot.pros && slot.pros.length) {
+        const col = document.createElement('div')
+        col.className = 'cs-pc-col cs-pros'
+        col.innerHTML = '<div class="cs-pc-label cs-pc-label-pros">Pros</div>'
+        const ul = document.createElement('ul')
+        ul.className = 'cs-pc-list'
+        slot.pros.forEach(p => { const li = document.createElement('li'); li.textContent = p; ul.appendChild(li) })
+        col.appendChild(ul)
+        pcWrap.appendChild(col)
+      }
+      if (slot.cons && slot.cons.length) {
+        const col = document.createElement('div')
+        col.className = 'cs-pc-col cs-cons'
+        col.innerHTML = '<div class="cs-pc-label cs-pc-label-cons">Cons</div>'
+        const ul = document.createElement('ul')
+        ul.className = 'cs-pc-list'
+        slot.cons.forEach(c => { const li = document.createElement('li'); li.textContent = c; ul.appendChild(li) })
+        col.appendChild(ul)
+        pcWrap.appendChild(col)
+      }
+      body.appendChild(pcWrap)
     }
 
+    // ── settings / simulations
     if (slot.type === 'multi') {
-      // base settings pills
       const bl = document.createElement('div')
       bl.className = 'cs-sublabel'
       bl.textContent = 'Base Settings'
@@ -1732,7 +1787,6 @@ function renderCustomSlots() {
       })
       body.appendChild(pills)
 
-      // simulation grid
       const sl = document.createElement('div')
       sl.className = 'cs-sublabel'
       sl.textContent = 'Simulations — rotate film dial or change in menu'
@@ -1755,12 +1809,7 @@ function renderCustomSlots() {
         simGrid.appendChild(item)
       })
       body.appendChild(simGrid)
-
-      card.appendChild(body)
-      multiCol.appendChild(card)
-      hasMulti = true
     } else {
-      // settings table
       if (slot.settings) {
         const tbl = document.createElement('table')
         tbl.className = 'stbl'
@@ -1771,8 +1820,13 @@ function renderCustomSlots() {
         })
         body.appendChild(tbl)
       }
-
-      // filter variants guide (C7)
+      if (slot.recipe_name) {
+        const btn = document.createElement('button')
+        btn.style.cssText = 'margin-top:10px;font-size:11px;color:var(--accent);background:none;border:1px solid var(--accent);border-radius:var(--r);padding:4px 10px;cursor:pointer;display:block'
+        btn.textContent = 'View sample images →'
+        btn.addEventListener('click', () => openRecipeModal(slot.recipe_name))
+        body.appendChild(btn)
+      }
       if (slot.filter_variants) {
         const fl = document.createElement('div')
         fl.className = 'cs-sublabel'
@@ -1790,24 +1844,14 @@ function renderCustomSlots() {
         })
         body.appendChild(tbl)
       }
-
-      if (slot.recipe_name) {
-        const viewBtn = document.createElement('button')
-        viewBtn.style.cssText = 'margin-top:12px;font-size:11px;color:var(--accent);background:none;border:1px solid var(--accent);border-radius:var(--r);padding:4px 10px;cursor:pointer;display:block'
-        viewBtn.textContent = 'View sample images →'
-        viewBtn.addEventListener('click', () => openRecipeModal(slot.recipe_name))
-        body.appendChild(viewBtn)
-      }
-
-      card.appendChild(body)
-      singleGrid.appendChild(card)
-      hasSingle = true
     }
+
+    pane.appendChild(body)
+    paneWrap.appendChild(pane)
   })
 
-  if (hasMulti)   section.appendChild(multiCol)
-  if (hasSingle)  section.appendChild(singleGrid)
-  wrap.appendChild(section)
+  wrap.appendChild(tabBar)
+  wrap.appendChild(paneWrap)
 }
 
 // ══════════════════════════════════════════
@@ -1987,5 +2031,11 @@ function init(){
 init()
 window.addEventListener('resize',()=>{if(chartsBuilt) requestAnimationFrame(drawParallel)})
 </script>
+
+<footer class="site-footer">
+  Recipe data and sample images sourced from <a href="https://fujixweekly.com" target="_blank" rel="noopener">FujiXWeekly</a> by Ritchie Roesch.
+  Descriptive summaries and recipe analyses were created with the assistance of AI.
+  This site is a personal reference tool and is not affiliated with Fujifilm or FujiXWeekly.
+</footer>
 </body>
 </html>
