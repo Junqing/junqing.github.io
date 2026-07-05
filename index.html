@@ -210,6 +210,11 @@ main{display:flex;flex:1;overflow:hidden}
   h1 span{display:none}
 }
 
+/* ─── Footer ─── */
+.site-footer{padding:14px 20px;font-size:11px;color:var(--text3);border-top:1px solid var(--border);line-height:1.6;text-align:center}
+.site-footer a{color:var(--accent);text-decoration:none}
+.site-footer a:hover{text-decoration:underline}
+
 /* ─── Settings Guide ─── */
 .sg-grid{display:flex;flex-direction:column;gap:32px;padding-bottom:40px}
 .sg-section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
@@ -385,14 +390,13 @@ main{display:flex;flex:1;overflow:hidden}
     Filters
   </button>
   <div class="tabs">
-    <div class="tab on" data-tab="grid">Grid</div>
-    <div class="tab" data-tab="charts">Charts</div>
+    <div class="tab" data-tab="myrecipes">My Recipes</div>
+    <div class="tab" data-tab="gear">My Gear</div>
+    <div class="tab on" data-tab="grid">Recipes</div>
+    <div class="tab" data-tab="settings">Settings Guide</div>
     <div class="tab" data-tab="clouds">Keywords</div>
     <div class="tab" data-tab="directions">Directions</div>
     <div class="tab" data-tab="correlations">Correlation</div>
-    <div class="tab" data-tab="settings">Settings Guide</div>
-    <div class="tab" data-tab="gear">My Gear</div>
-    <div class="tab" data-tab="myrecipes">My Recipes</div>
   </div>
 
   <!-- GRID -->
@@ -2027,5 +2031,11 @@ function init(){
 init()
 window.addEventListener('resize',()=>{if(chartsBuilt) requestAnimationFrame(drawParallel)})
 </script>
+
+<footer class="site-footer">
+  Recipe data and sample images sourced from <a href="https://fujixweekly.com" target="_blank" rel="noopener">FujiXWeekly</a> by Ritchie Roesch.
+  Descriptive summaries and recipe analyses were created with the assistance of AI.
+  This site is a personal reference tool and is not affiliated with Fujifilm or FujiXWeekly.
+</footer>
 </body>
 </html>
