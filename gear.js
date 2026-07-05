@@ -271,13 +271,7 @@ const MY_CUSTOM_SLOTS = [
     name: "Reggie's Portra",
     source_url: "https://fujixweekly.com/2022/06/11/fujifilm-x-trans-iv-film-simulation-recipe-reggies-portra/",
     type: "single",
-    hero_image: "https://i0.wp.com/fujixweekly.com/wp-content/uploads/2022/06/52137326326_1b51aabeaa_c.jpg",
-    gallery_images: [
-      "https://i0.wp.com/fujixweekly.com/wp-content/uploads/2022/06/52137616279_0256b08542_c.jpg",
-      "https://i0.wp.com/fujixweekly.com/wp-content/uploads/2022/06/52137375416_7d9b1fe424_c.jpg",
-      "https://i0.wp.com/fujixweekly.com/wp-content/uploads/2022/06/52137348533_e0e1ec602d_c.jpg",
-      "https://i0.wp.com/fujixweekly.com/wp-content/uploads/2022/06/52137817035_e2d445b5fd_c.jpg",
-    ],
+    recipe_name: "Reggie's Portra",
     description: "Emulates Kodak Portra 400 processed at Richard Photo Lab — not a clinical Portra clone, but a warm and slightly saturated take on what premium C-41 looks like with a skilled developing lab. Classic Chrome + CCE Strong lifts midtones and adds depth without going full slide-film punchy. Auto WB keeps it usable anywhere.",
     usage: "Everyday carry. Portraits, street, travel, casual events. Auto WB keeps it consistent across mixed lighting.",
     pros: [
@@ -423,13 +417,7 @@ const MY_CUSTOM_SLOTS = [
     name: "Kodak Tri-X 400",
     source_url: "https://fujixweekly.com/2020/06/18/fujifilm-x100v-film-simulation-recipe-kodak-tri-x-400/",
     type: "single",
-    hero_image: "https://i0.wp.com/fujixweekly.com/wp-content/uploads/2020/06/49978036176_33e3e853ce_c.jpg",
-    gallery_images: [
-      "https://i0.wp.com/fujixweekly.com/wp-content/uploads/2020/06/50013644383_17e1e66a66_c.jpg",
-      "https://i0.wp.com/fujixweekly.com/wp-content/uploads/2020/06/50014437372_8ed8c4ff04_c.jpg",
-      "https://i0.wp.com/fujixweekly.com/wp-content/uploads/2020/06/50014436982_f6847ab727_c.jpg",
-      "https://i0.wp.com/fujixweekly.com/wp-content/uploads/2020/06/50011001156_8dd32b10fd_c.jpg",
-    ],
+    recipe_name: "Kodak Tri-X 400",
     description: "Emulates Kodak Tri-X 400 — the definitive high-grain documentary B&W film. The extreme WB shift (R+9/B−9) manipulates tonal rendering so that the Acros simulation responds more like Tri-X's warm-tonality silver halide base. Clarity +4 and Shadow +3 together give bold shadow separation with crisp micro-contrast. ISO is intentionally high to generate grain as the creative element, not something to suppress.",
     usage: "Street, documentary, journalism, gritty urban. Shoot at ISO 1600–6400. Let the grain breathe — this is not a clean B&W recipe.",
     pros: [
