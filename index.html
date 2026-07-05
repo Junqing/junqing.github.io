@@ -176,84 +176,39 @@ main{display:flex;flex:1;overflow:hidden}
 .corr-search::placeholder{color:var(--text3)}
 .note{font-size:11px;color:var(--text3);font-style:italic;margin-bottom:12px;line-height:1.5}
 
-/* ─── Save Slots ─── */
-.slot-explainer{display:flex;gap:14px;align-items:flex-start;background:var(--surf);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--r2);padding:16px;margin-bottom:24px;font-size:13px;color:var(--text2);line-height:1.6}
-.slot-expl-icon{font-size:22px;flex-shrink:0;margin-top:1px}
-.slot-explainer strong{color:var(--text)}
-.slot-explainer em{color:var(--accent2);font-style:normal}
-.slots-grid{display:flex;flex-direction:column;gap:20px}
-.slot-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r3);overflow:hidden}
-.slot-header{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--border)}
-.slot-badge{font-size:13px;font-weight:800;padding:6px 14px;border-radius:var(--r);color:#000;flex-shrink:0}
-.slot-title-block{flex:1}
-.slot-title{font-size:16px;font-weight:700;color:var(--text)}
-.slot-subtitle{font-size:12px;color:var(--text2);margin-top:2px;line-height:1.4}
-.slot-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.slot-tag{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;background:var(--surf2);border:1px solid var(--border);color:var(--text2)}
-.slot-body{padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
-@media(max-width:700px){.slot-body{grid-template-columns:1fr}}
-.slot-config-table{width:100%;border-collapse:collapse;font-size:12px}
-.slot-config-table th{text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);padding:0 6px 6px;border-bottom:1px solid var(--border)}
-.slot-config-table td{padding:4px 6px;border-bottom:1px solid rgba(46,46,52,.5);vertical-align:top}
-.slot-config-table td:first-child{color:var(--text2);width:45%}
-.slot-config-table td:last-child{color:var(--text);font-weight:500}
-.slot-config-table tr:last-child td{border-bottom:none}
-.slot-sims-section h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:10px}
-.sim-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;cursor:pointer;padding:4px 6px;border-radius:var(--r);transition:background .12s}
-.sim-row:hover{background:var(--surf2)}
-.sim-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.sim-name{font-size:12px;font-weight:600;color:var(--text);min-width:130px}
-.sim-recipe{font-size:11px;color:var(--text2)}
-.sim-desc{font-size:11px;color:var(--text3);font-style:italic;margin-left:auto;text-align:right;max-width:160px;line-height:1.3}
-.slot-usage{padding:14px 20px;background:var(--bg2);border-top:1px solid var(--border);font-size:12px;color:var(--text2);line-height:1.6}
-.slot-usage strong{color:var(--text)}
-.slot-usage ul{margin:6px 0 0 14px}
-.slot-usage li{margin-bottom:3px}
-.near-slot-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;margin-bottom:12px}
-.near-slot-card h4{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:8px}
-.near-slot-table{width:100%;border-collapse:collapse;font-size:11px}
-.near-slot-table th{text-align:left;font-size:10px;color:var(--text3);padding-bottom:5px;border-bottom:1px solid var(--border);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
-.near-slot-table td{padding:4px 6px;border-bottom:1px solid rgba(46,46,52,.4)}
-.near-slot-table td:first-child{color:var(--accent2);font-weight:600}
-.near-slot-table tr:last-child td{border-bottom:none}
-.diff-cell{color:var(--orange)!important;font-weight:600!important}
+/* ─── Mobile filter toggle button ─── */
+.mob-filter-btn{display:none;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--r);background:var(--surf2);border:1px solid var(--border);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;margin-bottom:10px;width:fit-content;-webkit-tap-highlight-color:transparent}
+.mob-filter-btn:hover{background:var(--surf);color:var(--text)}
+.mob-filter-btn svg{flex-shrink:0}
 
-/* ─── Save Slots drawer layout ─── */
-.slots-page{display:grid;grid-template-columns:1fr 340px;gap:0;min-height:0}
-.slots-left{min-height:0;padding-right:0}
-.slots-drawer{background:var(--bg2);border-left:1px solid var(--border);position:sticky;top:53px;height:calc(100vh - 53px);overflow-y:auto;display:flex;flex-direction:column}
-.drawer-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text3);gap:12px;padding:20px;text-align:center}
-.drawer-empty .big{font-size:36px}
-.drawer-empty p{font-size:13px;line-height:1.5}
-.drawer-content{display:none;flex-direction:column;height:100%}
-.drawer-content.show{display:flex}
-.drawer-hero{width:100%;height:200px;object-fit:cover;display:block;background:var(--surf2);flex-shrink:0}
-.drawer-hero-ph{width:100%;height:200px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:32px;flex-shrink:0}
-.drawer-gallery{display:flex;gap:5px;padding:8px 12px;overflow-x:auto;background:var(--surf);flex-shrink:0;border-bottom:1px solid var(--border)}
-.drawer-gallery img{height:56px;width:auto;min-width:56px;object-fit:cover;border-radius:4px;cursor:pointer;flex-shrink:0;border:1px solid var(--border);transition:border-color .12s}
-.drawer-gallery img:hover{border-color:var(--accent)}
-.drawer-body{padding:14px 16px;overflow-y:auto;flex:1}
-.drawer-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px}
-.drawer-sim{font-size:11px;color:var(--accent2);font-weight:600;margin-bottom:6px}
-.drawer-narr{font-size:12px;color:var(--text2);font-style:italic;line-height:1.5;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
-.drawer-stbl{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px}
-.drawer-stbl td{padding:4px 4px;border-bottom:1px solid rgba(46,46,52,.5)}
-.drawer-stbl td:first-child{color:var(--text2);width:46%}
-.drawer-stbl td:last-child{color:var(--text);font-weight:500}
-.drawer-stbl tr.diff-row td{background:rgba(212,168,67,.07)}
-.drawer-stbl tr.diff-row td:first-child{color:var(--accent)}
-.drawer-stbl tr:last-child td{border-bottom:none}
-.drawer-kws{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:12px}
-.drawer-kw{padding:2px 6px;border-radius:10px;font-size:10px;background:var(--surf);color:var(--text2)}
-.drawer-link{display:inline-block;margin-top:4px;font-size:11px;color:var(--accent)}
-.drawer-link:hover{text-decoration:underline}
-.drawer-fingerprint{display:flex;justify-content:center;padding:4px 0 8px}
-.sim-row{cursor:pointer;padding:5px 6px;border-radius:var(--r);transition:background .12s;display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.sim-row:hover{background:var(--surf2)}
-.sim-row.active{background:rgba(212,168,67,.12);outline:1px solid rgba(212,168,67,.3)}
-@media(max-width:900px){.slots-page{grid-template-columns:1fr}.slots-drawer{position:fixed;right:0;top:53px;width:320px;height:calc(100vh - 53px);z-index:150;transform:translateX(100%);transition:transform .25s}.slots-drawer.open{transform:none}}
+/* ─── Tablet (≤ 1024px): slim sidebar, scrollable tabs ─── */
+@media(max-width:1024px){
+  .sidebar{width:200px;min-width:180px}
+  .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex-shrink:0}
+  .sg-cards{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+}
 
-@media(max-width:700px){main{flex-direction:column}.sidebar{width:100%;height:auto;position:static}.hist-wrap{grid-template-columns:1fr}}
+/* ─── Phone (≤ 680px): collapsed sidebar, single-column layout ─── */
+@media(max-width:680px){
+  main{flex-direction:column}
+  .sidebar{display:none;width:100%;min-width:0;height:auto;max-height:60vh;overflow-y:auto;position:static;border-right:none;border-bottom:1px solid var(--border)}
+  .sidebar.open{display:block}
+  .mob-filter-btn{display:flex}
+  .content{padding:10px 10px 20px}
+  .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:10px;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex-shrink:0;padding:6px 11px;font-size:12px}
+  .hist-wrap{grid-template-columns:1fr}
+  .gear-cards,.mr-grid,.sg-cards{grid-template-columns:1fr}
+  .cs-single-grid{grid-template-columns:1fr}
+  .cs-sim-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .corr-grid{grid-template-columns:1fr!important}
+  .header-inner{flex-wrap:wrap;gap:4px}
+  h1{font-size:14px!important}
+  h1 span{display:none}
+}
 
 /* ─── Settings Guide ─── */
 .sg-grid{display:flex;flex-direction:column;gap:32px;padding-bottom:40px}
@@ -287,6 +242,70 @@ main{display:flex;flex:1;overflow:hidden}
 .sg-preset.hi{border-color:var(--orange);color:var(--orange)}
 .sg-preset.lo{border-color:var(--blue);color:var(--blue)}
 .sg-preset.neu{border-color:var(--text3);color:var(--text3)}
+
+/* ─── My Gear ─── */
+.gear-grid{display:flex;flex-direction:column;gap:32px;padding-bottom:40px}
+.gear-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.gear-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;display:flex;flex-direction:column}
+.gear-card-head{padding:14px 16px 10px;display:flex;align-items:flex-start;gap:12px}
+.gear-icon{width:44px;height:44px;border-radius:var(--r);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--surf2);border:1px solid var(--border)}
+.gear-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:1px}
+.gear-sub{font-size:11px;color:var(--text2);line-height:1.4}
+.gear-body{padding:0 16px 14px}
+.gear-notes{font-size:12px;color:var(--text2);line-height:1.6;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-style:italic}
+.gear-img{width:100%;height:160px;object-fit:cover;object-position:center;display:block;background:var(--surf2)}
+
+/* ─── My Recipes ─── */
+.mr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;padding-bottom:40px}
+.mr-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;display:flex;flex-direction:column}
+.mr-hero{width:100%;height:160px;object-fit:cover;display:block;background:var(--surf2);cursor:pointer}
+.mr-hero-ph{width:100%;height:160px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:32px}
+.mr-body{padding:12px 14px}
+.mr-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.mr-slot{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;background:rgba(212,168,67,.18);color:var(--accent2);margin-right:6px;vertical-align:middle}
+.mr-cam{font-size:11px;color:var(--text3);vertical-align:middle}
+.mr-usage{font-size:12px;color:var(--text2);line-height:1.6;margin:8px 0;padding:8px 10px;background:var(--surf2);border-radius:var(--r);border-left:3px solid var(--accent)}
+.mr-notes{font-size:11px;color:var(--text3);line-height:1.5;font-style:italic;margin-bottom:8px}
+.mr-narr{font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.mr-fp{display:flex;justify-content:center;padding:6px 0}
+.mr-gallery{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px}
+.mr-gallery img{height:60px;width:auto;min-width:60px;object-fit:cover;border-radius:4px;cursor:pointer;flex-shrink:0;border:1px solid var(--border)}
+.mr-gallery img:hover{border-color:var(--accent)}
+.mr-not-found{text-align:center;padding:24px;color:var(--text3);font-size:12px;font-style:italic;border:1px dashed var(--border);border-radius:var(--r2)}
+.drawer-link{display:inline-block;margin-top:4px;font-size:11px;color:var(--accent)}
+.drawer-link:hover{text-decoration:underline}
+
+/* ─── Custom Slots ─── */
+.cs-section{margin-bottom:28px}
+.cs-section-title{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
+.cs-multi-col{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
+.cs-single-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.cs-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.cs-head{padding:11px 14px 9px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+.cs-slot{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:rgba(212,168,67,.18);color:var(--accent2);flex-shrink:0}
+.cs-name{font-size:13px;font-weight:700;color:var(--text);flex:1;min-width:0}
+.cs-cam{font-size:10px;color:var(--text3);background:var(--surf2);border:1px solid var(--border);padding:2px 6px;border-radius:4px;white-space:nowrap}
+.cs-link{font-size:11px;color:var(--accent);text-decoration:none;white-space:nowrap}
+.cs-link:hover{text-decoration:underline}
+.cs-body{padding:12px 14px 14px}
+.cs-desc{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:10px;padding:7px 10px;background:var(--surf2);border-radius:var(--r);border-left:3px solid var(--accent)}
+.cs-usage{font-size:11px;color:var(--text3);font-style:italic;margin-bottom:12px}
+.cs-sublabel{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:6px}
+.cs-pills{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px}
+.cs-pill{font-size:10px;padding:2px 7px;border-radius:99px;background:var(--surf2);border:1px solid var(--border);color:var(--text2)}
+.cs-pill strong{color:var(--text);font-weight:600}
+.cs-sim-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:7px}
+.cs-sim-item{padding:7px 9px;background:var(--surf2);border-radius:var(--r);border:1px solid var(--border)}
+.cs-sim-fs{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.03em;margin-bottom:2px}
+.cs-sim-label{font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px}
+.cs-sim-char{font-size:10px;color:var(--text3);line-height:1.45}
+.cs-filter-tbl{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px}
+.cs-filter-tbl th{text-align:left;padding:4px 6px;color:var(--text3);font-weight:600;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.04em}
+.cs-filter-tbl td{padding:6px 6px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2);line-height:1.5}
+.cs-filter-tbl td:first-child{font-weight:600;color:var(--text);white-space:nowrap;padding-right:10px}
+.cs-filter-tbl tr:last-child td{border-bottom:none}
+.cs-filter-active{background:rgba(212,168,67,.07)}
+.cs-filter-active td:first-child::after{content:" ✓";color:var(--accent2)}
 </style>
 </head>
 <body>
@@ -331,14 +350,19 @@ main{display:flex;flex:1;overflow:hidden}
 </aside>
 
 <section class="content">
+  <button class="mob-filter-btn" id="mob-filter-btn" aria-label="Toggle filters">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="12" y2="3"/><line x1="3" y1="6.5" x2="10" y2="6.5"/><line x1="5" y1="10" x2="8" y2="10"/></svg>
+    Filters
+  </button>
   <div class="tabs">
     <div class="tab on" data-tab="grid">Grid</div>
     <div class="tab" data-tab="charts">Charts</div>
     <div class="tab" data-tab="clouds">Keywords</div>
     <div class="tab" data-tab="directions">Directions</div>
     <div class="tab" data-tab="correlations">Correlation</div>
-    <div class="tab" data-tab="saveslots">Save Slots</div>
     <div class="tab" data-tab="settings">Settings Guide</div>
+    <div class="tab" data-tab="gear">My Gear</div>
+    <div class="tab" data-tab="myrecipes">My Recipes</div>
   </div>
 
   <!-- GRID -->
@@ -396,70 +420,24 @@ main{display:flex;flex:1;overflow:hidden}
     <div class="corr-grid" id="corr-grid"></div>
   </div>
 
-  <!-- SAVE SLOTS -->
-  <div class="pane" id="pane-saveslots">
-    <div class="slots-page">
-      <!-- Left: scrollable content -->
-      <div class="slots-left">
-        <div class="sec-title" style="margin:0 0 4px">Shared Configs — Film Sim Swap Guide</div>
-        <div class="sec-desc">
-          These are complete camera configs (every dial except Film Simulation) that appear identically across multiple recipes.
-          Save one to a custom slot, then cycle film simulations in-camera — each swap gives a genuinely distinct look from the same base.
-          <strong style="color:var(--text2)">Click any film sim row to preview its recipe →</strong>
-        </div>
-
-        <div class="slot-explainer">
-          <div class="slot-expl-icon">💡</div>
-          <div>
-            <strong>Why this matters:</strong> Fujifilm cameras offer a limited number of custom saved settings (C1–C7 on most bodies).
-            Recipes that share the same non-simulation settings are <em>interchangeable at the film-sim dial</em> —
-            one saved slot effectively covers the entire group. The two configs below cover
-            <strong>21 distinct looks from just 2 slots</strong>.
-          </div>
-        </div>
-
-        <div id="slots-grid"></div>
-
-        <div class="sec-title" style="margin-top:28px">Near-Matches: Same Tonal Core, Different WB</div>
-        <div class="sec-desc">
-          These pairs share identical Highlight / Shadow / Color / Sharpness / Clarity / DR — only WB shift differs.
-          If you're comfortable adjusting WB shift in-camera, they're functionally the same saved slot.
-        </div>
-        <div id="near-slots-grid"></div>
-
-        <div class="sec-title" style="margin-top:28px">The Full Picture</div>
-        <div class="sec-desc">
-          109 recipes collapse into <strong id="unique-config-count">—</strong> truly unique non-simulation configs.
-        </div>
-        <div class="chart-card"><div id="ch-config-dist"></div></div>
-      </div>
-
-      <!-- Right: sticky recipe drawer -->
-      <div class="slots-drawer" id="slots-drawer">
-        <div class="drawer-empty" id="drawer-empty">
-          <div class="big">←</div>
-          <p>Click any film simulation row on the left to preview its recipe here.</p>
-        </div>
-        <div class="drawer-content" id="drawer-content">
-          <div id="drawer-img-wrap"></div>
-          <div class="drawer-gallery" id="drawer-gallery"></div>
-          <div class="drawer-body">
-            <div class="drawer-name" id="drawer-name"></div>
-            <div class="drawer-sim" id="drawer-sim"></div>
-            <div class="drawer-narr" id="drawer-narr"></div>
-            <div class="drawer-fingerprint" id="drawer-fp"></div>
-            <table class="drawer-stbl"><tbody id="drawer-settings"></tbody></table>
-            <div class="drawer-kws" id="drawer-kws"></div>
-            <a class="drawer-link" id="drawer-link" href="#" target="_blank">View on fujixweekly.com ↗</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- SETTINGS GUIDE -->
   <div class="pane" id="pane-settings">
     <div class="sg-grid" id="sg-grid"></div>
+  </div>
+
+  <!-- MY GEAR -->
+  <div class="pane" id="pane-gear">
+    <div class="sec-title">My Cameras &amp; Lenses</div>
+    <div class="sec-desc">Your current kit. Edit <code>gear.js</code> on GitHub to update from any device.</div>
+    <div class="gear-grid" id="gear-body"></div>
+  </div>
+
+  <!-- MY RECIPES -->
+  <div class="pane" id="pane-myrecipes">
+    <div class="sec-title">My Custom Slots</div>
+    <div class="sec-desc">C1–C7 settings saved on your cameras — single recipes and multi-simulation sets with full settings, usage notes, and a filter guide for C7.</div>
+    <div id="custom-slots-body"></div>
+    <div class="mr-grid" id="myrecipes-body"></div>
   </div>
 
 </section>
@@ -474,6 +452,7 @@ main{display:flex;flex:1;overflow:hidden}
   <button id="lightbox-next">›</button>
 </div>
 
+<script src="gear.js"></script>
 <script>
 // ══════════════════════════════════════════
 // DATA
@@ -990,10 +969,20 @@ function switchTab(id){
   if(id==='clouds') renderClouds()
   if(id==='directions') renderDirections()
   if(id==='correlations') renderCorrelations($('corr-q').value)
-  if(id==='saveslots') renderSaveSlots()
   if(id==='settings') renderSettingsGuide()
+  if(id==='gear') renderGear()
+  if(id==='myrecipes') renderMyRecipes()
 }
-document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>switchTab(t.dataset.tab)))
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  switchTab(t.dataset.tab)
+  // close sidebar on mobile when switching tabs
+  document.querySelector('.sidebar').classList.remove('open')
+}))
+;(()=>{
+  const btn = document.getElementById('mob-filter-btn')
+  const sb  = document.querySelector('.sidebar')
+  if (btn && sb) btn.addEventListener('click', () => sb.classList.toggle('open'))
+})()
 
 function syncChips(){
   document.querySelectorAll('.chip').forEach(c=>{
@@ -1047,331 +1036,6 @@ const SIM_CHARACTER = {
   'Acros':              'True B&W with grain simulation — superior tonal separation and sharpness',
   'Monochrome':         'Flat B&W, less contrast than Acros — good base for custom toning in post',
   'Sepia':              'Monochrome with warm brown tint — vintage print aesthetic',
-}
-
-// The two main "universal" slot configs, hand-authored with full descriptions
-const SLOT_CONFIGS = [
-  {
-    id: 'A',
-    color: '#d4a843',
-    name: 'Warm Versatile',
-    subtitle: 'The X-T50 Film Dial config — a warm, lightly-processed base that stays out of the way of each sim\'s native character. Works across bright daylight to indoor tungsten.',
-    recipes_group: 'X-T50 Film Dial',
-    settings: {
-      'Dynamic Range': 'DR400',
-      'Highlight': '−1.5',
-      'Shadow': '−1',
-      'Color': '+3',
-      'Sharpness': '−1',
-      'Clarity': '−2',
-      'White Balance': 'Auto White Priority',
-      'WB Shift': 'R +2 / B −4',
-      'Grain Effect': 'Weak, Small',
-      'Color Chrome': 'Strong',
-      'CC FX Blue': 'Weak',
-      'ISO': 'Auto up to 6400',
-      'Exposure Comp': '0 to +1',
-    },
-    usage: {
-      character: 'Warm bias (R+2/B−4 pushes orange-amber), moderate color saturation (+3), soft rendering (Sharpness −1, Clarity −2). DR400 protects highlights in contrasty outdoor light. The result reads as a processed-film look rather than raw digital.',
-      bestFor: ['Daylight and golden hour', 'Travel and street — one saved slot for the whole day', 'Situations where you want the film sim to be the main variable'],
-      avoid: ['Low-light or artificial light scenes where the warm WB shift fights the existing color cast', 'When you want a very clean, neutral output — Color +3 is noticeable'],
-      tip: 'The Auto White Priority mode keeps whites clean while the manual WB shift adds the warm analog cast. This combination is more predictable than a fixed Kelvin value across mixed lighting.',
-    },
-    sims: [
-      { sim: 'Nostalgic Neg.', recipe: 'Nostalgic Film (X-T50 Film Dial)' },
-      { sim: 'Classic Negative', recipe: 'Superia Negative (X-T50 Film Dial)' },
-      { sim: 'Classic Chrome', recipe: 'Kodak Film (X-T50 Film Dial)' },
-      { sim: 'Reala Ace', recipe: 'Fujicolor PRO 160C Warm (X-T50 Film Dial)' },
-      { sim: 'PRO Neg. Hi', recipe: 'Fujicolor PRO Film (X-T50 Film Dial)' },
-      { sim: 'PRO Neg. Std', recipe: 'Fujicolor PRO 160S (X-T50 Film Dial)' },
-      { sim: 'Astia/Soft', recipe: 'Astia Summer (X-T50 Film Dial)' },
-      { sim: 'Eterna/Cinema', recipe: 'Cinematic Film (X-T50 Film Dial)' },
-      { sim: 'Eterna Bleach Bypass', recipe: 'Reduced Bleach (X-T50 Film Dial)' },
-      { sim: 'Velvia/Vivid', recipe: 'Velvia Film (X-T50 Film Dial)' },
-      { sim: 'Provia/STD', recipe: 'Standard Film (X-T50 Film Dial)' },
-    ],
-  },
-  {
-    id: 'B',
-    color: '#5b9af0',
-    name: 'Cool Flat',
-    subtitle: 'The Universal Recipe Set config — a cooler, flatter, heavier-grain base designed to let each film simulation\'s tonal rendering dominate without color temperature competition.',
-    recipes_group: 'Universal Recipe Set',
-    settings: {
-      'Dynamic Range': 'DR400',
-      'Highlight': '0',
-      'Shadow': '−2',
-      'Color': '−2',
-      'Sharpness': '−2',
-      'Clarity': '0',
-      'White Balance': '4000K',
-      'WB Shift': 'R 0 / B −5',
-      'Grain Effect': 'Strong, Small',
-      'Color Chrome': 'Strong',
-      'CC FX Blue': 'Strong',
-      'ISO': 'Auto up to 6400',
-      'Exposure Comp': '−1/3 to +2/3',
-    },
-    usage: {
-      character: 'Cool-neutral base (4000K + B−5 pulls the image blue-green), deliberately desaturated (Color −2) and soft (Sharpness −2). Heavy grain (Strong Small) adds texture that reads as film. Crushed shadows (Shadow −2) create a low-key mood. Highlights are unrolled (Highlight 0), giving the film sim full control over tonal response.',
-      bestFor: ['Overcast and cloudy days where the cool WB complements the light', 'Indoor, urban, and low-key scenes', 'Documentary and street — the muted palette reduces distracting color', 'B&W conversions — the desaturated base transitions cleanly'],
-      avoid: ['Golden hour or sunset — the cool WB fights warm light, you\'ll need to dial back the shift', 'Portraits where skin tone accuracy matters — Color −2 and the cool cast flatten complexion'],
-      tip: 'CC FX Blue on Strong with Color −2 creates the compressed, desaturated blue rendering typical of scanned color negative film. Swap between Classic Negative and Nostalgic Neg. on this config and you get two very different "negative film" characters from one saved slot.',
-    },
-    sims: [
-      { sim: 'Nostalgic Neg.', recipe: 'Americana Film' },
-      { sim: 'Classic Negative', recipe: 'Fujicolor Superia 200' },
-      { sim: 'Classic Chrome', recipe: 'Elite Chrome' },
-      { sim: 'Reala Ace', recipe: 'Retro Negative' },
-      { sim: 'PRO Neg. Hi', recipe: 'Fuji Negative' },
-      { sim: 'PRO Neg. Std', recipe: 'Pulled Negative' },
-      { sim: 'Astia/Soft', recipe: 'Indoor Astia' },
-      { sim: 'Eterna/Cinema', recipe: 'Eterna Film' },
-      { sim: 'Eterna Bleach Bypass', recipe: 'Chrome City' },
-      { sim: 'Velvia/Vivid', recipe: 'Velvia 100F' },
-    ],
-  },
-]
-
-// Near-match groups (same core tonal settings, WB differs)
-const NEAR_MATCH_GROUPS = [
-  {
-    title: 'Kodak Royal Gold 400 vs Nostalgia Negative — same tonal core, different WB angle',
-    desc: 'DR400 · HL −1 · SH +1 · Color +4 · Sharpness −1 · Clarity −3. One of the warmer configs in the collection — Shadow +1 lifts blacks while Color +4 pushes saturation hard.',
-    rows: [
-      { recipe: 'Kodak Royal Gold 400', sim: 'Classic Negative', wb: 'Shade', shift: 'R +3 / B +5', grain: 'Strong, Small', diff: 'Both WB and shift are warmer — Shade + positive Blue shift gives a strong yellow-amber cast' },
-      { recipe: 'Nostalgia Negative',   sim: 'Nostalgic Neg.',   wb: 'Daylight', shift: 'R +3 / B −3', grain: 'Strong, Small', diff: 'Cooler balance — Daylight + negative Blue shift gives a cleaner but still warm result' },
-    ],
-    tip: 'Both recipes share the identical tonal fingerprint. Save either config, then swap the WB shift between R+3/B+5 (golden/amber, matching Royal Gold) and R+3/B−3 (natural warm, matching Nostalgia) to quickly go between a heavily toned and a cleaner warm look — without changing any other dial.',
-  },
-  {
-    title: 'B&W Negative + B&W Sepia + Acros Negative — one tonal config, three monochrome modes',
-    desc: 'DR400 · HL 0 · SH −2 · Sharpness −2. The Universal Set\'s B&W variant. Color dial is irrelevant when the sim is Acros/Monochrome/Sepia.',
-    rows: [
-      { recipe: 'Acros Negative',  sim: 'Acros',       wb: '4000K', shift: 'R 0 / B −5', grain: 'Strong, Small', diff: 'Acros applies unique grain and tonal curve — richer micro-contrast than Monochrome' },
-      { recipe: 'B&W Negative',    sim: 'Monochrome',  wb: '4000K', shift: 'R 0 / B −5', grain: 'Strong, Small', diff: 'Flatter tonal response — cleaner base for post-processing' },
-      { recipe: 'B&W Sepia',       sim: 'Sepia',       wb: '4000K', shift: 'R 0 / B −5', grain: 'Strong, Small', diff: 'Identical to B&W Negative except the sim adds a warm brown tone baked in-camera' },
-    ],
-    tip: 'One saved slot covers three B&W modes. Acros is the most "film-like" — use it when the grain and tonal character should be part of the image. Monochrome is cleaner if you\'re converting in post. Sepia is purely a stylistic bake-in.',
-  },
-]
-
-const SIM_COLORS = {
-  'Classic Negative':'#4caf7d','Nostalgic Neg.':'#d4a843','Classic Chrome':'#5b9af0',
-  'Reala Ace':'#e07842','PRO Neg. Hi':'#9b7fe8','PRO Neg. Std':'#4db8aa',
-  'Astia/Soft':'#e07894','Eterna/Cinema':'#7a8a9a','Eterna Bleach Bypass':'#5e6e80',
-  'Velvia/Vivid':'#e05c5c','Provia/STD':'#9a9aaa','Provia/Standard':'#9a9aaa',
-  'Acros':'#c0c0d0','Monochrome':'#8a8a9a','Sepia':'#b89060',
-}
-
-let slotsBuilt = false
-
-function openDrawer(recipeName, rowEl) {
-  const r = RECIPES.find(x => x.name === recipeName)
-  if (!r) return
-
-  // Highlight active row, clear others
-  document.querySelectorAll('.sim-row').forEach(el => el.classList.remove('active'))
-  if (rowEl) rowEl.classList.add('active')
-
-  // Show drawer content, hide empty state
-  $('drawer-empty').style.display = 'none'
-  $('drawer-content').classList.add('show')
-
-  // Hero image
-  const imgWrap = $('drawer-img-wrap')
-  imgWrap.innerHTML = r.hero_image
-    ? `<img class="drawer-hero" src="${r.hero_image}" alt="${r.name}" onerror="this.style.display='none'">`
-    : `<div class="drawer-hero-ph">🎞</div>`
-
-  // Gallery strip (skip hero, show up to 4)
-  const gallery = $('drawer-gallery')
-  const allImgs = [r.hero_image, ...(r.gallery_images || [])].filter(Boolean)
-  if (allImgs.length > 1) {
-    gallery.style.display = 'flex'
-    gallery.innerHTML = allImgs.map((img, idx) =>
-      `<img src="${img}" loading="lazy" alt="sample" data-idx="${idx}">`
-    ).join('')
-    gallery.querySelectorAll('img').forEach(img => {
-      img.addEventListener('click', () => openLightbox(allImgs, parseInt(img.dataset.idx)))
-    })
-  } else {
-    gallery.style.display = 'none'
-  }
-
-  // Text fields
-  $('drawer-name').textContent = r.name
-  $('drawer-sim').textContent = r.film_simulation || ''
-  $('drawer-narr').textContent = r.narrative || ''
-
-  // Fingerprint SVG
-  $('drawer-fp').innerHTML = fingerprint(r)
-
-  // Settings table — highlight fields that differ from slot config (WB, grain)
-  const SLOT_BASE_FIELDS = ['film_simulation','grain_effect','color_chrome_effect','color_chrome_fx_blue','white_balance','wb_shift_red','wb_shift_blue','dynamic_range','highlight','shadow','color','sharpness','clarity','iso_max','exposure_compensation']
-  const rows = [
-    ['Film Sim', r.film_simulation, true],
-    ['Grain', r.grain_effect, false],
-    ['Color Chrome', r.color_chrome_effect, false],
-    ['CC FX Blue', r.color_chrome_fx_blue, false],
-    ['White Balance', r.white_balance, false],
-    ['WB Shift', (r.wb_shift_red || r.wb_shift_blue) ? `R:${r.wb_shift_red||0} / B:${r.wb_shift_blue||0}` : null, false],
-    ['DR', r.dynamic_range, false],
-    ['Highlight', r.highlight, false],
-    ['Shadow', r.shadow, false],
-    ['Color', r.color, false],
-    ['Sharpness', r.sharpness, false],
-    ['Clarity', r.clarity, false],
-    ['ISO', r.iso_max ? `Auto up to ${r.iso_max}` : null, false],
-    ['Exposure', r.exposure_compensation, false],
-  ].filter(([,v]) => v != null && v !== 'N/A' && v !== '')
-
-  $('drawer-settings').innerHTML = rows.map(([k, v, highlight]) =>
-    `<tr${highlight ? ' class="diff-row"' : ''}><td>${k}</td><td>${v}</td></tr>`
-  ).join('')
-
-  // Keywords
-  const kws = [...(r.mood_keywords || []), ...(r.scenario_keywords || [])]
-  $('drawer-kws').innerHTML = kws.map(k => `<span class="drawer-kw">${k}</span>`).join('')
-
-  // Source link
-  const lnk = $('drawer-link')
-  lnk.href = r.source_url || '#'
-}
-
-function renderSaveSlots() {
-  if (slotsBuilt) return
-  slotsBuilt = true
-
-  // Count unique configs
-  const CONFIG_FIELDS = ['grain_effect','color_chrome_effect','color_chrome_fx_blue','white_balance','wb_shift_red','wb_shift_blue','dynamic_range','highlight','shadow','color','sharpness','clarity','iso_max','exposure_compensation']
-  const cfgKey = r => CONFIG_FIELDS.map(f => String(r[f]??'').trim().toLowerCase()).join('|')
-  const cfgGroups = {}
-  RECIPES.forEach(r => { const k=cfgKey(r); (cfgGroups[k]=cfgGroups[k]||[]).push(r) })
-  $('unique-config-count').textContent = Object.keys(cfgGroups).length
-
-  // Config distribution chart
-  const dist = Object.values(cfgGroups).map(g => g.length).sort((a,b)=>b-a)
-  const maxD = dist[0]
-  const distData = []
-  const counts = {}
-  dist.forEach(n => { counts[n]=(counts[n]||0)+1 })
-  Object.entries(counts).sort((a,b)=>b[0]-a[0]).forEach(([n,c]) => {
-    distData.push({ l: `${n} recipe${n>1?'s':''} share a config`, c })
-  })
-  buildBarChart('ch-config-dist', distData, d => d.l.startsWith('1 ')?'var(--text3)':d.c>=10?'var(--accent)':'var(--blue)', ()=>{})
-
-  // Render main slot cards
-  const container = $('slots-grid')
-  container.innerHTML = ''
-
-  SLOT_CONFIGS.forEach(slot => {
-    const card = document.createElement('div')
-    card.className = 'slot-card'
-
-    const settingRows = Object.entries(slot.settings)
-      .map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')
-
-    const simRows = slot.sims.map(s => {
-      const col = SIM_COLORS[s.sim] || '#9a9aaa'
-      const char = SIM_CHARACTER[s.sim] || ''
-      // Strip the "(X-T50 Film Dial)" suffix for display brevity
-      const displayRecipe = s.recipe.replace(/\s*\(X-T50 Film Dial\)/, '').replace(/\s*\(Universal.*?\)/, '')
-      return `<div class="sim-row" data-recipe="${s.recipe}">
-        <div class="sim-dot" style="background:${col};flex-shrink:0"></div>
-        <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
-            <span class="sim-name">${s.sim}</span>
-            <span style="font-size:10px;color:var(--text3)">${displayRecipe}</span>
-          </div>
-          <div style="font-size:10px;color:var(--text3);font-style:italic;line-height:1.3;margin-top:1px">${char}</div>
-        </div>
-      </div>`
-    }).join('')
-
-    const bestFor = slot.usage.bestFor.map(b=>`<li>${b}</li>`).join('')
-    const avoid   = slot.usage.avoid.map(a=>`<li>${a}</li>`).join('')
-
-    card.innerHTML = `
-      <div class="slot-header">
-        <div class="slot-badge" style="background:${slot.color}">Slot ${slot.id}</div>
-        <div class="slot-title-block">
-          <div class="slot-title">${slot.name}</div>
-          <div class="slot-subtitle">${slot.subtitle}</div>
-          <div class="slot-meta">
-            <span class="slot-tag">${slot.sims.length} film sims</span>
-            <span class="slot-tag">${slot.sims.length} recipes</span>
-            <span class="slot-tag">From: ${slot.recipes_group}</span>
-          </div>
-        </div>
-      </div>
-      <div class="slot-body">
-        <div>
-          <table class="slot-config-table">
-            <thead><tr><th>Setting</th><th>Value</th></tr></thead>
-            <tbody>${settingRows}</tbody>
-          </table>
-        </div>
-        <div class="slot-sims-section">
-          <h4>Swap the Film Sim for these looks ↓</h4>
-          ${simRows}
-        </div>
-      </div>
-      <div class="slot-usage">
-        <strong>How it renders:</strong> ${slot.usage.character}
-        <ul style="margin-top:10px">
-          <li style="margin-bottom:6px"><strong>Best for:</strong>
-            <ul>${bestFor}</ul>
-          </li>
-          <li style="margin-bottom:6px"><strong>Avoid when:</strong>
-            <ul>${avoid}</ul>
-          </li>
-          <li><strong>Tip:</strong> ${slot.usage.tip}</li>
-        </ul>
-      </div>`
-
-    container.appendChild(card)
-
-    // Wire sim-row click listeners after card is in DOM
-    card.querySelectorAll('.sim-row').forEach(row => {
-      row.addEventListener('click', () => openDrawer(row.dataset.recipe, row))
-    })
-  })
-
-  // Near-match groups
-  const nmContainer = $('near-slots-grid')
-  nmContainer.innerHTML = ''
-
-  NEAR_MATCH_GROUPS.forEach(group => {
-    const card = document.createElement('div')
-    card.className = 'near-slot-card'
-
-    const headerRow = '<tr><th>Recipe</th><th>Film Sim</th><th>White Balance</th><th>WB Shift</th><th>Grain</th></tr>'
-    const dataRows = group.rows.map((r,i) => `
-      <tr>
-        <td><span class="dir-link" data-recipe="${r.recipe}" style="cursor:pointer">${r.recipe}</span></td>
-        <td>${r.sim}</td>
-        <td class="${i>0?'diff-cell':''}">${r.wb}</td>
-        <td class="${i>0?'diff-cell':''}">${r.shift}</td>
-        <td>${r.grain}</td>
-      </tr>
-    `).join('')
-
-    card.innerHTML = `
-      <h4>${group.title}</h4>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.5">${group.desc}</div>
-      <table class="near-slot-table"><thead>${headerRow}</thead><tbody>${dataRows}</tbody></table>
-      <div style="font-size:11px;color:var(--text3);margin-top:10px;font-style:italic;border-top:1px solid var(--border);padding-top:8px;line-height:1.5">
-        <strong style="color:var(--text2);font-style:normal">Tip:</strong> ${group.tip}
-      </div>`
-
-    nmContainer.appendChild(card)
-
-    card.querySelectorAll('.dir-link[data-recipe]').forEach(el => {
-      el.addEventListener('click', () => openDrawer(el.dataset.recipe, null))
-    })
-  })
 }
 
 // ══════════════════════════════════════════
@@ -1854,6 +1518,397 @@ function renderSettingsGuide() {
     secDiv.innerHTML = `<div class="sg-section-title">${section.section}</div>`
     secDiv.appendChild(cardsDiv)
     container.appendChild(secDiv)
+  })
+}
+
+// ══════════════════════════════════════════
+// MY GEAR
+// ══════════════════════════════════════════
+let gearBuilt = false
+function renderGear() {
+  if (gearBuilt) return
+  gearBuilt = true
+  const container = $('gear-body')
+  container.innerHTML = ''
+
+  // Guard: gear.js not loaded or empty
+  const cameras = (typeof MY_CAMERAS !== 'undefined') ? MY_CAMERAS : []
+  const lenses  = (typeof MY_LENSES  !== 'undefined') ? MY_LENSES  : []
+
+  if (!cameras.length && !lenses.length) {
+    container.innerHTML = '<div class="empty"><div class="big">📷</div><p>No gear data yet. Edit <strong>gear.js</strong> on GitHub to add your cameras and lenses.</p></div>'
+    return
+  }
+
+  function makeSection(title, items, iconDefault, renderCard) {
+    const sec = document.createElement('div')
+    const titleEl = document.createElement('div')
+    titleEl.className = 'sg-section-title'
+    titleEl.textContent = title
+    sec.appendChild(titleEl)
+    const cards = document.createElement('div')
+    cards.className = 'gear-cards'
+    items.forEach(item => cards.appendChild(renderCard(item, iconDefault)))
+    sec.appendChild(cards)
+    return sec
+  }
+
+  function makeGearCard(item, iconDefault) {
+    const card = document.createElement('div')
+    card.className = 'gear-card'
+    if (item.image) {
+      const img = document.createElement('img')
+      img.className = 'gear-img'
+      img.src = item.image
+      img.alt = item.name
+      card.appendChild(img)
+    }
+    const head = document.createElement('div')
+    head.className = 'gear-card-head'
+    const iconEl = document.createElement('div')
+    iconEl.className = 'gear-icon'
+    iconEl.textContent = item.icon || iconDefault
+    const info = document.createElement('div')
+    info.innerHTML = `<div class="gear-name">${item.name}</div><div class="gear-sub">${item.subtitle || ''}</div>`
+    head.appendChild(iconEl)
+    head.appendChild(info)
+    card.appendChild(head)
+
+    const body = document.createElement('div')
+    body.className = 'gear-body'
+    // Build spec table from item.specs (array of [label, value] pairs)
+    const specs = item.specs || []
+    if (specs.length) {
+      const tbl = document.createElement('table')
+      tbl.className = 'stbl'
+      specs.forEach(([lbl, val]) => {
+        const tr = document.createElement('tr')
+        tr.innerHTML = `<td>${lbl}</td><td>${val}</td>`
+        tbl.appendChild(tr)
+      })
+      body.appendChild(tbl)
+    }
+    if (item.notes) {
+      const notesEl = document.createElement('div')
+      notesEl.className = 'gear-notes'
+      notesEl.textContent = item.notes
+      body.appendChild(notesEl)
+    }
+    card.appendChild(body)
+    return card
+  }
+
+  if (cameras.length) container.appendChild(makeSection('Cameras', cameras, '📷', makeGearCard))
+  if (lenses.length)  container.appendChild(makeSection('Lenses',  lenses,  '🔭', makeGearCard))
+}
+
+// ══════════════════════════════════════════
+// CUSTOM SLOTS
+// ══════════════════════════════════════════
+function renderCustomSlots() {
+  const wrap = $('custom-slots-body')
+  if (!wrap) return
+  const slots = (typeof MY_CUSTOM_SLOTS !== 'undefined') ? MY_CUSTOM_SLOTS : []
+  if (!slots.length) return
+
+  const section = document.createElement('div')
+  section.className = 'cs-section'
+  const stitle = document.createElement('div')
+  stitle.className = 'cs-section-title'
+  stitle.textContent = 'Custom Slots C1–C7'
+  section.appendChild(stitle)
+
+  const multiCol   = document.createElement('div')
+  multiCol.className = 'cs-multi-col'
+  const singleGrid = document.createElement('div')
+  singleGrid.className = 'cs-single-grid'
+  let hasMulti = false, hasSingle = false
+
+  slots.forEach(slot => {
+    const card = document.createElement('div')
+    card.className = 'cs-card'
+
+    // ── head
+    const head = document.createElement('div')
+    head.className = 'cs-head'
+    const slotBadge = document.createElement('span')
+    slotBadge.className = 'cs-slot'
+    slotBadge.textContent = slot.slot
+    head.appendChild(slotBadge)
+    const nameEl = document.createElement('span')
+    nameEl.className = 'cs-name'
+    nameEl.textContent = slot.name
+    head.appendChild(nameEl)
+    if (slot.camera && slot.camera !== 'both') {
+      const camEl = document.createElement('span')
+      camEl.className = 'cs-cam'
+      camEl.textContent = slot.camera
+      head.appendChild(camEl)
+    }
+    if (slot.source_url) {
+      const lnk = document.createElement('a')
+      lnk.className = 'cs-link'
+      lnk.href = slot.source_url
+      lnk.target = '_blank'
+      lnk.textContent = 'FujiXWeekly ↗'
+      head.appendChild(lnk)
+    }
+    card.appendChild(head)
+
+    // ── body
+    const body = document.createElement('div')
+    body.className = 'cs-body'
+
+    if (slot.description) {
+      const desc = document.createElement('div')
+      desc.className = 'cs-desc'
+      desc.textContent = slot.description
+      body.appendChild(desc)
+    }
+    if (slot.usage) {
+      const usage = document.createElement('div')
+      usage.className = 'cs-usage'
+      usage.textContent = '↳ ' + slot.usage
+      body.appendChild(usage)
+    }
+
+    if (slot.type === 'multi') {
+      // base settings pills
+      const bl = document.createElement('div')
+      bl.className = 'cs-sublabel'
+      bl.textContent = 'Base Settings'
+      body.appendChild(bl)
+      const pills = document.createElement('div')
+      pills.className = 'cs-pills'
+      slot.base_settings.forEach(([lbl, val]) => {
+        const p = document.createElement('span')
+        p.className = 'cs-pill'
+        p.innerHTML = `<strong>${lbl}</strong> ${val}`
+        pills.appendChild(p)
+      })
+      body.appendChild(pills)
+
+      // simulation grid
+      const sl = document.createElement('div')
+      sl.className = 'cs-sublabel'
+      sl.textContent = 'Simulations — rotate film dial or change in menu'
+      body.appendChild(sl)
+      const simGrid = document.createElement('div')
+      simGrid.className = 'cs-sim-grid'
+      slot.simulations.forEach(sim => {
+        const item = document.createElement('div')
+        item.className = 'cs-sim-item'
+        item.innerHTML = `<div class="cs-sim-fs">${sim.film_sim}</div><div class="cs-sim-label">${sim.label}</div><div class="cs-sim-char">${sim.character}</div>`
+        simGrid.appendChild(item)
+      })
+      body.appendChild(simGrid)
+
+      card.appendChild(body)
+      multiCol.appendChild(card)
+      hasMulti = true
+    } else {
+      // settings table
+      if (slot.settings) {
+        const tbl = document.createElement('table')
+        tbl.className = 'stbl'
+        slot.settings.forEach(([lbl, val]) => {
+          const tr = document.createElement('tr')
+          tr.innerHTML = `<td>${lbl}</td><td>${val}</td>`
+          tbl.appendChild(tr)
+        })
+        body.appendChild(tbl)
+      }
+
+      // filter variants guide (C7)
+      if (slot.filter_variants) {
+        const fl = document.createElement('div')
+        fl.className = 'cs-sublabel'
+        fl.style.marginTop = '12px'
+        fl.textContent = 'Acros Filter Guide — which to choose'
+        body.appendChild(fl)
+        const tbl = document.createElement('table')
+        tbl.className = 'cs-filter-tbl'
+        tbl.innerHTML = '<tr><th>Filter</th><th>Effect</th><th>Best For</th></tr>'
+        slot.filter_variants.forEach(fv => {
+          const tr = document.createElement('tr')
+          if (fv.active) tr.className = 'cs-filter-active'
+          tr.innerHTML = `<td>${fv.filter}</td><td>${fv.summary}</td><td>${fv.best_for}</td>`
+          tbl.appendChild(tr)
+        })
+        body.appendChild(tbl)
+      }
+
+      card.appendChild(body)
+      singleGrid.appendChild(card)
+      hasSingle = true
+    }
+  })
+
+  if (hasMulti)   section.appendChild(multiCol)
+  if (hasSingle)  section.appendChild(singleGrid)
+  wrap.appendChild(section)
+}
+
+// ══════════════════════════════════════════
+// MY RECIPES
+// ══════════════════════════════════════════
+let myRecipesBuilt = false
+function renderMyRecipes() {
+  if (myRecipesBuilt) return
+  myRecipesBuilt = true
+  renderCustomSlots()
+  const container = $('myrecipes-body')
+  container.innerHTML = ''
+
+  const myList = (typeof MY_RECIPES !== 'undefined') ? MY_RECIPES : []
+  if (!myList.length) {
+    container.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="big">🎞</div><p>No saved recipes yet. Edit <strong>gear.js</strong> on GitHub to add your 7 custom recipes.</p></div>'
+    return
+  }
+
+  // Build lookup from dataset
+  const byName = Object.fromEntries(RECIPES.map(r => [r.name, r]))
+
+  myList.forEach(entry => {
+    const r = byName[entry.recipe_name]
+    const card = document.createElement('div')
+    card.className = 'mr-card'
+
+    if (!r) {
+      // Recipe name not found in dataset
+      card.innerHTML = `
+        <div class="mr-not-found">
+          <strong style="color:var(--text2)">${entry.recipe_name || '(unnamed)'}</strong><br>
+          Recipe not found in dataset — check spelling in <code>gear.js</code>.
+        </div>`
+      container.appendChild(card)
+      return
+    }
+
+    // Hero image
+    const allImgs = [r.hero_image, ...(r.gallery_images||[])].filter(Boolean)
+    if (r.hero_image) {
+      const img = document.createElement('img')
+      img.className = 'mr-hero'
+      img.src = r.hero_image
+      img.alt = r.name
+      img.loading = 'lazy'
+      if (allImgs.length) img.addEventListener('click', () => openLightbox(allImgs, 0))
+      card.appendChild(img)
+    } else {
+      const ph = document.createElement('div')
+      ph.className = 'mr-hero-ph'
+      ph.textContent = '🎞'
+      card.appendChild(ph)
+    }
+
+    // Body
+    const body = document.createElement('div')
+    body.className = 'mr-body'
+
+    // Title + slot + camera
+    const titleRow = document.createElement('div')
+    titleRow.style.marginBottom = '6px'
+    titleRow.innerHTML = `<span class="mr-title">${r.name}</span>`
+    if (entry.slot) titleRow.innerHTML += ` <span class="mr-slot">${entry.slot}</span>`
+    if (entry.camera) titleRow.innerHTML += `<span class="mr-cam">${entry.camera}</span>`
+    body.appendChild(titleRow)
+
+    // Film sim badge
+    const badges = document.createElement('div')
+    badges.className = 'cbadges'
+    badges.innerHTML = `<span class="badge b-sim">${r.film_simulation||''}</span>`
+    if (r.color_direction) badges.innerHTML += `<span class="badge ${bc(r.color_direction)}">${r.color_direction}</span>`
+    body.appendChild(badges)
+
+    // Usage guideline (personal)
+    if (entry.usage) {
+      const usage = document.createElement('div')
+      usage.className = 'mr-usage'
+      usage.textContent = entry.usage
+      body.appendChild(usage)
+    }
+
+    // Personal notes
+    if (entry.personal_notes) {
+      const notes = document.createElement('div')
+      notes.className = 'mr-notes'
+      notes.textContent = entry.personal_notes
+      body.appendChild(notes)
+    }
+
+    // Fingerprint
+    const fp = document.createElement('div')
+    fp.className = 'mr-fp'
+    fp.innerHTML = fingerprint(r)
+    body.appendChild(fp)
+
+    // Settings table
+    const tbl = document.createElement('table')
+    tbl.className = 'stbl'
+    const rows = [
+      ['Film Sim', r.film_simulation],
+      ['Dynamic Range', r.dynamic_range],
+      ['White Balance', r.white_balance + (r.wb_shift_red||r.wb_shift_blue ? ` (R${r.wb_shift_red||0}/B${r.wb_shift_blue||0})` : '')],
+      ['Highlight', r.highlight != null ? (r.highlight > 0 ? '+' : '') + r.highlight : null],
+      ['Shadow',    r.shadow    != null ? (r.shadow    > 0 ? '+' : '') + r.shadow    : null],
+      ['Color',     r.color     != null ? (r.color     > 0 ? '+' : '') + r.color     : null],
+      ['Sharpness', r.sharpness != null ? (r.sharpness > 0 ? '+' : '') + r.sharpness : null],
+      ['Clarity',   r.clarity   != null ? (r.clarity   > 0 ? '+' : '') + r.clarity   : null],
+      ['Grain', r.grain_effect],
+      ['ISO Max', r.iso_max],
+      ['Exposure', r.exposure_compensation],
+    ].filter(([,v]) => v != null && v !== '')
+    rows.forEach(([lbl, val]) => {
+      const tr = document.createElement('tr')
+      tr.innerHTML = `<td>${lbl}</td><td>${val}</td>`
+      tbl.appendChild(tr)
+    })
+    body.appendChild(tbl)
+
+    // Narrative (clipped)
+    if (r.narrative) {
+      const narr = document.createElement('div')
+      narr.className = 'mr-narr'
+      narr.textContent = r.narrative
+      body.appendChild(narr)
+    }
+
+    // Keyword chips
+    const kws = [...(r.mood_keywords||[]), ...(r.scenario_keywords||[])]
+    if (kws.length) {
+      const kwWrap = document.createElement('div')
+      kwWrap.className = 'kwrow'
+      kws.forEach(k => { const s = document.createElement('span'); s.className='kw'; s.textContent=k; kwWrap.appendChild(s) })
+      body.appendChild(kwWrap)
+    }
+
+    // Gallery strip (thumbnails, skip hero)
+    const extras = (r.gallery_images||[]).filter(Boolean)
+    if (extras.length) {
+      const strip = document.createElement('div')
+      strip.className = 'mr-gallery'
+      extras.forEach((src, i) => {
+        const img = document.createElement('img')
+        img.src = src; img.loading = 'lazy'
+        img.addEventListener('click', () => openLightbox(allImgs, i + 1))
+        strip.appendChild(img)
+      })
+      body.appendChild(strip)
+    }
+
+    // Source link
+    if (r.source_url) {
+      const link = document.createElement('a')
+      link.className = 'drawer-link'
+      link.href = r.source_url
+      link.target = '_blank'
+      link.textContent = 'View on fujixweekly.com ↗'
+      body.appendChild(link)
+    }
+
+    card.appendChild(body)
+    container.appendChild(card)
   })
 }
 
