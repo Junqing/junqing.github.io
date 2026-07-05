@@ -298,12 +298,6 @@ main{display:flex;flex:1;overflow:hidden}
 .cs-slot-pane.active{display:block}
 .cs-usage-bar{background:rgba(212,168,67,.09);border:1px solid rgba(212,168,67,.28);border-left:3px solid var(--accent2);border-radius:var(--r);padding:9px 12px;font-size:12px;color:var(--text);line-height:1.55;margin-bottom:12px}
 .cs-usage-bar strong{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--accent2);margin-bottom:3px;font-weight:800}
-details.cs-details{border-top:1px solid var(--border);padding-top:8px;margin-top:8px}
-details.cs-details summary{font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;padding:4px 0;list-style:none;display:flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent;user-select:none}
-details.cs-details summary::before{content:"▶";font-size:9px;color:var(--text3);transition:transform .15s;flex-shrink:0}
-details.cs-details[open]>summary::before{transform:rotate(90deg)}
-details.cs-details summary::-webkit-details-marker{display:none}
-details.cs-details .cs-details-body{padding-top:10px}
 .cs-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
 .cs-head{padding:11px 14px 9px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
 .cs-slot{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:rgba(212,168,67,.18);color:var(--accent2);flex-shrink:0}
@@ -1730,12 +1724,47 @@ function renderCustomSlots() {
     const body = document.createElement('div')
     body.className = 'cs-body'
 
-    // ── usage bar (most actionable — always visible at top)
+    // ── usage bar
     if (slot.usage) {
       const u = document.createElement('div')
       u.className = 'cs-usage-bar'
       u.innerHTML = `<strong>When to use</strong>${slot.usage}`
       body.appendChild(u)
+    }
+
+    // ── description
+    if (slot.description) {
+      const desc = document.createElement('div')
+      desc.className = 'cs-desc'
+      desc.textContent = slot.description
+      body.appendChild(desc)
+    }
+
+    // ── pros & cons
+    if ((slot.pros && slot.pros.length) || (slot.cons && slot.cons.length)) {
+      const pcWrap = document.createElement('div')
+      pcWrap.className = 'cs-pc-wrap'
+      if (slot.pros && slot.pros.length) {
+        const col = document.createElement('div')
+        col.className = 'cs-pc-col cs-pros'
+        col.innerHTML = '<div class="cs-pc-label cs-pc-label-pros">Pros</div>'
+        const ul = document.createElement('ul')
+        ul.className = 'cs-pc-list'
+        slot.pros.forEach(p => { const li = document.createElement('li'); li.textContent = p; ul.appendChild(li) })
+        col.appendChild(ul)
+        pcWrap.appendChild(col)
+      }
+      if (slot.cons && slot.cons.length) {
+        const col = document.createElement('div')
+        col.className = 'cs-pc-col cs-cons'
+        col.innerHTML = '<div class="cs-pc-label cs-pc-label-cons">Cons</div>'
+        const ul = document.createElement('ul')
+        ul.className = 'cs-pc-list'
+        slot.cons.forEach(c => { const li = document.createElement('li'); li.textContent = c; ul.appendChild(li) })
+        col.appendChild(ul)
+        pcWrap.appendChild(col)
+      }
+      body.appendChild(pcWrap)
     }
 
     // ── settings / simulations
@@ -1811,59 +1840,6 @@ function renderCustomSlots() {
         })
         body.appendChild(tbl)
       }
-    }
-
-    // ── collapsible: About this recipe
-    if (slot.description) {
-      const det = document.createElement('details')
-      det.className = 'cs-details'
-      const sum = document.createElement('summary')
-      sum.textContent = 'About this recipe'
-      det.appendChild(sum)
-      const dbody = document.createElement('div')
-      dbody.className = 'cs-details-body'
-      const desc = document.createElement('div')
-      desc.className = 'cs-desc'
-      desc.textContent = slot.description
-      dbody.appendChild(desc)
-      det.appendChild(dbody)
-      body.appendChild(det)
-    }
-
-    // ── collapsible: Pros & Cons
-    if ((slot.pros && slot.pros.length) || (slot.cons && slot.cons.length)) {
-      const det = document.createElement('details')
-      det.className = 'cs-details'
-      const sum = document.createElement('summary')
-      sum.textContent = 'Pros & Cons'
-      det.appendChild(sum)
-      const dbody = document.createElement('div')
-      dbody.className = 'cs-details-body'
-      const pcWrap = document.createElement('div')
-      pcWrap.className = 'cs-pc-wrap'
-      if (slot.pros && slot.pros.length) {
-        const col = document.createElement('div')
-        col.className = 'cs-pc-col cs-pros'
-        col.innerHTML = '<div class="cs-pc-label cs-pc-label-pros">Pros</div>'
-        const ul = document.createElement('ul')
-        ul.className = 'cs-pc-list'
-        slot.pros.forEach(p => { const li = document.createElement('li'); li.textContent = p; ul.appendChild(li) })
-        col.appendChild(ul)
-        pcWrap.appendChild(col)
-      }
-      if (slot.cons && slot.cons.length) {
-        const col = document.createElement('div')
-        col.className = 'cs-pc-col cs-cons'
-        col.innerHTML = '<div class="cs-pc-label cs-pc-label-cons">Cons</div>'
-        const ul = document.createElement('ul')
-        ul.className = 'cs-pc-list'
-        slot.cons.forEach(c => { const li = document.createElement('li'); li.textContent = c; ul.appendChild(li) })
-        col.appendChild(ul)
-        pcWrap.appendChild(col)
-      }
-      dbody.appendChild(pcWrap)
-      det.appendChild(dbody)
-      body.appendChild(det)
     }
 
     pane.appendChild(body)
