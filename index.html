@@ -451,6 +451,7 @@ input[type=range].exp-range{width:100%;accent-color:var(--accent);height:4px;cur
     <div class="tab" data-tab="clouds">Keywords</div>
     <div class="tab" data-tab="directions">Directions</div>
     <div class="tab" data-tab="correlations">Correlation</div>
+    <div class="tab" data-tab="explore">Explore</div>
   </div>
 
   <!-- GRID -->
@@ -526,6 +527,35 @@ input[type=range].exp-range{width:100%;accent-color:var(--accent);height:4px;cur
     <div class="sec-desc">C1–C7 settings saved on your cameras — single recipes and multi-simulation sets with full settings, usage notes, and a filter guide for C7.</div>
     <div id="custom-slots-body"></div>
     <div class="mr-grid" id="myrecipes-body"></div>
+  </div>
+
+  <!-- EXPLORE -->
+  <div class="pane" id="pane-explore">
+    <div class="sec-title">Explore</div>
+    <div class="sec-desc">Tweak recipe parameters and find similar recipes in real time.</div>
+    <div class="exp-layout">
+      <div class="exp-header">
+        <div class="exp-seed">
+          <label>Start from recipe</label>
+          <select id="exp-seed-select"><option value="">— neutral defaults —</option></select>
+        </div>
+        <div class="exp-wb-wrap">
+          <label>WB Shift</label>
+          <div class="exp-wb-preset" id="exp-wb-preset-lbl"></div>
+          <svg id="exp-wb-svg" class="exp-wb-grid" width="130" height="130" viewBox="-9 -9 18 18"></svg>
+        </div>
+      </div>
+      <div class="exp-subtabs">
+        <div class="exp-subtab on" id="exp-subtab-sliders" data-ep="sliders">Sliders</div>
+        <div class="exp-subtab" id="exp-subtab-radar" data-ep="radar">Radar</div>
+      </div>
+      <div class="exp-pane on" id="exp-pane-sliders"></div>
+      <div class="exp-pane" id="exp-pane-radar"></div>
+      <div class="exp-results">
+        <div class="exp-results-title">Similar recipes</div>
+        <div id="exp-results-list"></div>
+      </div>
+    </div>
   </div>
 
 </section>
