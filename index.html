@@ -2174,7 +2174,53 @@ function seedRecipe(name) {
 
 let exploreBuilt = false
 
-function renderExploreResults() { /* Task 5 */ }
+let _expOverlayTimer = null
+function renderExploreResults() {
+  const list = document.getElementById('exp-results-list')
+  if (!list) return
+  const top6 = computeSimilarity(T).slice(0, 6)
+  list.innerHTML = ''
+  top6.forEach(r => {
+    const rt = recipeToT(r)
+    const card = document.createElement('div')
+    card.className = 'exp-result-card'
+    // Diff badges — only params that differ
+    const diffBadges = T_PARAMS.filter(p => {
+      return Math.abs(T[p.key] - rt[p.key]) >= p.step * 0.5
+    }).map(p => {
+      const d = rt[p.key] - T[p.key]
+      const cls = d > 0 ? 'pos' : 'neg'
+      const sign = d > 0 ? '+' : ''
+      return `<span class="exp-delta ${cls}">${p.label} ${sign}${d}</span>`
+    }).join('')
+    const wbDiffs = []
+    const dR = rt.wb_shift_red  - T.wb_shift_red
+    const dB = rt.wb_shift_blue - T.wb_shift_blue
+    if (Math.abs(dR) >= 1) wbDiffs.push(`<span class="exp-delta ${dR>0?'pos':'neg'}">WB R ${dR>0?'+':''}${dR}</span>`)
+    if (Math.abs(dB) >= 1) wbDiffs.push(`<span class="exp-delta ${dB>0?'pos':'neg'}">WB B ${dB>0?'+':''}${dB}</span>`)
+    const allDiffs = diffBadges + wbDiffs.join('')
+
+    const kws = [...(r.mood_keywords||[]).slice(0,3), ...(r.scenario_keywords||[]).slice(0,2)]
+      .map(k=>`<span class="exp-kw">${k}</span>`).join('')
+
+    card.innerHTML = `
+      <div class="exp-mini-fp">${fingerprint(r)}</div>
+      <div class="exp-result-info">
+        <div class="exp-result-name">${r.name}</div>
+        <div class="exp-result-badges">
+          <span class="badge b-sim">${r.film_simulation||'?'}</span>
+          ${r.color_direction?`<span class="badge ${bc(r.color_direction)}">${r.color_direction}</span>`:''}
+        </div>
+        ${allDiffs?`<div class="exp-diff-row">${allDiffs}</div>`:''}
+        ${kws?`<div class="exp-kws">${kws}</div>`:''}
+      </div>`
+    card.addEventListener('click', () => openRecipeModal(r.name))
+    list.appendChild(card)
+  })
+  // Update overlay to show closest match
+  clearTimeout(_expOverlayTimer)
+  _expOverlayTimer = setTimeout(updateRadarOverlay, 0)
+}
 function updateRadarOverlay() { /* Task 6 */ }
 function updateExploreViews() { syncExploreControls(); updateRadarOverlay() }
 
@@ -2272,6 +2318,53 @@ let _expTimer = null
 function expDebounce() {
   clearTimeout(_expTimer)
   _expTimer = setTimeout(() => { renderExploreResults(); updateExploreViews() }, 80)
+}
+
+function buildSliderPane() {
+  const pane = document.getElementById('exp-pane-sliders')
+  if (!pane) return
+
+  const tonal  = T_PARAMS.filter(p => ['highlight','shadow'].includes(p.key))
+  const style  = T_PARAMS.filter(p => !['highlight','shadow'].includes(p.key))
+
+  function makeGroup(title, params) {
+    const g = document.createElement('div')
+    g.className = 'slider-group'
+    g.innerHTML = `<div class="slider-group-title">${title}</div>`
+    params.forEach(p => {
+      const row = document.createElement('div')
+      row.className = 'slider-row'
+      row.innerHTML = `
+        <span class="slider-label">${p.label}</span>
+        <input type="range" class="exp-range" id="exp-sl-${p.key}"
+          min="${p.min}" max="${p.max}" step="${p.step}" value="${T[p.key]}">
+        <span class="slider-val" id="exp-slv-${p.key}">${T[p.key]}</span>`
+      const inp = row.querySelector('input')
+      inp.addEventListener('input', () => {
+        T[p.key] = parseFloat(inp.value)
+        document.getElementById('exp-slv-' + p.key).textContent = T[p.key]
+        expDebounce()
+      })
+      g.appendChild(row)
+    })
+    return g
+  }
+
+  const sliders = document.createElement('div')
+  sliders.className = 'exp-sliders'
+  sliders.appendChild(makeGroup('Tonal', tonal))
+  sliders.appendChild(makeGroup('Style', style))
+  pane.appendChild(sliders)
+
+  // Radar overlay for Sliders sub-tab
+  const owrap = document.createElement('div')
+  owrap.className = 'exp-overlay-wrap'
+  owrap.innerHTML = '<div class="exp-overlay-title">Shape vs closest match</div>'
+  const svgWrap = document.createElement('div')
+  svgWrap.className = 'exp-radar-wrap'
+  svgWrap.innerHTML = '<svg id="exp-overlay-svg" class="exp-radar-svg" width="220" height="220" viewBox="0 0 80 80"></svg>'
+  owrap.appendChild(svgWrap)
+  pane.appendChild(owrap)
 }
 
 function initExplore() {
