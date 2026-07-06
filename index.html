@@ -2176,7 +2176,7 @@ let exploreBuilt = false
 
 function renderExploreResults() { /* Task 5 */ }
 function updateRadarOverlay() { /* Task 6 */ }
-function updateExploreViews() { updateRadarOverlay() }
+function updateExploreViews() { syncExploreControls(); updateRadarOverlay() }
 
 function syncExploreControls() {
   // Sliders
@@ -2276,7 +2276,6 @@ function expDebounce() {
 
 function initExplore() {
   if (exploreBuilt) return
-  exploreBuilt = true
 
   // Seed picker
   const sel = document.getElementById('exp-seed-select')
@@ -2309,6 +2308,7 @@ function initExplore() {
   buildRadarPane()
 
   // Initial render
+  exploreBuilt = true
   renderExploreResults()
 }
 
