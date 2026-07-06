@@ -2221,8 +2221,190 @@ function renderExploreResults() {
   clearTimeout(_expOverlayTimer)
   _expOverlayTimer = setTimeout(updateRadarOverlay, 0)
 }
-function updateRadarOverlay() { /* Task 6 */ }
+function updateRadarOverlay() {
+  const closest = computeSimilarity(T)[0]
+  const svgIds = ['exp-overlay-svg', 'exp-radar-main-svg']
+
+  // Radar axes — mirror fingerprint() axes exactly
+  const axes = [
+    {key:'highlight', l:'HL', lo:-2, hi:4},
+    {key:'shadow',    l:'SH', lo:-2, hi:4},
+    {key:'color',     l:'COL',lo:-4, hi:4},
+    {key:'sharpness', l:'SHP',lo:-4, hi:3},
+    {key:'clarity',   l:'CL', lo:-5, hi:5},
+  ]
+  const N=axes.length, cx=40, cy=40, R=28
+
+  function axisPoint(value, lo, hi, i) {
+    const ang = (2*Math.PI*i/N) - Math.PI/2
+    const ratio = clamp((value-lo)/(hi-lo), 0, 1)
+    return [cx + R*ratio*Math.cos(ang), cy + R*ratio*Math.sin(ang)]
+  }
+
+  function buildOverlaySvg(svgEl) {
+    if (!svgEl) return
+    // Grid + spokes (same as fingerprint)
+    const grids = [.33,.67,1].map(t=>{
+      const gp=axes.map((_,i)=>{const a=(2*Math.PI*i/N)-Math.PI/2;return [cx+R*t*Math.cos(a),cy+R*t*Math.sin(a)]})
+      return `<polygon points="${gp.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#2a2a30" stroke-width=".8"/>`
+    }).join('')
+    const spokes = axes.map((_,i)=>{const a=(2*Math.PI*i/N)-Math.PI/2;return `<line x1="${cx}" y1="${cy}" x2="${cx+R*Math.cos(a)}" y2="${cy+R*Math.sin(a)}" stroke="#2a2a30" stroke-width=".8"/>`}).join('')
+    const labels = axes.map((a,i)=>{const ang=(2*Math.PI*i/N)-Math.PI/2;const x=cx+(R+9)*Math.cos(ang),y=cy+(R+9)*Math.sin(ang);return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="7" fill="#5e5e6e">${a.l}</text>`}).join('')
+
+    // Ghost shape — closest match
+    const rt = closest ? recipeToT(closest) : null
+    let ghostPoly = ''
+    let deltas = ''
+    if (rt) {
+      const gpts = axes.map((a,i) => axisPoint(rt[a.key] ?? 0, a.lo, a.hi, i))
+      ghostPoly = `<polygon points="${gpts.map(p=>p.join(',')).join(' ')}" fill="rgba(91,154,240,.12)" stroke="#5b9af0" stroke-width="1.2" stroke-dasharray="2,1.5"/>`
+      // Delta annotations
+      deltas = axes.map((a,i) => {
+        const d = (rt[a.key] ?? 0) - T[a.key]
+        if (Math.abs(d) < 0.4) return ''
+        const ang = (2*Math.PI*i/N) - Math.PI/2
+        const x = cx + (R+16)*Math.cos(ang), y = cy + (R+16)*Math.sin(ang)
+        const sign = d > 0 ? '+' : ''
+        const col = d > 0 ? 'var(--green)' : 'var(--blue)'
+        return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="5.5" fill="${col}" font-weight="700">${sign}${Math.round(d*10)/10}</text>`
+      }).join('')
+    }
+
+    // T shape
+    const tpts = axes.map((a,i) => axisPoint(T[a.key] ?? 0, a.lo, a.hi, i))
+    const tPoly = `<polygon points="${tpts.map(p=>p.join(',')).join(' ')}" fill="rgba(212,168,67,.25)" stroke="var(--accent)" stroke-width="1.8"/>`
+
+    svgEl.innerHTML = grids + spokes + ghostPoly + tPoly + labels + deltas
+  }
+
+  svgIds.forEach(id => {
+    const svgEl = document.getElementById(id)
+    if (!svgEl) return
+    // Preserve existing handle circles (added by buildRadarPane)
+    const handles = Array.from(svgEl.querySelectorAll('.radar-handle'))
+    buildOverlaySvg(svgEl)
+    handles.forEach(h => svgEl.appendChild(h))
+    // Update handle positions
+    handles.forEach(h => {
+      const i = parseInt(h.dataset.idx)
+      const a = axes[i]
+      const ang = (2*Math.PI*i/N) - Math.PI/2
+      const ratio = clamp((T[a.key]-a.lo)/(a.hi-a.lo), 0, 1)
+      h.setAttribute('cx', cx + R*ratio*Math.cos(ang))
+      h.setAttribute('cy', cy + R*ratio*Math.sin(ang))
+    })
+  })
+
+  // Update readout bars
+  T_PARAMS.forEach(p => {
+    const fill = document.getElementById('exp-ro-fill-' + p.key)
+    const val  = document.getElementById('exp-ro-val-'  + p.key)
+    if (fill) fill.style.width = (p.norm(T[p.key]) * 100) + '%'
+    if (val)  val.textContent  = T[p.key]
+  })
+}
 function updateExploreViews() { syncExploreControls(); updateRadarOverlay() }
+
+function buildRadarPane() {
+  const pane = document.getElementById('exp-pane-radar')
+  if (!pane) return
+
+  // Main draggable radar SVG
+  const radarWrap = document.createElement('div')
+  radarWrap.className = 'exp-radar-wrap'
+  radarWrap.innerHTML = '<svg id="exp-radar-main-svg" class="exp-radar-svg" width="220" height="220" viewBox="0 0 80 80"></svg>'
+  pane.appendChild(radarWrap)
+
+  // Draggable handles for radar axes
+  const axes = [
+    {key:'highlight', l:'HL', lo:-2, hi:4},
+    {key:'shadow',    l:'SH', lo:-2, hi:4},
+    {key:'color',     l:'COL',lo:-4, hi:4},
+    {key:'sharpness', l:'SHP',lo:-4, hi:3},
+    {key:'clarity',   l:'CL', lo:-5, hi:5},
+  ]
+  const N=axes.length, cx=40, cy=40, R=28
+
+  const svg = document.getElementById('exp-radar-main-svg')
+
+  // Draw static structure first via updateRadarOverlay
+  updateRadarOverlay()
+
+  // Add draggable handle circles
+  axes.forEach((a, i) => {
+    const ang = (2*Math.PI*i/N) - Math.PI/2
+    const ratio = clamp((T[a.key]-a.lo)/(a.hi-a.lo), 0, 1)
+    const hx = cx + R*ratio*Math.cos(ang), hy = cy + R*ratio*Math.sin(ang)
+    const handle = document.createElementNS('http://www.w3.org/2000/svg','circle')
+    handle.setAttribute('class','radar-handle')
+    handle.setAttribute('cx', hx); handle.setAttribute('cy', hy)
+    handle.setAttribute('r','3'); handle.setAttribute('fill','var(--accent)')
+    handle.setAttribute('stroke','var(--bg)'); handle.setAttribute('stroke-width','0.8')
+    handle.dataset.idx = i
+    svg.appendChild(handle)
+
+    let active = false
+    handle.addEventListener('mousedown', e => { active = true; e.preventDefault() })
+    document.addEventListener('mouseup', () => { active = false })
+    document.addEventListener('mousemove', e => {
+      if (!active) return
+      const rect = svg.getBoundingClientRect()
+      const scale = 80 / rect.width
+      const mx = (e.clientX - rect.left) * scale - cx
+      const my = (e.clientY - rect.top)  * scale - cy
+      const ang2 = (2*Math.PI*i/N) - Math.PI/2
+      // Project mouse onto axis via dot product
+      const axX = Math.cos(ang2), axY = Math.sin(ang2)
+      const proj = clamp((mx*axX + my*axY) / R, 0, 1)
+      const rawVal = a.lo + proj*(a.hi-a.lo)
+      // Snap to step
+      const p = T_PARAMS.find(x => x.key === a.key)
+      T[a.key] = Math.round(rawVal / p.step) * p.step
+      // Update handle position
+      const newRatio = clamp((T[a.key]-a.lo)/(a.hi-a.lo), 0, 1)
+      handle.setAttribute('cx', cx + R*newRatio*Math.cos(ang2))
+      handle.setAttribute('cy', cy + R*newRatio*Math.sin(ang2))
+      syncExploreControls()
+      expDebounce()
+    })
+    // Touch
+    handle.addEventListener('touchstart', e => { active = true; e.preventDefault() }, {passive:false})
+    document.addEventListener('touchend', () => { active = false })
+    document.addEventListener('touchmove', e => {
+      if (!active) return
+      const t2 = e.touches[0]
+      const rect = svg.getBoundingClientRect()
+      const scale = 80 / rect.width
+      const mx = (t2.clientX - rect.left) * scale - cx
+      const my = (t2.clientY - rect.top)  * scale - cy
+      const ang2 = (2*Math.PI*i/N) - Math.PI/2
+      const axX = Math.cos(ang2), axY = Math.sin(ang2)
+      const proj = clamp((mx*axX + my*axY) / R, 0, 1)
+      const rawVal = a.lo + proj*(a.hi-a.lo)
+      const p = T_PARAMS.find(x => x.key === a.key)
+      T[a.key] = Math.round(rawVal / p.step) * p.step
+      const newRatio = clamp((T[a.key]-a.lo)/(a.hi-a.lo), 0, 1)
+      handle.setAttribute('cx', cx + R*newRatio*Math.cos(ang2))
+      handle.setAttribute('cy', cy + R*newRatio*Math.sin(ang2))
+      syncExploreControls()
+      expDebounce()
+    })
+  })
+
+  // Read-only readout bars below radar
+  const readouts = document.createElement('div')
+  readouts.className = 'exp-readouts'
+  T_PARAMS.forEach(p => {
+    const item = document.createElement('div')
+    item.className = 'exp-readout-item'
+    item.innerHTML = `
+      <span class="exp-readout-lbl">${p.label}</span>
+      <div class="exp-readout-bar"><div class="exp-readout-fill" id="exp-ro-fill-${p.key}" style="width:${p.norm(T[p.key])*100}%"></div></div>
+      <span class="exp-readout-val" id="exp-ro-val-${p.key}">${T[p.key]}</span>`
+    readouts.appendChild(item)
+  })
+  pane.appendChild(readouts)
+}
 
 function syncExploreControls() {
   // Sliders
