@@ -2099,6 +2099,79 @@ function renderMyRecipes() {
 }
 
 // ══════════════════════════════════════════
+// EXPLORE TAB
+// ══════════════════════════════════════════
+
+const T = {
+  seedName: null,
+  highlight: 0, shadow: 0, color: 0, sharpness: 0, clarity: 0,
+  color_chrome_effect: 0, color_chrome_fx_blue: 0,
+  dynamic_range: 100, high_iso_nr: 0,
+  wb_shift_red: 0, wb_shift_blue: 0,
+}
+
+// Descriptor for each tweakable param: key, label, min, max, step, normalizer
+const T_PARAMS = [
+  {key:'highlight',        label:'Highlight',     min:-2,  max:4,   step:0.5, norm:(v)=>(v+2)/6},
+  {key:'shadow',           label:'Shadow',        min:-2,  max:4,   step:0.5, norm:(v)=>(v+2)/6},
+  {key:'color',            label:'Color',         min:-4,  max:4,   step:1,   norm:(v)=>(v+4)/8},
+  {key:'sharpness',        label:'Sharpness',     min:-4,  max:4,   step:1,   norm:(v)=>(v+4)/8},
+  {key:'clarity',          label:'Clarity',       min:-4,  max:4,   step:1,   norm:(v)=>(v+4)/8},
+  {key:'color_chrome_effect',   label:'CC Effect',min:0,   max:2,   step:1,   norm:(v)=>v/2},
+  {key:'color_chrome_fx_blue',  label:'CC FX Blue',min:0,  max:2,   step:1,   norm:(v)=>v/2},
+  {key:'dynamic_range',    label:'Dyn Range',     min:100, max:400, step:100, norm:(v)=>(v-100)/300},
+  {key:'high_iso_nr',      label:'High ISO NR',   min:-4,  max:4,   step:1,   norm:(v)=>(v+4)/8},
+]
+
+// Map recipe field values to T numeric values
+function recipeToT(r) {
+  const ccMap = {'Off':0,'Weak':1,'Strong':2}
+  const drMap = {'DR100':100,'DR200':200,'DR400':400}
+  return {
+    seedName: r.name,
+    highlight:           pn(r.highlight) ?? 0,
+    shadow:              pn(r.shadow)    ?? 0,
+    color:               pn(r.color)     ?? 0,
+    sharpness:           pn(r.sharpness) ?? 0,
+    clarity:             pn(r.clarity)   ?? 0,
+    color_chrome_effect: ccMap[r.color_chrome_effect] ?? 0,
+    color_chrome_fx_blue:ccMap[r.color_chrome_fx_blue] ?? 0,
+    dynamic_range:       drMap[r.dynamic_range] ?? (pn(r.dynamic_range) ?? 100),
+    high_iso_nr:         pn(r.high_iso_nr) ?? 0,
+    wb_shift_red:        pn(r.wb_shift_red)  ?? 0,
+    wb_shift_blue:       pn(r.wb_shift_blue) ?? 0,
+  }
+}
+
+function computeSimilarity(t) {
+  return RECIPES.map(r => {
+    const rt = recipeToT(r)
+    let sum = 0
+    T_PARAMS.forEach(p => {
+      const d = p.norm(t[p.key]) - p.norm(rt[p.key])
+      sum += d * d
+    })
+    // WB contribution — normalized over -9..9 range
+    const dR = (t.wb_shift_red  - (rt.wb_shift_red  ?? 0)) / 18
+    const dB = (t.wb_shift_blue - (rt.wb_shift_blue ?? 0)) / 18
+    sum += dR * dR + dB * dB
+    return { r, dist: Math.sqrt(sum) }
+  }).sort((a, b) => a.dist - b.dist).map(x => x.r)
+}
+
+function seedRecipe(name) {
+  if (!name) {
+    Object.assign(T, {seedName:null,highlight:0,shadow:0,color:0,sharpness:0,clarity:0,color_chrome_effect:0,color_chrome_fx_blue:0,dynamic_range:100,high_iso_nr:0,wb_shift_red:0,wb_shift_blue:0})
+  } else {
+    const r = RECIPES.find(x => x.name === name)
+    if (r) Object.assign(T, recipeToT(r))
+  }
+  syncExploreControls()
+  renderExploreResults()
+  updateExploreViews()
+}
+
+// ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
 function init(){
