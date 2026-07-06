@@ -1122,6 +1122,7 @@ function switchTab(id){
   if(id==='settings') renderSettingsGuide()
   if(id==='gear') renderGear()
   if(id==='myrecipes') renderMyRecipes()
+  if(id==='explore') initExplore()
 }
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   switchTab(t.dataset.tab)
@@ -2169,6 +2170,146 @@ function seedRecipe(name) {
   syncExploreControls()
   renderExploreResults()
   updateExploreViews()
+}
+
+let exploreBuilt = false
+
+function renderExploreResults() { /* Task 5 */ }
+function updateRadarOverlay() { /* Task 6 */ }
+function updateExploreViews() { updateRadarOverlay() }
+
+function syncExploreControls() {
+  // Sliders
+  T_PARAMS.forEach(p => {
+    const inp = document.getElementById('exp-sl-' + p.key)
+    const lbl = document.getElementById('exp-slv-' + p.key)
+    if (inp) inp.value = T[p.key]
+    if (lbl) lbl.textContent = T[p.key]
+  })
+  // WB preset label
+  const wbLbl = document.getElementById('exp-wb-preset-lbl')
+  if (wbLbl) {
+    const seeded = T.seedName ? RECIPES.find(r => r.name === T.seedName) : null
+    wbLbl.textContent = seeded ? (seeded.white_balance || '') : ''
+  }
+  // WB dot
+  updateWbDot()
+  // Readout bars (radar sub-tab)
+  T_PARAMS.forEach(p => {
+    const fill = document.getElementById('exp-ro-fill-' + p.key)
+    const val  = document.getElementById('exp-ro-val-' + p.key)
+    if (fill) fill.style.width = (p.norm(T[p.key]) * 100) + '%'
+    if (val)  val.textContent  = T[p.key]
+  })
+}
+
+function buildWbGrid() {
+  const svg = document.getElementById('exp-wb-svg')
+  if (!svg) return
+
+  // Grid lines every 3 units — viewBox is -9,-9 18,18
+  let html = ''
+  for (let i = -6; i <= 6; i += 3) {
+    html += `<line x1="${i}" y1="-9" x2="${i}" y2="9" stroke="#2a2a30" stroke-width=".3"/>`
+    html += `<line x1="-9" y1="${i}" x2="9" y2="${i}" stroke="#2a2a30" stroke-width=".3"/>`
+  }
+  html += `<line x1="0" y1="-9" x2="0" y2="9" stroke="#3a3a42" stroke-width=".5"/>`
+  html += `<line x1="-9" y1="0" x2="9" y2="0" stroke="#3a3a42" stroke-width=".5"/>`
+  // Axis labels
+  html += `<text x="8.5" y="-8" font-size="1.8" fill="#5e5e6e" text-anchor="end">R+</text>`
+  html += `<text x="-8.5" y="-8" font-size="1.8" fill="#5e5e6e">R-</text>`
+  html += `<text x="0" y="-8" font-size="1.8" fill="#5e5e6e" text-anchor="middle">B+</text>`
+  // Dot
+  html += `<circle id="exp-wb-dot" cx="${T.wb_shift_red}" cy="${-T.wb_shift_blue}" r="1.2" fill="var(--accent)" stroke="var(--bg)" stroke-width=".4" style="cursor:crosshair"/>`
+  svg.innerHTML = html
+
+  // Click/drag to update WB
+  function svgCoords(e) {
+    const rect = svg.getBoundingClientRect()
+    const scaleX = 18 / rect.width, scaleY = 18 / rect.height
+    const rx = clamp(Math.round((e.clientX - rect.left) * scaleX - 9), -9, 9)
+    const ry = clamp(Math.round((e.clientY - rect.top)  * scaleY - 9), -9, 9)
+    return { r: rx, b: -ry }
+  }
+
+  let dragging = false
+  svg.addEventListener('mousedown', e => {
+    dragging = true
+    const {r, b} = svgCoords(e)
+    T.wb_shift_red = r; T.wb_shift_blue = b
+    updateWbDot(); renderExploreResults()
+  })
+  svg.addEventListener('mousemove', e => {
+    if (!dragging) return
+    const {r, b} = svgCoords(e)
+    T.wb_shift_red = r; T.wb_shift_blue = b
+    updateWbDot(); expDebounce()
+  })
+  document.addEventListener('mouseup', () => { dragging = false })
+  // Touch
+  svg.addEventListener('touchstart', e => {
+    e.preventDefault()
+    const t2 = e.touches[0]
+    const {r, b} = svgCoords(t2)
+    T.wb_shift_red = r; T.wb_shift_blue = b
+    updateWbDot(); renderExploreResults()
+  }, {passive:false})
+  svg.addEventListener('touchmove', e => {
+    e.preventDefault()
+    const t2 = e.touches[0]
+    const {r, b} = svgCoords(t2)
+    T.wb_shift_red = r; T.wb_shift_blue = b
+    updateWbDot(); expDebounce()
+  }, {passive:false})
+}
+
+function updateWbDot() {
+  const dot = document.getElementById('exp-wb-dot')
+  if (dot) { dot.setAttribute('cx', T.wb_shift_red); dot.setAttribute('cy', -T.wb_shift_blue) }
+}
+
+let _expTimer = null
+function expDebounce() {
+  clearTimeout(_expTimer)
+  _expTimer = setTimeout(() => { renderExploreResults(); updateExploreViews() }, 80)
+}
+
+function initExplore() {
+  if (exploreBuilt) return
+  exploreBuilt = true
+
+  // Seed picker
+  const sel = document.getElementById('exp-seed-select')
+  if (sel) {
+    RECIPES.slice().sort((a,b)=>a.name.localeCompare(b.name)).forEach(r => {
+      const opt = document.createElement('option')
+      opt.value = r.name; opt.textContent = r.name
+      sel.appendChild(opt)
+    })
+    sel.addEventListener('change', () => seedRecipe(sel.value || null))
+  }
+
+  // WB grid
+  buildWbGrid()
+
+  // Sub-tab switching
+  document.querySelectorAll('.exp-subtab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.exp-subtab').forEach(b => b.classList.remove('on'))
+      document.querySelectorAll('.exp-pane').forEach(p => p.classList.remove('on'))
+      btn.classList.add('on')
+      document.getElementById('exp-pane-' + btn.dataset.ep).classList.add('on')
+    })
+  })
+
+  // Build slider pane
+  buildSliderPane()
+
+  // Build radar pane
+  buildRadarPane()
+
+  // Initial render
+  renderExploreResults()
 }
 
 // ══════════════════════════════════════════
