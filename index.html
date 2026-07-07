@@ -2265,7 +2265,14 @@ function renderExploreResults() {
     const dB = rt.wb_shift_blue - T.wb_shift_blue
     if (Math.abs(dR) >= 1) wbDiffs.push(`<span class="exp-delta ${dR>0?'pos':'neg'}">WB R ${dR>0?'+':''}${dR}</span>`)
     if (Math.abs(dB) >= 1) wbDiffs.push(`<span class="exp-delta ${dB>0?'pos':'neg'}">WB B ${dB>0?'+':''}${dB}</span>`)
-    const allDiffs = diffBadges + wbDiffs.join('')
+    if (rt.white_balance && rt.white_balance !== T.white_balance) {
+      wbDiffs.push(`<span class="exp-delta neg">WB ${rt.white_balance}</span>`)
+    }
+    let grainSizeDiff = ''
+    if (rt.grain_size !== T.grain_size) {
+      grainSizeDiff = `<span class="exp-delta neg">Grain Size ${rt.grain_size}</span>`
+    }
+    const allDiffs = diffBadges + wbDiffs.join('') + grainSizeDiff
 
     const kws = [...(r.mood_keywords||[]).slice(0,3), ...(r.scenario_keywords||[]).slice(0,2)]
       .map(k=>`<span class="exp-kw">${k}</span>`).join('')
