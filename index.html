@@ -203,11 +203,17 @@ main{display:flex;flex:1;overflow:hidden}
   .hist-wrap{grid-template-columns:1fr}
   .gear-cards,.mr-grid,.sg-cards{grid-template-columns:1fr}
   .cs-single-grid{grid-template-columns:1fr}
-  .cs-sim-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .cs-sim-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
   .corr-grid{grid-template-columns:1fr!important}
   .header-inner{flex-wrap:wrap;gap:4px}
   h1{font-size:14px!important}
   h1 span{display:none}
+  .mr-viz-row{flex-direction:column;align-items:center}
+  .mr-fp svg{width:140px!important;height:140px!important}
+  .mr-detail-col{width:100%}
+  .mr-wb-svg{max-width:100%!important}
+  .cs-pc-wrap{grid-template-columns:1fr}
+  .exp-radar-legend-row{flex-wrap:wrap}
 }
 
 /* ─── Footer ─── */
@@ -272,7 +278,13 @@ main{display:flex;flex:1;overflow:hidden}
 .mr-usage{font-size:12px;color:var(--text2);line-height:1.6;margin:8px 0;padding:8px 10px;background:var(--surf2);border-radius:var(--r);border-left:3px solid var(--accent)}
 .mr-notes{font-size:11px;color:var(--text3);line-height:1.5;font-style:italic;margin-bottom:8px}
 .mr-narr{font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.mr-fp{display:flex;justify-content:center;padding:6px 0}
+.mr-viz-row{display:flex;gap:12px;align-items:flex-start;margin:8px 0 6px}
+.mr-fp{display:flex;align-items:flex-start;flex-shrink:0}.mr-fp svg{width:150px!important;height:150px!important}
+.mr-detail-col{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;padding-top:2px}
+.mr-detail-row{display:flex;align-items:center;gap:5px}
+.mr-detail-label{font-size:10px;color:var(--text3);font-weight:600;width:22px;flex-shrink:0}
+.mr-detail-val{font-size:11px;color:var(--text2)}
+.cs-fp{display:flex;justify-content:center;padding:8px 0 4px}.cs-fp svg{width:150px!important;height:150px!important}
 .mr-gallery{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px}
 .mr-gallery img{height:60px;width:auto;min-width:60px;object-fit:cover;border-radius:4px;cursor:pointer;flex-shrink:0;border:1px solid var(--border)}
 .mr-gallery img:hover{border-color:var(--accent)}
@@ -318,6 +330,7 @@ main{display:flex;flex:1;overflow:hidden}
 .cs-pill{font-size:10px;padding:2px 7px;border-radius:99px;background:var(--surf2);border:1px solid var(--border);color:var(--text2)}
 .cs-pill strong{color:var(--text);font-weight:600}
 .cs-sim-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:7px}
+.cs-sim-fp{display:flex;justify-content:center;padding:4px 0 2px}.cs-sim-fp svg{width:72px!important;height:72px!important}
 .cs-sim-item{padding:7px 9px;background:var(--surf2);border-radius:var(--r);border:1px solid var(--border);transition:border-color .15s,background .15s}
 .cs-sim-item[style*="pointer"]:hover{border-color:var(--accent);background:rgba(212,168,67,.07)}
 .cs-sim-fs{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.03em;margin-bottom:2px}
@@ -354,8 +367,15 @@ main{display:flex;flex:1;overflow:hidden}
 .exp-wb-grid{cursor:crosshair;border-radius:var(--r);overflow:hidden;background:var(--surf2);border:1px solid var(--border);display:block}
 .exp-wb-match-row{display:flex;align-items:center;gap:5px;padding:3px 8px;background:var(--surf2);border:1px solid var(--border);border-radius:6px}
 .exp-wb-match-icon{width:6px;height:6px;border-radius:50%;border:1px dashed #5b9af0;flex-shrink:0;display:inline-block}
-.exp-wb-legend{display:flex;justify-content:space-between;font-size:10px;color:var(--text3)}
-.exp-wb-leg-yours,.exp-wb-leg-match{display:flex;align-items:center;gap:3px}
+.exp-wb-values{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);padding:0 1px}
+.exp-wb-val-yours,.exp-wb-val-match{display:flex;align-items:center;gap:3px}
+.exp-radar-legend-row{display:flex;gap:6px;margin-bottom:4px}
+.exp-legend-btn{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600;cursor:pointer;user-select:none;border:1px solid transparent;transition:opacity .15s}
+.exp-legend-yours-btn{background:rgba(212,168,67,.12);color:#d4a843;border-color:rgba(212,168,67,.35)}
+.exp-legend-match-btn{background:rgba(91,154,240,.1);color:#5b9af0;border-color:rgba(91,154,240,.3)}
+.exp-legend-btn.dimmed{opacity:.35}
+.exp-legend-swatch{width:16px;height:2px;border-radius:1px;flex-shrink:0}
+.exp-legend-swatch-dash{width:16px;height:0;border-top:2px dashed #5b9af0;flex-shrink:0}
 .exp-radar-hint{font-size:11px;color:var(--text3);margin:4px 0 0;text-align:center;width:100%;max-width:280px}
 .exp-compact{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;flex-direction:column;gap:10px}
 .exp-compact-title{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.4px;text-transform:uppercase}
@@ -385,6 +405,69 @@ main{display:flex;flex:1;overflow:hidden}
 .exp-delta.neg{background:rgba(91,154,240,.15);color:#5b9af0}
 .exp-kws{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
 .exp-kw{font-size:10px;padding:1px 5px;border-radius:3px;background:var(--surf2);color:var(--text3)}
+/* ─── Compare Tab ─── */
+.cmp-header{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.cmp-select-wrap{display:flex;flex-direction:column;gap:3px;flex:1;min-width:160px}
+.cmp-select-label{font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase}
+.cmp-select-label.a{color:#d4a843}.cmp-select-label.b{color:#5b9af0}
+.cmp-select{background:var(--surf2);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:5px 10px;font-size:12px;width:100%}
+.cmp-select.a{border-color:rgba(212,168,67,.4)}.cmp-select.b{border-color:rgba(91,154,240,.4)}
+.cmp-btn{padding:5px 12px;border-radius:var(--r);border:1px solid var(--border);background:var(--surf2);color:var(--text2);font-size:12px;cursor:pointer}
+.cmp-btn:hover{border-color:var(--accent);color:var(--text)}
+.cmp-subtabs{display:flex;gap:4px;margin-bottom:14px}
+.cmp-subtab{padding:4px 12px;border-radius:5px;font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--surf2);color:var(--text2);cursor:pointer}
+.cmp-subtab.on{background:var(--accent2);border-color:var(--accent2);color:#000}
+.cmp-empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px}
+.cmp-layout{display:flex;gap:0;align-items:flex-start}
+.cmp-col{flex:1;min-width:0;padding:0 12px}
+.cmp-col:first-child{padding-left:0;border-right:1px solid var(--border)}
+.cmp-col:last-child{padding-right:0;border-left:1px solid var(--border)}
+.cmp-col-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px}
+.cmp-col-badges{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.cmp-diff-strip{width:80px;flex-shrink:0;display:flex;flex-direction:column;gap:4px;padding:0 6px;padding-top:4px}
+.cmp-diff-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;text-align:center;white-space:nowrap}
+.cmp-diff-badge.a{background:rgba(212,168,67,.15);color:#d4a843}
+.cmp-diff-badge.b{background:rgba(91,154,240,.15);color:#5b9af0}
+.cmp-diff-label{font-size:9px;color:var(--text3);text-align:center;margin-bottom:2px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.cmp-section-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin:10px 0 5px}
+.cmp-kw-a{background:rgba(212,168,67,.15);color:#d4a843;border:1px solid rgba(212,168,67,.3)}
+.cmp-kw-b{background:rgba(91,154,240,.15);color:#5b9af0;border:1px solid rgba(91,154,240,.3)}
+.cmp-kw-shared{background:var(--surf2);color:var(--text3);border:1px solid var(--border)}
+.cmp-kw{font-size:10px;padding:2px 7px;border-radius:99px;display:inline-block;margin:2px}
+.cmp-top3{display:flex;flex-direction:column;gap:4px}
+.cmp-sim-card{padding:5px 8px;background:var(--surf2);border:1px solid var(--border);border-radius:var(--r);cursor:pointer;font-size:11px;display:flex;align-items:center;gap:6px}
+.cmp-sim-card:hover{border-color:var(--accent)}
+.cmp-sim-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--text)}
+.cmp-row-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px}
+.cmp-row-table td{padding:4px 6px;border-bottom:1px solid var(--border)}
+.cmp-row-table td:first-child{color:var(--text3);width:30%;font-weight:600}
+.cmp-row-table td:last-child{text-align:right}
+.cmp-row-table td.cmp-diff-cell{text-align:center;font-weight:700}
+.cmp-row-table tr.match td{opacity:.35}
+.cmp-row-table tr.diff td:first-child,.cmp-row-table tr.diff .cmp-diff-cell{color:var(--text)}
+.cmp-kw-row{display:flex;gap:6px;align-items:flex-start}
+.cmp-kw-col{flex:1;min-width:0}
+.cmp-overlay-top{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:16px}
+.cmp-overlay-radar{flex:1;min-width:220px}
+.cmp-overlay-wb{flex-shrink:0}
+.cmp-overlay-legend{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.cmp-overlay-legend-btn{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600;border:1px solid transparent}
+.cmp-overlay-legend-a{background:rgba(212,168,67,.12);color:#d4a843;border-color:rgba(212,168,67,.35)}
+.cmp-overlay-legend-b{background:rgba(91,154,240,.1);color:#5b9af0;border-color:rgba(91,154,240,.3)}
+.cmp-overlay-swatch{width:16px;height:2px;border-radius:1px;flex-shrink:0}
+.cmp-overlay-swatch-dash{width:16px;height:0;border-top:2px dashed #5b9af0;flex-shrink:0}
+.cmp-top3-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.cmp-card-btn{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;border:1px solid var(--border);background:var(--surf2);color:var(--text2);cursor:pointer;margin-top:4px;transition:background .1s,border-color .1s}
+.cmp-card-btn.slot-a{background:rgba(212,168,67,.15);color:#d4a843;border-color:rgba(212,168,67,.5)}
+.cmp-card-btn.slot-b{background:rgba(91,154,240,.15);color:#5b9af0;border-color:rgba(91,154,240,.5)}
+@media(max-width:680px){
+  .cmp-layout{flex-direction:column}
+  .cmp-col:first-child{border-right:none;border-bottom:1px solid var(--border);padding:0 0 12px}
+  .cmp-col:last-child{border-left:none;padding:12px 0 0}
+  .cmp-diff-strip{width:100%;flex-direction:row;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .cmp-top3-grid{grid-template-columns:1fr}
+  .cmp-overlay-top{flex-direction:column}
+}
 @media(max-width:680px){.exp-header{flex-direction:column}.exp-row2{flex-direction:column}.exp-wb-col{width:100%}.exp-compact-grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -443,6 +526,7 @@ main{display:flex;flex:1;overflow:hidden}
     <div class="tab" data-tab="directions">Directions</div>
     <div class="tab" data-tab="correlations">Correlation</div>
     <div class="tab" data-tab="explore">Explore</div>
+    <div class="tab" data-tab="compare">Compare</div>
   </div>
 
   <!-- GRID -->
@@ -567,21 +651,24 @@ main{display:flex;flex:1;overflow:hidden}
             <span id="exp-wb-match-mode" style="font-size:10px;color:#5b9af0;font-weight:600">—</span>
           </div>
           <svg id="exp-wb-svg" class="exp-wb-grid" width="160" height="160" viewBox="-9 -9 18 18"></svg>
-          <div class="exp-wb-legend">
-            <span class="exp-wb-leg-yours">
-              <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="5,1 9,5 5,9 1,5" fill="#d4a843"/></svg>Yours
-            </span>
-            <span class="exp-wb-leg-match">
-              <svg width="10" height="10" viewBox="0 0 10 10"><line x1="2" y1="5" x2="8" y2="5" stroke="#5b9af0" stroke-width=".9"/><line x1="5" y1="2" x2="5" y2="8" stroke="#5b9af0" stroke-width=".9"/><circle cx="5" cy="5" r="2" fill="none" stroke="#5b9af0" stroke-width=".7"/></svg>Match
-            </span>
+          <div class="exp-wb-values">
+            <span class="exp-wb-val-yours"><svg width="8" height="8" viewBox="0 0 10 10"><polygon points="5,1 9,5 5,9 1,5" fill="#d4a843"/></svg><span id="exp-wb-yours-txt" style="color:#e8c05a;font-weight:600">—</span></span>
+            <span class="exp-wb-val-match"><svg width="8" height="8" viewBox="0 0 10 10"><line x1="2" y1="5" x2="8" y2="5" stroke="#5b9af0" stroke-width=".9"/><line x1="5" y1="2" x2="5" y2="8" stroke="#5b9af0" stroke-width=".9"/><circle cx="5" cy="5" r="2" fill="none" stroke="#5b9af0" stroke-width=".7"/></svg><span id="exp-wb-match-txt" style="color:#5b9af0;font-weight:600">—</span></span>
           </div>
         </div>
 
         <!-- Radar column -->
         <div class="exp-radar-col">
           <label class="exp-col-label">Color &amp; Tone</label>
-          <svg id="exp-radar-svg" viewBox="0 0 260 250" style="width:100%;max-width:280px;overflow:visible" aria-label="5-axis radar chart"></svg>
-          <p class="exp-radar-hint">Click legend to isolate a shape</p>
+          <div class="exp-radar-legend-row">
+            <span id="exp-legend-yours-btn" class="exp-legend-btn exp-legend-yours-btn">
+              <span class="exp-legend-swatch" style="background:#d4a843"></span>Yours
+            </span>
+            <span id="exp-legend-match-btn" class="exp-legend-btn exp-legend-match-btn">
+              <span class="exp-legend-swatch-dash"></span>Closest match
+            </span>
+          </div>
+          <svg id="exp-radar-svg" viewBox="0 0 260 230" style="width:100%;max-width:280px;overflow:visible" aria-label="5-axis radar chart"></svg>
         </div>
 
       </div>
@@ -595,6 +682,11 @@ main{display:flex;flex:1;overflow:hidden}
         <div id="exp-results-list"></div>
       </div>
     </div>
+  </div>
+
+  <!-- COMPARE -->
+  <div class="pane" id="pane-compare">
+    <div id="cmp-shell"></div>
   </div>
 
 </section>
@@ -748,27 +840,71 @@ document.addEventListener('keydown',e=>{
 // ══════════════════════════════════════════
 // RECIPE FINGERPRINT SVG
 // ══════════════════════════════════════════
+function wbMiniGrid(r) {
+  const rx = pn(r.wb_shift_red)  ?? 0
+  const ry = -(pn(r.wb_shift_blue) ?? 0)
+  let html = ''
+  for (let i = -6; i <= 6; i += 3) {
+    const thick = i === 0
+    html += `<line x1="${i}" y1="-9" x2="${i}" y2="9" stroke="${thick?'#333340':'#242428'}" stroke-width="${thick?.6:.3}"/>`
+    html += `<line x1="-9" y1="${i}" x2="9" y2="${i}" stroke="${thick?'#333340':'#242428'}" stroke-width="${thick?.6:.3}"/>`
+  }
+  html += `<rect x="-9" y="-9" width="18" height="18" fill="none" stroke="#2e2e34" stroke-width=".6"/>`
+  html += `<text x="-9.4" y=".7" font-size="1.7" fill="#5e5e6e" text-anchor="end" font-family="Inter,sans-serif">R−</text>`
+  html += `<text x="9.4"  y=".7" font-size="1.7" fill="#5e5e6e" text-anchor="start" font-family="Inter,sans-serif">R+</text>`
+  html += `<text x="0" y="-9.6" font-size="1.7" fill="#5e5e6e" text-anchor="middle" font-family="Inter,sans-serif">B+</text>`
+  html += `<text x="0" y="10.8" font-size="1.7" fill="#5e5e6e" text-anchor="middle" font-family="Inter,sans-serif">B−</text>`
+  const rLabel = (rx >= 0 ? 'R+' : 'R') + rx
+  const bLabel = ((pn(r.wb_shift_blue)??0) >= 0 ? 'B+' : 'B') + (pn(r.wb_shift_blue)??0)
+  const txt = rLabel + ' ' + bLabel
+  const pillW = txt.length * 1.1 + 2
+  const pillX = clamp(rx + 1.5, -8.8, 9 - pillW)
+  const pillY = ry - 1.4
+  html += `<polygon points="${diamondPoints(rx, ry, 1.1)}" fill="#d4a843" stroke="#0d0d0f" stroke-width=".3"/>`
+  html += `<rect x="${pillX}" y="${pillY}" width="${pillW}" height="2.6" rx=".8" fill="#1c1c20" stroke="#d4a843" stroke-width=".3"/>`
+  html += `<text x="${pillX + pillW/2}" y="${pillY + 1.9}" font-size="1.5" fill="#e8c05a" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">${txt}</text>`
+  return `<svg class="mr-wb-svg" viewBox="-11 -11 22 22" style="width:100%;max-width:120px;display:block;border-radius:var(--r);background:var(--surf2);border:1px solid var(--border)">${html}</svg>`
+}
 function fingerprint(r) {
+  const ccMap={'Off':0,'Weak':1,'Strong':2}
+  const ccLbl=['Off','Weak','Strong']
   const axes=[
-    {l:'HL',v:pn(r.highlight),lo:-2,hi:4},{l:'SH',v:pn(r.shadow),lo:-2,hi:4},
-    {l:'COL',v:pn(r.color),lo:-4,hi:4},{l:'SHP',v:pn(r.sharpness),lo:-4,hi:3},
-    {l:'CL',v:pn(r.clarity),lo:-5,hi:5},
+    {l:'HL', v:pn(r.highlight)??0,                    lo:-2,hi:4, fmt:v=>v>0?'+'+v:''+v},
+    {l:'SH', v:pn(r.shadow)??0,                       lo:-2,hi:4, fmt:v=>v>0?'+'+v:''+v},
+    {l:'COL',v:pn(r.color)??0,                        lo:-4,hi:4, fmt:v=>v>0?'+'+v:''+v},
+    {l:'CCE',v:ccMap[r.color_chrome_effect]??0,        lo:0, hi:2, fmt:v=>ccLbl[v]},
+    {l:'CCB',v:ccMap[r.color_chrome_fx_blue]??0,       lo:0, hi:2, fmt:v=>ccLbl[v]},
   ]
-  const N=axes.length,cx=40,cy=40,R=28
+  const N=axes.length,cx=60,cy=60,R=38
   const pts=axes.map((a,i)=>{
     const ang=(2*Math.PI*i/N)-Math.PI/2
-    const ratio=a.v==null?.5:clamp((a.v-a.lo)/(a.hi-a.lo),0,1)
+    const extent=Math.max(Math.abs(a.lo),Math.abs(a.hi))
+    const ratio=clamp((a.v+extent)/(2*extent),0,1)
     return [cx+R*ratio*Math.cos(ang),cy+R*ratio*Math.sin(ang)]
   })
   const poly=pts.map(p=>p.join(',')).join(' ')
-  const grids=[.33,.67,1].map(t=>{
+  const grids=[.25,.5,.75,1].map(t=>{
     const gp=axes.map((_,i)=>{const a=(2*Math.PI*i/N)-Math.PI/2;return [cx+R*t*Math.cos(a),cy+R*t*Math.sin(a)]})
-    return `<polygon points="${gp.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#2a2a30" stroke-width=".8"/>`
+    return `<polygon points="${gp.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${t===.5?'#3a3a42':'#2a2a30'}" stroke-width="${t===.5?'1':'.8'}"/>`
   }).join('')
   const spokes=axes.map((_,i)=>{const a=(2*Math.PI*i/N)-Math.PI/2;return `<line x1="${cx}" y1="${cy}" x2="${cx+R*Math.cos(a)}" y2="${cy+R*Math.sin(a)}" stroke="#2a2a30" stroke-width=".8"/>`}).join('')
-  const labels=axes.map((a,i)=>{const ang=(2*Math.PI*i/N)-Math.PI/2;const x=cx+(R+9)*Math.cos(ang),y=cy+(R+9)*Math.sin(ang);return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="7" fill="#5e5e6e">${a.l}</text>`}).join('')
+  const labels=axes.map((a,i)=>{
+    const ang=(2*Math.PI*i/N)-Math.PI/2
+    const uy=Math.sin(ang)
+    const lx=cx+(R+16)*Math.cos(ang), ly=cy+(R+16)*uy
+    const lw=a.l.length*5+6
+    const valStr=a.fmt(a.v)
+    const vw=valStr.length*4.5+6
+    // Place value pill toward the outside radially: below if upper half, above if lower half
+    const vyOff = uy <= 0 ? 8 : -16
+    const vy = ly + vyOff
+    return `<rect x="${lx-lw/2}" y="${ly-7}" width="${lw}" height="12" rx="3" fill="#1a1a22" stroke="#3a3a4a" stroke-width=".6"/>` +
+           `<text x="${lx}" y="${ly+1}" text-anchor="middle" dominant-baseline="middle" font-size="7.5" font-weight="700" fill="#c0c0d0" font-family="Inter,sans-serif">${a.l}</text>` +
+           `<rect x="${lx-vw/2}" y="${vy}" width="${vw}" height="10" rx="2.5" fill="#111116" stroke="#2a2a36" stroke-width=".5"/>` +
+           `<text x="${lx}" y="${vy+6}" text-anchor="middle" dominant-baseline="middle" font-size="6.5" font-weight="600" fill="#9090a8" font-family="Inter,sans-serif">${valStr}</text>`
+  }).join('')
   const col=dc(r.color_direction)
-  return `<svg width="80" height="80" viewBox="0 0 80 80">${grids}${spokes}<polygon points="${poly}" fill="${col}" fill-opacity=".25" stroke="${col}" stroke-width="1.5"/>${labels}</svg>`
+  return `<svg width="120" height="120" viewBox="0 0 120 120" overflow="visible">${grids}${spokes}<polygon points="${poly}" fill="${col}" fill-opacity=".25" stroke="${col}" stroke-width="1.5"/>${labels}</svg>`
 }
 
 // ══════════════════════════════════════════
@@ -1162,6 +1298,7 @@ function switchTab(id){
   if(id==='gear') renderGear()
   if(id==='myrecipes') renderMyRecipes()
   if(id==='explore') initExplore()
+  if(id==='compare') initCompare()
 }
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   switchTab(t.dataset.tab)
@@ -1901,15 +2038,66 @@ function renderCustomSlots() {
       bl.className = 'cs-sublabel'
       bl.textContent = 'Base Settings'
       body.appendChild(bl)
-      const pills = document.createElement('div')
-      pills.className = 'cs-pills'
-      slot.base_settings.forEach(([lbl, val]) => {
-        const p = document.createElement('span')
-        p.className = 'cs-pill'
-        p.innerHTML = `<strong>${lbl}</strong> ${val}`
-        pills.appendChild(p)
-      })
-      body.appendChild(pills)
+
+      // Derive a representative recipe from the first sim that has one
+      const baseSimRecipe = (slot.simulations || []).map(s => s.recipe_name ? RECIPES.find(rx => rx.name === s.recipe_name) : null).find(Boolean) || null
+
+      if (baseSimRecipe) {
+        const vizRow = document.createElement('div')
+        vizRow.className = 'mr-viz-row'
+        const fp = document.createElement('div')
+        fp.className = 'mr-fp'
+        fp.innerHTML = fingerprint(baseSimRecipe)
+        vizRow.appendChild(fp)
+        const detailCol = document.createElement('div')
+        detailCol.className = 'mr-detail-col'
+        if (baseSimRecipe.dynamic_range && baseSimRecipe.dynamic_range !== 'N/A') {
+          const drRow = document.createElement('div')
+          drRow.className = 'mr-detail-row'
+          drRow.innerHTML = `<span class="mr-detail-label">DR</span><span class="badge b-dr">${baseSimRecipe.dynamic_range}</span>`
+          detailCol.appendChild(drRow)
+        }
+        if (baseSimRecipe.white_balance) {
+          const wbRow = document.createElement('div')
+          wbRow.className = 'mr-detail-row'
+          wbRow.innerHTML = `<span class="mr-detail-label">WB</span><span class="mr-detail-val">${baseSimRecipe.white_balance}</span>`
+          detailCol.appendChild(wbRow)
+        }
+        const wbWrap = document.createElement('div')
+        wbWrap.innerHTML = wbMiniGrid(baseSimRecipe)
+        detailCol.appendChild(wbWrap)
+        vizRow.appendChild(detailCol)
+        body.appendChild(vizRow)
+        // Extra params as pills
+        const extraRows = [
+          ['Grain', baseSimRecipe.grain_effect],
+          ['Sharpness', baseSimRecipe.sharpness != null ? (baseSimRecipe.sharpness > 0 ? '+' : '') + baseSimRecipe.sharpness : null],
+          ['Clarity',   baseSimRecipe.clarity   != null ? (baseSimRecipe.clarity   > 0 ? '+' : '') + baseSimRecipe.clarity   : null],
+          ['ISO Max', baseSimRecipe.iso_max ? 'Auto up to ' + baseSimRecipe.iso_max : null],
+          ['Exposure', baseSimRecipe.exposure_compensation],
+        ].filter(([, v]) => v != null && v !== '' && v !== 'N/A')
+        if (extraRows.length) {
+          const extraPills = document.createElement('div')
+          extraPills.className = 'cs-pills'
+          extraRows.forEach(([lbl, val]) => {
+            const sp = document.createElement('span')
+            sp.className = 'cs-pill'
+            sp.innerHTML = `<strong>${lbl}</strong> ${val}`
+            extraPills.appendChild(sp)
+          })
+          body.appendChild(extraPills)
+        }
+      } else {
+        const pills = document.createElement('div')
+        pills.className = 'cs-pills'
+        slot.base_settings.forEach(([lbl, val]) => {
+          const p = document.createElement('span')
+          p.className = 'cs-pill'
+          p.innerHTML = `<strong>${lbl}</strong> ${val}`
+          pills.appendChild(p)
+        })
+        body.appendChild(pills)
+      }
 
       const sl = document.createElement('div')
       sl.className = 'cs-sublabel'
@@ -1934,7 +2122,59 @@ function renderCustomSlots() {
       })
       body.appendChild(simGrid)
     } else {
-      if (slot.settings) {
+      // Radar + DR/WB for single-type slot
+      const slotRecipe = slot.recipe_name ? RECIPES.find(rx => rx.name === slot.recipe_name) : null
+      if (slotRecipe) {
+        const vizRow = document.createElement('div')
+        vizRow.className = 'mr-viz-row'
+
+        const fp = document.createElement('div')
+        fp.className = 'mr-fp'
+        fp.innerHTML = fingerprint(slotRecipe)
+        vizRow.appendChild(fp)
+
+        const detailCol = document.createElement('div')
+        detailCol.className = 'mr-detail-col'
+        if (slotRecipe.dynamic_range && slotRecipe.dynamic_range !== 'N/A') {
+          const drRow = document.createElement('div')
+          drRow.className = 'mr-detail-row'
+          drRow.innerHTML = `<span class="mr-detail-label">DR</span><span class="badge b-dr">${slotRecipe.dynamic_range}</span>`
+          detailCol.appendChild(drRow)
+        }
+        if (slotRecipe.white_balance) {
+          const wbRow = document.createElement('div')
+          wbRow.className = 'mr-detail-row'
+          wbRow.innerHTML = `<span class="mr-detail-label">WB</span><span class="mr-detail-val">${slotRecipe.white_balance}</span>`
+          detailCol.appendChild(wbRow)
+        }
+        const wbWrap = document.createElement('div')
+        wbWrap.innerHTML = wbMiniGrid(slotRecipe)
+        detailCol.appendChild(wbWrap)
+        vizRow.appendChild(detailCol)
+        body.appendChild(vizRow)
+
+        // Remaining recipe params as compact pills
+        const extraRows = [
+          ['Film Sim', slotRecipe.film_simulation],
+          ['Grain', slotRecipe.grain_effect],
+          ['Sharpness', slotRecipe.sharpness != null ? (slotRecipe.sharpness > 0 ? '+' : '') + slotRecipe.sharpness : null],
+          ['Clarity',   slotRecipe.clarity   != null ? (slotRecipe.clarity   > 0 ? '+' : '') + slotRecipe.clarity   : null],
+          ['ISO Max', slotRecipe.iso_max ? 'Auto up to ' + slotRecipe.iso_max : null],
+          ['Exposure', slotRecipe.exposure_compensation],
+        ].filter(([, v]) => v != null && v !== '' && v !== 'N/A')
+        if (extraRows.length) {
+          const extraPills = document.createElement('div')
+          extraPills.className = 'cs-pills'
+          extraRows.forEach(([lbl, val]) => {
+            const sp = document.createElement('span')
+            sp.className = 'cs-pill'
+            sp.innerHTML = `<strong>${lbl}</strong> ${val}`
+            extraPills.appendChild(sp)
+          })
+          body.appendChild(extraPills)
+        }
+      } else if (slot.settings) {
+        // Fallback to table if recipe not found
         const tbl = document.createElement('table')
         tbl.className = 'stbl'
         slot.settings.forEach(([lbl, val]) => {
@@ -2063,34 +2303,39 @@ function renderMyRecipes() {
       body.appendChild(notes)
     }
 
-    // Fingerprint
+    // Radar + DR/WB details row
+    const vizRow = document.createElement('div')
+    vizRow.className = 'mr-viz-row'
+
     const fp = document.createElement('div')
     fp.className = 'mr-fp'
     fp.innerHTML = fingerprint(r)
-    body.appendChild(fp)
+    vizRow.appendChild(fp)
 
-    // Settings table
-    const tbl = document.createElement('table')
-    tbl.className = 'stbl'
-    const rows = [
-      ['Film Sim', r.film_simulation],
-      ['Dynamic Range', r.dynamic_range],
-      ['White Balance', r.white_balance + (r.wb_shift_red||r.wb_shift_blue ? ` (R${r.wb_shift_red||0}/B${r.wb_shift_blue||0})` : '')],
-      ['Highlight', r.highlight != null ? (r.highlight > 0 ? '+' : '') + r.highlight : null],
-      ['Shadow',    r.shadow    != null ? (r.shadow    > 0 ? '+' : '') + r.shadow    : null],
-      ['Color',     r.color     != null ? (r.color     > 0 ? '+' : '') + r.color     : null],
-      ['Sharpness', r.sharpness != null ? (r.sharpness > 0 ? '+' : '') + r.sharpness : null],
-      ['Clarity',   r.clarity   != null ? (r.clarity   > 0 ? '+' : '') + r.clarity   : null],
-      ['Grain', r.grain_effect],
-      ['ISO Max', r.iso_max],
-      ['Exposure', r.exposure_compensation],
-    ].filter(([,v]) => v != null && v !== '')
-    rows.forEach(([lbl, val]) => {
-      const tr = document.createElement('tr')
-      tr.innerHTML = `<td>${lbl}</td><td>${val}</td>`
-      tbl.appendChild(tr)
-    })
-    body.appendChild(tbl)
+    const detailCol = document.createElement('div')
+    detailCol.className = 'mr-detail-col'
+
+    // DR badge
+    if (r.dynamic_range && r.dynamic_range !== 'N/A') {
+      const drRow = document.createElement('div')
+      drRow.className = 'mr-detail-row'
+      drRow.innerHTML = `<span class="mr-detail-label">DR</span><span class="badge b-dr">${r.dynamic_range}</span>`
+      detailCol.appendChild(drRow)
+    }
+    // WB mode
+    if (r.white_balance) {
+      const wbModeRow = document.createElement('div')
+      wbModeRow.className = 'mr-detail-row'
+      wbModeRow.innerHTML = `<span class="mr-detail-label">WB</span><span class="mr-detail-val">${r.white_balance}</span>`
+      detailCol.appendChild(wbModeRow)
+    }
+    // WB shift grid
+    const wbWrap = document.createElement('div')
+    wbWrap.innerHTML = wbMiniGrid(r)
+    detailCol.appendChild(wbWrap)
+
+    vizRow.appendChild(detailCol)
+    body.appendChild(vizRow)
 
     // Narrative (clipped)
     if (r.narrative) {
@@ -2347,14 +2592,17 @@ function updateRadarOverlay() {
     html += svgPill(px, py - 7, valTxt, '#d4a843', '#1c1c20', '#e8c05a')
   })
 
-  // Delta pills — for each axis where |yours − match| >= step*0.5
+  // Delta pills — placed below the label group for each axis
+  const labelOffsets2 = [[0,-15],[18,-8],[12,12],[-12,12],[-18,-8]]
   if (rt) {
     AXES.forEach((p, i) => {
       const diff = (rt[p.key] ?? 0) - (T[p.key] ?? 0)
       if (Math.abs(diff) < p.step * 0.5) return
       const [ux, uy] = unitVec(i)
-      const px = cx + (R + 22) * ux
-      const py = cy + (R + 22) * uy
+      const lx = cx + (R + 20) * ux + labelOffsets2[i][0]
+      const ly = cy + (R + 20) * uy + labelOffsets2[i][1]
+      const px = lx
+      const py = ly + 14
       const color = diff > 0 ? '#4caf7d' : '#5b9af0'
       const bgAlpha = diff > 0 ? 'rgba(76,175,125,.2)' : 'rgba(91,154,240,.18)'
       const stroke = diff > 0 ? 'rgba(76,175,125,.4)' : 'rgba(91,154,240,.4)'
@@ -2420,61 +2668,97 @@ function buildRadarPane() {
   dyn.id = 'exp-radar-dyn'
   svg.appendChild(dyn)
 
-  // Axis name labels (outside ring)
+  // Axis name labels + +/- buttons with background pill (outside ring)
   const labelNames = ['HL','SH','COL','CCE','CCB']
   const labelOffsets = [[0,-15],[18,-8],[12,12],[-12,12],[-18,-8]]
-  AXES.forEach((_, i) => {
+  AXES.forEach((p, i) => {
     const [ux, uy] = unitVec(i)
     const lx = cx + (R + 20) * ux + labelOffsets[i][0]
     const ly = cy + (R + 20) * uy + labelOffsets[i][1]
+
+    // Group for hit area styling
+    const grp = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+
+    // Background pill behind the whole label+buttons row
+    const pillW = 46, pillH = 16
+    const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+    bg.setAttribute('x', lx - pillW/2); bg.setAttribute('y', ly - 11)
+    bg.setAttribute('width', pillW); bg.setAttribute('height', pillH)
+    bg.setAttribute('rx', '5')
+    bg.setAttribute('fill', '#1a1a20')
+    bg.setAttribute('stroke', '#3a3a4a')
+    bg.setAttribute('stroke-width', '0.8')
+    grp.appendChild(bg)
+
+    // − button
+    const btnMinus = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+    btnMinus.setAttribute('x', lx - 15); btnMinus.setAttribute('y', ly)
+    btnMinus.setAttribute('text-anchor', 'middle')
+    btnMinus.setAttribute('font-size', '12')
+    btnMinus.setAttribute('fill', '#8a8a9a')
+    btnMinus.setAttribute('font-family', 'Inter,sans-serif')
+    btnMinus.setAttribute('font-weight', '700')
+    btnMinus.style.cursor = 'pointer'
+    btnMinus.textContent = '−'
+    btnMinus.addEventListener('click', () => {
+      T[p.key] = Math.max(p.lo, Math.round((T[p.key] - p.step) / p.step) * p.step)
+      syncExploreControls(); expDebounce()
+    })
+    grp.appendChild(btnMinus)
+
+    // Label
     const t = document.createElementNS('http://www.w3.org/2000/svg', 'text')
     t.setAttribute('x', lx); t.setAttribute('y', ly)
     t.setAttribute('text-anchor', 'middle')
-    t.setAttribute('font-size', '10')
-    t.setAttribute('fill', '#5e5e6e')
+    t.setAttribute('dominant-baseline', 'auto')
+    t.setAttribute('font-size', '9')
+    t.setAttribute('fill', '#c0c0d0')
     t.setAttribute('font-family', 'Inter,sans-serif')
-    t.setAttribute('font-weight', '600')
+    t.setAttribute('font-weight', '700')
+    t.setAttribute('letter-spacing', '0.3')
     t.textContent = labelNames[i]
-    svg.appendChild(t)
+    grp.appendChild(t)
+
+    // + button
+    const btnPlus = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+    btnPlus.setAttribute('x', lx + 15); btnPlus.setAttribute('y', ly)
+    btnPlus.setAttribute('text-anchor', 'middle')
+    btnPlus.setAttribute('font-size', '12')
+    btnPlus.setAttribute('fill', '#8a8a9a')
+    btnPlus.setAttribute('font-family', 'Inter,sans-serif')
+    btnPlus.setAttribute('font-weight', '700')
+    btnPlus.style.cursor = 'pointer'
+    btnPlus.textContent = '+'
+    btnPlus.addEventListener('click', () => {
+      T[p.key] = Math.min(p.hi, Math.round((T[p.key] + p.step) / p.step) * p.step)
+      syncExploreControls(); expDebounce()
+    })
+    grp.appendChild(btnPlus)
+
+    svg.appendChild(grp)
   })
 
-  // Legend toggle buttons (inside the SVG, bottom)
-  const legendG = document.createElementNS('http://www.w3.org/2000/svg', 'g')
-  legendG.id = 'exp-radar-legend'
-  legendG.innerHTML = `
-    <g id="exp-legend-yours" style="cursor:pointer">
-      <rect x="10" y="232" width="72" height="18" rx="6" fill="rgba(212,168,67,.15)" stroke="#d4a843" stroke-width="1"/>
-      <line x1="18" y1="241" x2="30" y2="241" stroke="#d4a843" stroke-width="2"/>
-      <text x="34" y="245" font-size="9" fill="#d4a843" font-family="Inter,sans-serif" font-weight="600">Yours</text>
-    </g>
-    <g id="exp-legend-match" style="cursor:pointer">
-      <rect x="90" y="232" width="120" height="18" rx="6" fill="rgba(91,154,240,.12)" stroke="#5b9af0" stroke-width="1"/>
-      <line x1="98" y1="241" x2="110" y2="241" stroke="#5b9af0" stroke-width="1.5" stroke-dasharray="4,2"/>
-      <text x="114" y="245" font-size="9" fill="#5b9af0" font-family="Inter,sans-serif" font-weight="600">Closest match</text>
-    </g>`
-  svg.appendChild(legendG)
-
-  // Legend toggle state (module-level yoursVisible / matchVisible)
+  // Legend toggle buttons — wired to HTML elements above the SVG
   yoursVisible = true
   matchVisible = true
-  document.getElementById('exp-legend-yours').addEventListener('click', () => {
-    yoursVisible = !yoursVisible
-    const poly = document.getElementById('exp-radar-yours')
-    const btn = document.getElementById('exp-legend-yours')
-    if (poly) poly.style.opacity = yoursVisible ? '1' : '0.1'
-    btn.querySelector('rect').setAttribute('fill', yoursVisible ? 'rgba(212,168,67,.15)' : 'rgba(212,168,67,.04)')
-    btn.querySelector('rect').setAttribute('stroke', yoursVisible ? '#d4a843' : '#3a3a42')
-    btn.querySelectorAll('line,text').forEach(el => el.style.opacity = yoursVisible ? '1' : '0.3')
-  })
-  document.getElementById('exp-legend-match').addEventListener('click', () => {
-    matchVisible = !matchVisible
-    const poly = document.getElementById('exp-radar-match')
-    const btn = document.getElementById('exp-legend-match')
-    if (poly) poly.style.opacity = matchVisible ? '1' : '0.1'
-    btn.querySelector('rect').setAttribute('fill', matchVisible ? 'rgba(91,154,240,.12)' : 'rgba(91,154,240,.03)')
-    btn.querySelector('rect').setAttribute('stroke', matchVisible ? '#5b9af0' : '#3a3a42')
-    btn.querySelectorAll('line,text').forEach(el => el.style.opacity = matchVisible ? '1' : '0.3')
-  })
+  const legendYoursBtn = document.getElementById('exp-legend-yours-btn')
+  const legendMatchBtn = document.getElementById('exp-legend-match-btn')
+  if (legendYoursBtn) {
+    legendYoursBtn.addEventListener('click', () => {
+      yoursVisible = !yoursVisible
+      const poly = document.getElementById('exp-radar-yours')
+      if (poly) poly.style.opacity = yoursVisible ? '1' : '0.1'
+      legendYoursBtn.classList.toggle('dimmed', !yoursVisible)
+    })
+  }
+  if (legendMatchBtn) {
+    legendMatchBtn.addEventListener('click', () => {
+      matchVisible = !matchVisible
+      const poly = document.getElementById('exp-radar-match')
+      if (poly) poly.style.opacity = matchVisible ? '1' : '0.1'
+      legendMatchBtn.classList.toggle('dimmed', !matchVisible)
+    })
+  }
 
   // Draw initial state
   updateRadarOverlay()
@@ -2591,8 +2875,6 @@ function buildWbGrid() {
 
   // Your dot — gold diamond
   html += `<polygon id="exp-wb-dot" points="${diamondPoints(T.wb_shift_red, -T.wb_shift_blue, 1.1)}" fill="#d4a843" stroke="#0d0d0f" stroke-width=".3" style="cursor:crosshair"/>`
-  // Your value pill
-  html += `<g id="exp-wb-your-pill"></g>`
 
   svg.innerHTML = html
 
@@ -2646,38 +2928,38 @@ function buildWbGrid() {
 
 function pillSvg(x, y, text, strokeColor, bgColor, textColor) {
   const w = text.length * 1.1 + 2
-  return `<rect x="${x}" y="${y}" width="${w}" height="2.6" rx=".8" fill="${bgColor}" stroke="${strokeColor}" stroke-width=".3"/>` +
-         `<text x="${x + w/2}" y="${y + 1.9}" font-size="1.5" fill="${textColor}" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">${text}</text>`
+  const cx = clamp(x, -8.8, 9 - w)
+  return `<rect x="${cx}" y="${y}" width="${w}" height="2.6" rx=".8" fill="${bgColor}" stroke="${strokeColor}" stroke-width=".3"/>` +
+         `<text x="${cx + w/2}" y="${y + 1.9}" font-size="1.5" fill="${textColor}" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">${text}</text>`
 }
 
 function updateWbDot() {
   const dot = document.getElementById('exp-wb-dot')
   if (dot) dot.setAttribute('points', diamondPoints(T.wb_shift_red, -T.wb_shift_blue, 1.1))
-  // Your value pill
-  const yourPill = document.getElementById('exp-wb-your-pill')
-  if (yourPill) {
-    const px = T.wb_shift_red, py = -T.wb_shift_blue
-    const rLabel = (T.wb_shift_red >= 0 ? 'R+' : 'R') + T.wb_shift_red
-    const bLabel = (T.wb_shift_blue >= 0 ? 'B+' : 'B') + T.wb_shift_blue
-    const txt = rLabel + ' ' + bLabel
-    yourPill.innerHTML = pillSvg(px + 1.5, py - 1.4, txt, '#d4a843', '#1c1c20', '#e8c05a')
-  }
-  // Match dot
+
+  // Your value — written to HTML outside the SVG
+  const rLabel = (T.wb_shift_red >= 0 ? 'R+' : 'R') + T.wb_shift_red
+  const bLabel = (T.wb_shift_blue >= 0 ? 'B+' : 'B') + T.wb_shift_blue
+  const yoursTxt = document.getElementById('exp-wb-yours-txt')
+  if (yoursTxt) yoursTxt.textContent = rLabel + ' ' + bLabel
+
+  // Match dot + match value in HTML
   const closest = computeSimilarity(T)[0]
   const matchG = document.getElementById('exp-wb-match-g')
   if (matchG && closest) {
     const rt = recipeToT(closest)
     const mx = rt.wb_shift_red, my = -rt.wb_shift_blue
-    const rL = (rt.wb_shift_red >= 0 ? 'R+' : 'R') + rt.wb_shift_red
-    const bL = (rt.wb_shift_blue >= 0 ? 'B+' : 'B') + rt.wb_shift_blue
-    const label = rL + ' ' + bL
     matchG.innerHTML =
       `<line x1="${mx-1.4}" y1="${my}" x2="${mx+1.4}" y2="${my}" stroke="#5b9af0" stroke-width=".25" opacity=".7"/>` +
       `<line x1="${mx}" y1="${my-1.4}" x2="${mx}" y2="${my+1.4}" stroke="#5b9af0" stroke-width=".25" opacity=".7"/>` +
-      `<circle cx="${mx}" cy="${my}" r=".55" fill="rgba(91,154,240,.15)" stroke="#5b9af0" stroke-width=".3"/>` +
-      pillSvg(mx + 1.5, my - 1.4, label, '#5b9af0', '#1c1c20', '#5b9af0')
+      `<circle cx="${mx}" cy="${my}" r=".55" fill="rgba(91,154,240,.15)" stroke="#5b9af0" stroke-width=".3"/>`
     matchG.setAttribute('opacity', '1')
+    const rL = (rt.wb_shift_red >= 0 ? 'R+' : 'R') + rt.wb_shift_red
+    const bL = (rt.wb_shift_blue >= 0 ? 'B+' : 'B') + rt.wb_shift_blue
+    const matchTxt = document.getElementById('exp-wb-match-txt')
+    if (matchTxt) matchTxt.textContent = rL + ' ' + bL
   }
+
   // WB match mode indicator
   const matchMode = document.getElementById('exp-wb-match-mode')
   if (matchMode && closest) {
