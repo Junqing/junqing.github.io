@@ -2807,7 +2807,86 @@ function renderCompareSideBySide(container) {
   layout.appendChild(makeCol(C.b, tb, 'b'))
   container.appendChild(layout)
 }
-function renderCompareRowDiff(container)    { container.innerHTML = '<div class="cmp-empty" style="color:var(--text3);font-size:11px">Row diff view — coming in next task</div>' }
+function renderCompareRowDiff(container) {
+  const ta = recipeToT(C.a), tb = recipeToT(C.b)
+  const ccLbl = ['Off', 'Weak', 'Strong']
+
+  function addRow(tbl, label, va, vb) {
+    const match = String(va) === String(vb)
+    const tr = document.createElement('tr')
+    tr.className = match ? 'match' : 'diff'
+    let diffHtml = '='
+    if (!match) {
+      const na = parseFloat(va), nb = parseFloat(vb)
+      if (!isNaN(na) && !isNaN(nb)) {
+        const d = na - nb
+        diffHtml = `<span style="color:${d > 0 ? '#d4a843' : '#5b9af0'};font-weight:700">${d > 0 ? '▲' : '▼'}</span>`
+      } else {
+        diffHtml = '≠'
+      }
+    }
+    tr.innerHTML = `<td>${label}</td><td style="color:${match?'':'#d4a843'}">${va ?? '—'}</td><td class="cmp-diff-cell">${diffHtml}</td><td style="color:${match?'':'#5b9af0'};text-align:right">${vb ?? '—'}</td>`
+    tbl.appendChild(tr)
+  }
+
+  const tbl = document.createElement('table')
+  tbl.className = 'cmp-row-table'
+  const thead = document.createElement('thead')
+  thead.innerHTML = `<tr><th style="text-align:left;padding:4px 6px;font-size:10px;color:var(--text3)">Param</th><th style="color:#d4a843;padding:4px 6px;font-size:10px">A</th><th style="padding:4px 6px;font-size:10px;color:var(--text3)"></th><th style="color:#5b9af0;padding:4px 6px;font-size:10px;text-align:right">B</th></tr>`
+  tbl.appendChild(thead)
+
+  const tbody = document.createElement('tbody')
+  addRow(tbody, 'Film Sim',    C.a.film_simulation,   C.b.film_simulation)
+  addRow(tbody, 'WB Mode',     ta.white_balance,       tb.white_balance)
+  addRow(tbody, 'DR',          C.a.dynamic_range,      C.b.dynamic_range)
+  addRow(tbody, 'Grain',       C.a.grain_effect,       C.b.grain_effect)
+  addRow(tbody, 'Grain Size',  ta.grain_size,          tb.grain_size)
+  addRow(tbody, 'HL',          ta.highlight,           tb.highlight)
+  addRow(tbody, 'SH',          ta.shadow,              tb.shadow)
+  addRow(tbody, 'COL',         ta.color,               tb.color)
+  addRow(tbody, 'CCE',         ccLbl[ta.color_chrome_effect],  ccLbl[tb.color_chrome_effect])
+  addRow(tbody, 'CCB',         ccLbl[ta.color_chrome_fx_blue], ccLbl[tb.color_chrome_fx_blue])
+  addRow(tbody, 'SHP',         ta.sharpness,           tb.sharpness)
+  addRow(tbody, 'CL',          ta.clarity,             tb.clarity)
+  addRow(tbody, 'NR',          ta.high_iso_nr,         tb.high_iso_nr)
+  addRow(tbody, 'WB R',        ta.wb_shift_red,        tb.wb_shift_red)
+  addRow(tbody, 'WB B',        ta.wb_shift_blue,       tb.wb_shift_blue)
+  tbl.appendChild(tbody)
+  container.appendChild(tbl)
+
+  const kwA = new Set([...(C.a.mood_keywords||[]), ...(C.a.scenario_keywords||[])])
+  const kwB = new Set([...(C.b.mood_keywords||[]), ...(C.b.scenario_keywords||[])])
+  const allKw = [...new Set([...kwA, ...kwB])]
+
+  const kwSl = document.createElement('div')
+  kwSl.className = 'cmp-section-label'
+  kwSl.textContent = 'Keywords'
+  container.appendChild(kwSl)
+
+  const kwRow = document.createElement('div')
+  kwRow.className = 'cmp-kw-row'
+
+  function makeKwCol(label, mySet, otherSet) {
+    const col = document.createElement('div')
+    col.className = 'cmp-kw-col'
+    const hdr = document.createElement('div')
+    hdr.style.cssText = `font-size:10px;font-weight:700;color:${label==='a'?'#d4a843':'#5b9af0'};margin-bottom:4px`
+    hdr.textContent = 'Recipe ' + label.toUpperCase()
+    col.appendChild(hdr)
+    allKw.forEach(k => {
+      if (!mySet.has(k)) return
+      const sp = document.createElement('span')
+      sp.className = 'cmp-kw ' + (otherSet.has(k) ? 'cmp-kw-shared' : 'cmp-kw-' + label)
+      sp.textContent = k
+      col.appendChild(sp)
+    })
+    return col
+  }
+
+  kwRow.appendChild(makeKwCol('a', kwA, kwB))
+  kwRow.appendChild(makeKwCol('b', kwB, kwA))
+  container.appendChild(kwRow)
+}
 function renderCompareOverlay(container)    { container.innerHTML = '<div class="cmp-empty" style="color:var(--text3);font-size:11px">Overlay view — coming in next task</div>' }
 
 let yoursVisible = true, matchVisible = true
