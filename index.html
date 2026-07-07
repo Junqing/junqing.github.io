@@ -2861,7 +2861,7 @@ function syncCompactDiffs() {
   const drPill = document.getElementById('exp-dp-dynamic_range')
   if (drPill) {
     drPill.textContent = rt.dynamic_range !== T.dynamic_range ? rt.dynamic_range : '='
-    drPill.className = 'exp-diff-pill ' + (rt.dynamic_range !== T.dynamic_range ? 'neut' : 'neut')
+    drPill.className = 'exp-diff-pill ' + (rt.dynamic_range !== T.dynamic_range ? 'neg' : 'neut')
   }
 
   // Grain diff
@@ -2869,14 +2869,14 @@ function syncCompactDiffs() {
   if (gPill) {
     const gDiff = rt.grain_effect - T.grain_effect
     gPill.textContent = gDiff !== 0 ? (['Off','Wk','Str'][rt.grain_effect] || rt.grain_effect) : '='
-    gPill.className = 'exp-diff-pill ' + (gDiff !== 0 ? 'neut' : 'neut')
+    gPill.className = 'exp-diff-pill ' + (gDiff !== 0 ? 'neg' : 'neut')
   }
 
   // Grain size diff
   const gsPill = document.getElementById('exp-dp-grain_size')
   if (gsPill) {
     gsPill.textContent = rt.grain_size !== T.grain_size ? rt.grain_size : '='
-    gsPill.className = 'exp-diff-pill ' + (rt.grain_size !== T.grain_size ? 'neut' : 'neut')
+    gsPill.className = 'exp-diff-pill ' + (rt.grain_size !== T.grain_size ? 'neg' : 'neut')
   }
 }
 
