@@ -2580,15 +2580,6 @@ function initCompare() {
   header.appendChild(wrapA); header.appendChild(wrapB)
   header.appendChild(swapBtn); header.appendChild(clearBtn)
 
-  document.getElementById('cmp-sel-a').addEventListener('change', e => {
-    C.a = RECIPES.find(r => r.name === e.target.value) || null
-    renderCompare()
-  })
-  document.getElementById('cmp-sel-b').addEventListener('change', e => {
-    C.b = RECIPES.find(r => r.name === e.target.value) || null
-    renderCompare()
-  })
-
   // Subtabs
   const subtabs = document.createElement('div')
   subtabs.className = 'cmp-subtabs'
@@ -2615,6 +2606,15 @@ function initCompare() {
   content.id = 'cmp-content'
 
   shell.appendChild(header)
+
+  document.getElementById('cmp-sel-a').addEventListener('change', e => {
+    C.a = RECIPES.find(r => r.name === e.target.value) || null
+    renderCompare()
+  })
+  document.getElementById('cmp-sel-b').addEventListener('change', e => {
+    C.b = RECIPES.find(r => r.name === e.target.value) || null
+    renderCompare()
+  })
   shell.appendChild(subtabs)
   shell.appendChild(content)
 
