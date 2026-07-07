@@ -2520,33 +2520,29 @@ function buildRadarPane() {
 }
 
 function syncExploreControls() {
-  // Sliders
-  T_PARAMS.forEach(p => {
-    const inp = document.getElementById('exp-sl-' + p.key)
-    const lbl = document.getElementById('exp-slv-' + p.key)
-    const dot = document.getElementById('exp-dot-' + p.key)
-    if (inp) inp.value = T[p.key]
-    if (lbl) lbl.textContent = T[p.key]
-    if (dot) {
-      const n = p.norm(T[p.key])
-      dot.style.background = n < 0.33 ? 'var(--blue)' : n < 0.67 ? 'var(--teal)' : 'var(--accent)'
-    }
-  })
-  // WB preset label
-  const wbLbl = document.getElementById('exp-wb-preset-lbl')
-  if (wbLbl) {
-    const seeded = T.seedName ? RECIPES.find(r => r.name === T.seedName) : null
-    wbLbl.textContent = seeded ? (seeded.white_balance || '') : ''
-  }
-  // WB dot
+  // WB
+  const wbMode = document.getElementById('exp-wb-mode')
+  if (wbMode && wbMode.value !== T.white_balance) wbMode.value = T.white_balance
   updateWbDot()
-  // Readout bars (radar sub-tab)
-  T_PARAMS.forEach(p => {
-    const fill = document.getElementById('exp-ro-fill-' + p.key)
-    const val  = document.getElementById('exp-ro-val-' + p.key)
-    if (fill) fill.style.width = (p.norm(T[p.key]) * 100) + '%'
-    if (val)  val.textContent  = T[p.key]
+  // Compact controls (steppers)
+  ;['sharpness','clarity','high_iso_nr'].forEach(key => {
+    const el = document.getElementById('exp-sv-' + key)
+    if (el) el.textContent = T[key]
   })
+  // Compact controls (toggles)
+  ;['100','200','400'].forEach(v => {
+    const btn = document.querySelector(`#exp-dr-group [data-val="${v}"]`)
+    if (btn) btn.classList.toggle('on', T.dynamic_range === parseInt(v))
+  })
+  ;['0','1','2'].forEach(v => {
+    const btn = document.querySelector(`#exp-grain-group [data-val="${v}"]`)
+    if (btn) btn.classList.toggle('on', T.grain_effect === parseInt(v))
+  })
+  ;['S','L'].forEach(v => {
+    const btn = document.querySelector(`#exp-gs-group [data-val="${v}"]`)
+    if (btn) btn.classList.toggle('on', T.grain_size === v)
+  })
+  syncCompactDiffs()
 }
 
 function diamondPoints(cx, cy, s) {
@@ -2737,10 +2733,157 @@ function buildSliderPane() {
   pane.appendChild(owrap)
 }
 
+function buildCompactControls() {
+  const container = document.getElementById('exp-compact-controls')
+  if (!container) return
+  container.innerHTML = ''
+
+  const title = document.createElement('div')
+  title.className = 'exp-compact-title'
+  title.textContent = 'Detail & Range'
+  container.appendChild(title)
+
+  const grid = document.createElement('div')
+  grid.className = 'exp-compact-grid'
+  container.appendChild(grid)
+
+  // Stepper controls for SHP, CL, NR (T_PARAMS entries 5,6,7)
+  const stepperKeys = ['sharpness','clarity','high_iso_nr']
+  const stepperLabels = {'sharpness':'Sharpness','clarity':'Clarity','high_iso_nr':'ISO NR'}
+  stepperKeys.forEach(key => {
+    const p = T_PARAMS.find(x => x.key === key)
+    const row = document.createElement('div')
+    row.className = 'exp-compact-row'
+    row.innerHTML = `
+      <span class="exp-compact-lbl">${stepperLabels[key]}</span>
+      <button class="exp-stepper-btn" data-key="${key}" data-dir="-1">−</button>
+      <span class="exp-stepper-val" id="exp-sv-${key}">${T[key]}</span>
+      <button class="exp-stepper-btn" data-key="${key}" data-dir="1">+</button>
+      <span class="exp-diff-pill neut" id="exp-dp-${key}"></span>`
+    grid.appendChild(row)
+    row.querySelectorAll('.exp-stepper-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const dir = parseInt(btn.dataset.dir)
+        T[key] = clamp(T[key] + dir * p.step, p.lo, p.hi)
+        document.getElementById('exp-sv-' + key).textContent = T[key]
+        syncCompactDiffs()
+        expDebounce()
+      })
+    })
+  })
+
+  // Dynamic Range toggle
+  const drRow = document.createElement('div')
+  drRow.className = 'exp-compact-row'
+  drRow.innerHTML = `
+    <span class="exp-compact-lbl">Dyn Range</span>
+    <div class="exp-toggle-group" id="exp-dr-group">
+      <button class="exp-toggle-btn${T.dynamic_range===100?' on':''}" data-val="100">100</button>
+      <button class="exp-toggle-btn${T.dynamic_range===200?' on':''}" data-val="200">200</button>
+      <button class="exp-toggle-btn${T.dynamic_range===400?' on':''}" data-val="400">400</button>
+    </div>
+    <span class="exp-diff-pill neut" id="exp-dp-dynamic_range"></span>`
+  grid.appendChild(drRow)
+  drRow.querySelectorAll('.exp-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      T.dynamic_range = parseInt(btn.dataset.val)
+      drRow.querySelectorAll('.exp-toggle-btn').forEach(b => b.classList.toggle('on', b === btn))
+      syncCompactDiffs()
+      expDebounce()
+    })
+  })
+
+  // Grain strength toggle
+  const grainRow = document.createElement('div')
+  grainRow.className = 'exp-compact-row'
+  grainRow.innerHTML = `
+    <span class="exp-compact-lbl">Grain</span>
+    <div class="exp-toggle-group" id="exp-grain-group">
+      <button class="exp-toggle-btn${T.grain_effect===0?' on':''}" data-val="0">Off</button>
+      <button class="exp-toggle-btn${T.grain_effect===1?' on':''}" data-val="1">Wk</button>
+      <button class="exp-toggle-btn${T.grain_effect===2?' on':''}" data-val="2">Str</button>
+    </div>
+    <span class="exp-diff-pill neut" id="exp-dp-grain_effect"></span>`
+  grid.appendChild(grainRow)
+  grainRow.querySelectorAll('.exp-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      T.grain_effect = parseInt(btn.dataset.val)
+      grainRow.querySelectorAll('.exp-toggle-btn').forEach(b => b.classList.toggle('on', b === btn))
+      syncCompactDiffs()
+      expDebounce()
+    })
+  })
+
+  // Grain size toggle
+  const gsRow = document.createElement('div')
+  gsRow.className = 'exp-compact-row'
+  gsRow.innerHTML = `
+    <span class="exp-compact-lbl">Grain Size</span>
+    <div class="exp-toggle-group" id="exp-gs-group">
+      <button class="exp-toggle-btn${T.grain_size==='S'?' on':''}" data-val="S">S</button>
+      <button class="exp-toggle-btn${T.grain_size==='L'?' on':''}" data-val="L">L</button>
+    </div>
+    <span class="exp-diff-pill neut" id="exp-dp-grain_size"></span>`
+  grid.appendChild(gsRow)
+  gsRow.querySelectorAll('.exp-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      T.grain_size = btn.dataset.val
+      gsRow.querySelectorAll('.exp-toggle-btn').forEach(b => b.classList.toggle('on', b === btn))
+      syncCompactDiffs()
+      expDebounce()
+    })
+  })
+
+  syncCompactDiffs()
+}
+
+function syncCompactDiffs() {
+  const closest = computeSimilarity(T)[0]
+  if (!closest) return
+  const rt = recipeToT(closest)
+
+  // Stepper diffs
+  ;['sharpness','clarity','high_iso_nr'].forEach(key => {
+    const pill = document.getElementById('exp-dp-' + key)
+    const valEl = document.getElementById('exp-sv-' + key)
+    if (valEl) valEl.textContent = T[key]
+    if (!pill) return
+    const diff = rt[key] - T[key]
+    if (Math.abs(diff) < 0.5) {
+      pill.textContent = '='; pill.className = 'exp-diff-pill neut'
+    } else {
+      pill.textContent = (diff > 0 ? '+' : '') + diff
+      pill.className = 'exp-diff-pill ' + (diff > 0 ? 'pos' : 'neg')
+    }
+  })
+
+  // DR diff
+  const drPill = document.getElementById('exp-dp-dynamic_range')
+  if (drPill) {
+    drPill.textContent = rt.dynamic_range !== T.dynamic_range ? rt.dynamic_range : '='
+    drPill.className = 'exp-diff-pill ' + (rt.dynamic_range !== T.dynamic_range ? 'neut' : 'neut')
+  }
+
+  // Grain diff
+  const gPill = document.getElementById('exp-dp-grain_effect')
+  if (gPill) {
+    const gDiff = rt.grain_effect - T.grain_effect
+    gPill.textContent = gDiff !== 0 ? (['Off','Wk','Str'][rt.grain_effect] || rt.grain_effect) : '='
+    gPill.className = 'exp-diff-pill ' + (gDiff !== 0 ? 'neut' : 'neut')
+  }
+
+  // Grain size diff
+  const gsPill = document.getElementById('exp-dp-grain_size')
+  if (gsPill) {
+    gsPill.textContent = rt.grain_size !== T.grain_size ? rt.grain_size : '='
+    gsPill.className = 'exp-diff-pill ' + (rt.grain_size !== T.grain_size ? 'neut' : 'neut')
+  }
+}
+
 function initExplore() {
   if (exploreBuilt) return
 
-  // Seed picker — typeahead input
+  // Seed picker
   const seedInput = document.getElementById('exp-seed-input')
   const seedDropdown = document.getElementById('exp-seed-dropdown')
   if (seedInput && seedDropdown) {
@@ -2748,7 +2891,6 @@ function initExplore() {
       const q = query.trim().toLowerCase()
       const matches = RECIPES.filter(r => r.name.toLowerCase().includes(q)).slice(0, 12)
       seedDropdown.innerHTML = ''
-      // Neutral option always at top
       const neutral = document.createElement('div')
       neutral.textContent = '— neutral —'
       neutral.style.cssText = 'padding:6px 10px;font-size:13px;cursor:pointer;color:var(--text2)'
@@ -2780,26 +2922,33 @@ function initExplore() {
     seedInput.addEventListener('blur', () => setTimeout(() => { seedDropdown.style.display = 'none' }, 150))
   }
 
+  // Film sim filter — populate options from dataset
+  const filmSimSel = document.getElementById('exp-film-sim')
+  if (filmSimSel) {
+    const sims = [...new Set(RECIPES.map(r => r.film_simulation).filter(Boolean))].sort()
+    sims.forEach(s => {
+      const opt = document.createElement('option')
+      opt.value = s; opt.textContent = s
+      filmSimSel.appendChild(opt)
+    })
+    filmSimSel.addEventListener('change', () => {
+      T.film_sim_filter = filmSimSel.value
+      renderExploreResults()
+      updateRadarOverlay()
+      updateWbDot()
+      syncCompactDiffs()
+    })
+  }
+
   // WB grid
   buildWbGrid()
 
-  // Sub-tab switching
-  document.querySelectorAll('.exp-subtab').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.exp-subtab').forEach(b => b.classList.remove('on'))
-      document.querySelectorAll('.exp-pane').forEach(p => p.classList.remove('on'))
-      btn.classList.add('on')
-      document.getElementById('exp-pane-' + btn.dataset.ep).classList.add('on')
-    })
-  })
+  // Compact controls
+  buildCompactControls()
 
-  // Build slider pane
-  buildSliderPane()
-
-  // Build radar pane
+  // Radar
   buildRadarPane()
 
-  // Initial render
   exploreBuilt = true
   renderExploreResults()
 }
