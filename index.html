@@ -2239,6 +2239,7 @@ function seedRecipe(name) {
 }
 
 let exploreBuilt = false
+let yoursVisible = true, matchVisible = true
 
 let _expOverlayTimer = null
 function renderExploreResults() {
@@ -2358,6 +2359,10 @@ function updateRadarOverlay() {
 
   const dyn = document.getElementById('exp-radar-dyn')
   if (dyn) dyn.innerHTML = html
+  const yoursPoly = document.getElementById('exp-radar-yours')
+  const matchPoly = document.getElementById('exp-radar-match')
+  if (yoursPoly) yoursPoly.style.opacity = yoursVisible ? '1' : '0.1'
+  if (matchPoly) matchPoly.style.opacity = matchVisible ? '1' : '0.1'
 }
 function updateExploreViews() { syncExploreControls(); updateRadarOverlay() }
 
@@ -2442,8 +2447,9 @@ function buildRadarPane() {
     </g>`
   svg.appendChild(legendG)
 
-  // Legend toggle state
-  let yoursVisible = true, matchVisible = true
+  // Legend toggle state (module-level yoursVisible / matchVisible)
+  yoursVisible = true
+  matchVisible = true
   document.getElementById('exp-legend-yours').addEventListener('click', () => {
     yoursVisible = !yoursVisible
     const poly = document.getElementById('exp-radar-yours')
@@ -2484,7 +2490,7 @@ function buildRadarPane() {
     const [ux, uy] = unitVec(i)
     const proj = clamp((mx * ux + my * uy) / R, 0, 1)
     const extent = Math.max(Math.abs(p.lo), Math.abs(p.hi))
-    const rawVal = proj * 2 * extent - extent
+    const rawVal = clamp(proj * 2 * extent - extent, p.lo, p.hi)
     T[p.key] = Math.round(rawVal / p.step) * p.step
     syncExploreControls()
     expDebounce()
@@ -2506,7 +2512,7 @@ function buildRadarPane() {
     const [ux, uy] = unitVec(i)
     const proj = clamp((mx * ux + my * uy) / R, 0, 1)
     const extent = Math.max(Math.abs(p.lo), Math.abs(p.hi))
-    const rawVal = proj * 2 * extent - extent
+    const rawVal = clamp(proj * 2 * extent - extent, p.lo, p.hi)
     T[p.key] = Math.round(rawVal / p.step) * p.step
     syncExploreControls()
     expDebounce()
