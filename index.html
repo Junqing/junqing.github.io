@@ -361,7 +361,8 @@ main{display:flex;flex:1;overflow:hidden}
 .exp-sliders{display:flex;flex-direction:column;gap:12px;padding:14px 0}
 .slider-group{display:flex;flex-direction:column;gap:8px}
 .slider-group-title{font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.4px;text-transform:uppercase;margin-bottom:2px}
-.slider-row{display:grid;grid-template-columns:90px 1fr 36px;align-items:center;gap:8px}
+.slider-row{display:grid;grid-template-columns:8px 90px 1fr 36px;align-items:center;gap:8px}
+.slider-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--accent)}
 .slider-label{font-size:12px;color:var(--text2)}
 .slider-val{font-size:12px;color:var(--accent2);text-align:right;font-variant-numeric:tabular-nums}
 input[type=range].exp-range{width:100%;accent-color:var(--accent);height:4px;cursor:pointer}
@@ -392,7 +393,7 @@ input[type=range].exp-range{width:100%;accent-color:var(--accent);height:4px;cur
 .exp-kws{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
 .exp-kw{font-size:10px;padding:1px 5px;border-radius:3px;background:var(--surf2);color:var(--text3)}
 @media(max-width:680px){
-  .slider-row{grid-template-columns:72px 1fr 30px}
+  .slider-row{grid-template-columns:8px 72px 1fr 30px}
   .exp-header{flex-direction:column}
 }
 </style>
@@ -537,7 +538,11 @@ input[type=range].exp-range{width:100%;accent-color:var(--accent);height:4px;cur
       <div class="exp-header">
         <div class="exp-seed">
           <label>Start from recipe</label>
-          <select id="exp-seed-select"><option value="">— neutral defaults —</option></select>
+          <div class="exp-seed-wrap" style="position:relative">
+            <input type="text" id="exp-seed-input" placeholder="Search recipes..." autocomplete="off"
+              style="background:var(--surf2);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:6px 10px;font-size:13px;width:100%;box-sizing:border-box">
+            <div id="exp-seed-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:50;background:var(--surf2);border:1px solid var(--border);border-radius:var(--r);max-height:200px;overflow-y:auto;"></div>
+          </div>
         </div>
         <div class="exp-wb-wrap">
           <label>WB Shift</label>
@@ -2274,7 +2279,14 @@ function updateRadarOverlay() {
     const tpts = axes.map((a,i) => axisPoint(T[a.key] ?? 0, a.lo, a.hi, i))
     const tPoly = `<polygon points="${tpts.map(p=>p.join(',')).join(' ')}" fill="rgba(212,168,67,.25)" stroke="var(--accent)" stroke-width="1.8"/>`
 
-    svgEl.innerHTML = grids + spokes + ghostPoly + tPoly + labels + deltas
+    // Axis-tip value labels showing T[axis.key]
+    const axisValLabels = axes.map((a,i) => {
+      const ang = (2*Math.PI*i/N) - Math.PI/2
+      const x = cx + (R+5)*Math.cos(ang), y = cy + (R+5)*Math.sin(ang)
+      return `<text id="exp-radar-lbl-${i}" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="5" fill="var(--accent2)" font-weight="600">${T[a.key]}</text>`
+    }).join('')
+
+    svgEl.innerHTML = grids + spokes + ghostPoly + tPoly + labels + deltas + axisValLabels
   }
 
   svgIds.forEach(id => {
@@ -2364,6 +2376,8 @@ function buildRadarPane() {
       const newRatio = clamp((T[a.key]-a.lo)/(a.hi-a.lo), 0, 1)
       handle.setAttribute('cx', cx + R*newRatio*Math.cos(ang2))
       handle.setAttribute('cy', cy + R*newRatio*Math.sin(ang2))
+      const lbl = document.getElementById('exp-radar-lbl-' + i)
+      if (lbl) lbl.textContent = T[a.key]
       syncExploreControls()
       expDebounce()
     })
@@ -2386,6 +2400,8 @@ function buildRadarPane() {
       const newRatio = clamp((T[a.key]-a.lo)/(a.hi-a.lo), 0, 1)
       handle.setAttribute('cx', cx + R*newRatio*Math.cos(ang2))
       handle.setAttribute('cy', cy + R*newRatio*Math.sin(ang2))
+      const lbl = document.getElementById('exp-radar-lbl-' + i)
+      if (lbl) lbl.textContent = T[a.key]
       syncExploreControls()
       expDebounce()
     })
@@ -2411,8 +2427,13 @@ function syncExploreControls() {
   T_PARAMS.forEach(p => {
     const inp = document.getElementById('exp-sl-' + p.key)
     const lbl = document.getElementById('exp-slv-' + p.key)
+    const dot = document.getElementById('exp-dot-' + p.key)
     if (inp) inp.value = T[p.key]
     if (lbl) lbl.textContent = T[p.key]
+    if (dot) {
+      const n = p.norm(T[p.key])
+      dot.style.background = n < 0.33 ? 'var(--blue)' : n < 0.67 ? 'var(--teal)' : 'var(--accent)'
+    }
   })
   // WB preset label
   const wbLbl = document.getElementById('exp-wb-preset-lbl')
@@ -2516,7 +2537,9 @@ function buildSliderPane() {
     params.forEach(p => {
       const row = document.createElement('div')
       row.className = 'slider-row'
+      const dotColor = n => n < 0.33 ? 'var(--blue)' : n < 0.67 ? 'var(--teal)' : 'var(--accent)'
       row.innerHTML = `
+        <span class="slider-dot" id="exp-dot-${p.key}" style="background:${dotColor(p.norm(T[p.key]))}"></span>
         <span class="slider-label">${p.label}</span>
         <input type="range" class="exp-range" id="exp-sl-${p.key}"
           min="${p.min}" max="${p.max}" step="${p.step}" value="${T[p.key]}">
@@ -2525,6 +2548,8 @@ function buildSliderPane() {
       inp.addEventListener('input', () => {
         T[p.key] = parseFloat(inp.value)
         document.getElementById('exp-slv-' + p.key).textContent = T[p.key]
+        const dot = document.getElementById('exp-dot-' + p.key)
+        if (dot) dot.style.background = dotColor(p.norm(T[p.key]))
         expDebounce()
       })
       g.appendChild(row)
@@ -2552,15 +2577,44 @@ function buildSliderPane() {
 function initExplore() {
   if (exploreBuilt) return
 
-  // Seed picker
-  const sel = document.getElementById('exp-seed-select')
-  if (sel) {
-    RECIPES.slice().sort((a,b)=>a.name.localeCompare(b.name)).forEach(r => {
-      const opt = document.createElement('option')
-      opt.value = r.name; opt.textContent = r.name
-      sel.appendChild(opt)
-    })
-    sel.addEventListener('change', () => seedRecipe(sel.value || null))
+  // Seed picker — typeahead input
+  const seedInput = document.getElementById('exp-seed-input')
+  const seedDropdown = document.getElementById('exp-seed-dropdown')
+  if (seedInput && seedDropdown) {
+    function showDropdown(query) {
+      const q = query.trim().toLowerCase()
+      const matches = RECIPES.filter(r => r.name.toLowerCase().includes(q)).slice(0, 12)
+      seedDropdown.innerHTML = ''
+      // Neutral option always at top
+      const neutral = document.createElement('div')
+      neutral.textContent = '— neutral —'
+      neutral.style.cssText = 'padding:6px 10px;font-size:13px;cursor:pointer;color:var(--text2)'
+      neutral.addEventListener('mousedown', e => {
+        e.preventDefault()
+        seedRecipe(null)
+        seedInput.value = ''
+        seedDropdown.style.display = 'none'
+      })
+      seedDropdown.appendChild(neutral)
+      matches.forEach(r => {
+        const opt = document.createElement('div')
+        opt.textContent = r.name
+        opt.style.cssText = 'padding:6px 10px;font-size:13px;cursor:pointer;color:var(--text)'
+        opt.addEventListener('mouseover', () => opt.style.background = 'var(--surf3)')
+        opt.addEventListener('mouseout', () => opt.style.background = '')
+        opt.addEventListener('mousedown', e => {
+          e.preventDefault()
+          seedRecipe(r.name)
+          seedInput.value = r.name
+          seedDropdown.style.display = 'none'
+        })
+        seedDropdown.appendChild(opt)
+      })
+      seedDropdown.style.display = (matches.length > 0 || q === '') ? 'block' : 'none'
+    }
+    seedInput.addEventListener('focus', () => showDropdown(seedInput.value))
+    seedInput.addEventListener('input', () => showDropdown(seedInput.value))
+    seedInput.addEventListener('blur', () => setTimeout(() => { seedDropdown.style.display = 'none' }, 150))
   }
 
   // WB grid
