@@ -2110,64 +2110,90 @@ function renderMyRecipes() {
 
 const T = {
   seedName: null,
-  highlight: 0, shadow: 0, color: 0, sharpness: 0, clarity: 0,
-  color_chrome_effect: 0, color_chrome_fx_blue: 0,
-  dynamic_range: 100, high_iso_nr: 0,
+  film_sim_filter: '',
+  highlight: 0, shadow: 0,
+  color: 0,
+  color_chrome_effect: 0,
+  color_chrome_fx_blue: 0,
+  sharpness: 0, clarity: 0, high_iso_nr: 0,
+  dynamic_range: 100,
+  grain_effect: 0,
+  grain_size: 'S',
+  white_balance: 'Daylight',
   wb_shift_red: 0, wb_shift_blue: 0,
 }
 
-// Descriptor for each tweakable param: key, label, min, max, step, normalizer
 const T_PARAMS = [
-  {key:'highlight',        label:'Highlight',     min:-2,  max:4,   step:0.5, norm:(v)=>(v+2)/6},
-  {key:'shadow',           label:'Shadow',        min:-2,  max:4,   step:0.5, norm:(v)=>(v+2)/6},
-  {key:'color',            label:'Color',         min:-4,  max:4,   step:1,   norm:(v)=>(v+4)/8},
-  {key:'sharpness',        label:'Sharpness',     min:-4,  max:4,   step:1,   norm:(v)=>(v+4)/8},
-  {key:'clarity',          label:'Clarity',       min:-5,  max:5,   step:1,   norm:(v)=>(v+5)/10},
-  {key:'color_chrome_effect',   label:'CC Effect',min:0,   max:2,   step:1,   norm:(v)=>v/2},
-  {key:'color_chrome_fx_blue',  label:'CC FX Blue',min:0,  max:2,   step:1,   norm:(v)=>v/2},
-  {key:'dynamic_range',    label:'Dyn Range',     min:100, max:400, step:100, norm:(v)=>(v-100)/300},
-  {key:'high_iso_nr',      label:'High ISO NR',   min:-4,  max:4,   step:1,   norm:(v)=>(v+4)/8},
+  {key:'highlight',            label:'HL',  lo:-2, hi:4,   step:0.5},
+  {key:'shadow',               label:'SH',  lo:-2, hi:4,   step:0.5},
+  {key:'color',                label:'COL', lo:-4, hi:4,   step:1  },
+  {key:'color_chrome_effect',  label:'CCE', lo:0,  hi:2,   step:1  },
+  {key:'color_chrome_fx_blue', label:'CCB', lo:0,  hi:2,   step:1  },
+  {key:'sharpness',            label:'SHP', lo:-4, hi:4,   step:1  },
+  {key:'clarity',              label:'CL',  lo:-5, hi:5,   step:1  },
+  {key:'high_iso_nr',          label:'NR',  lo:-4, hi:4,   step:1  },
+  {key:'dynamic_range',        label:'DR',  lo:100,hi:400, step:100},
 ]
 
-// Map recipe field values to T numeric values
+function tNorm(p, v) {
+  const extent = Math.max(Math.abs(p.lo), Math.abs(p.hi))
+  return clamp((v + extent) / (2 * extent), 0, 1)
+}
+
 function recipeToT(r) {
   const ccMap = {'Off':0,'Weak':1,'Strong':2}
   const drMap = {'DR100':100,'DR200':200,'DR400':400}
+  const ge = r.grain_effect || 'Off'
+  const geStr = ge.split(',')[0].trim()
+  const geSize = ge.includes('Large') ? 'L' : 'S'
   return {
     seedName: r.name,
-    highlight:           pn(r.highlight) ?? 0,
-    shadow:              pn(r.shadow)    ?? 0,
-    color:               pn(r.color)     ?? 0,
-    sharpness:           pn(r.sharpness) ?? 0,
-    clarity:             pn(r.clarity)   ?? 0,
-    color_chrome_effect: ccMap[r.color_chrome_effect] ?? 0,
-    color_chrome_fx_blue:ccMap[r.color_chrome_fx_blue] ?? 0,
-    dynamic_range:       drMap[r.dynamic_range] ?? (pn(r.dynamic_range) ?? 100),
-    high_iso_nr:         pn(r.high_iso_nr) ?? 0,
-    wb_shift_red:        pn(r.wb_shift_red)  ?? 0,
-    wb_shift_blue:       pn(r.wb_shift_blue) ?? 0,
+    film_sim_filter: '',
+    highlight:            pn(r.highlight) ?? 0,
+    shadow:               pn(r.shadow)    ?? 0,
+    color:                pn(r.color)     ?? 0,
+    color_chrome_effect:  ccMap[r.color_chrome_effect]  ?? 0,
+    color_chrome_fx_blue: ccMap[r.color_chrome_fx_blue] ?? 0,
+    sharpness:            pn(r.sharpness) ?? 0,
+    clarity:              pn(r.clarity)   ?? 0,
+    high_iso_nr:          pn(r.high_iso_nr) ?? 0,
+    dynamic_range:        drMap[r.dynamic_range] ?? (pn(r.dynamic_range) ?? 100),
+    grain_effect:         ccMap[geStr] ?? 0,
+    grain_size:           geSize,
+    white_balance:        r.white_balance || 'Daylight',
+    wb_shift_red:         pn(r.wb_shift_red)  ?? 0,
+    wb_shift_blue:        pn(r.wb_shift_blue) ?? 0,
   }
 }
 
 function computeSimilarity(t) {
-  return RECIPES.map(r => {
+  let pool = RECIPES
+  if (t.film_sim_filter) pool = pool.filter(r => r.film_simulation === t.film_sim_filter)
+  return pool.map(r => {
     const rt = recipeToT(r)
     let sum = 0
     T_PARAMS.forEach(p => {
-      const d = p.norm(t[p.key]) - p.norm(rt[p.key])
+      const d = tNorm(p, t[p.key]) - tNorm(p, rt[p.key])
       sum += d * d
     })
-    // WB contribution — normalized over -9..9 range
-    const dR = (t.wb_shift_red  - (rt.wb_shift_red  ?? 0)) / 18
-    const dB = (t.wb_shift_blue - (rt.wb_shift_blue ?? 0)) / 18
+    const dR = (t.wb_shift_red  - rt.wb_shift_red)  / 18
+    const dB = (t.wb_shift_blue - rt.wb_shift_blue) / 18
     sum += dR * dR + dB * dB
+    const gs = t.grain_size !== rt.grain_size ? 0.25 : 0
+    sum += gs
     return { r, dist: Math.sqrt(sum) }
   }).sort((a, b) => a.dist - b.dist).map(x => x.r)
 }
 
 function seedRecipe(name) {
   if (!name) {
-    Object.assign(T, {seedName:null,highlight:0,shadow:0,color:0,sharpness:0,clarity:0,color_chrome_effect:0,color_chrome_fx_blue:0,dynamic_range:100,high_iso_nr:0,wb_shift_red:0,wb_shift_blue:0})
+    Object.assign(T, {
+      seedName:null, highlight:0, shadow:0, color:0,
+      color_chrome_effect:0, color_chrome_fx_blue:0,
+      sharpness:0, clarity:0, high_iso_nr:0, dynamic_range:100,
+      grain_effect:0, grain_size:'S',
+      white_balance:'Daylight', wb_shift_red:0, wb_shift_blue:0,
+    })
   } else {
     const r = RECIPES.find(x => x.name === name)
     if (r) Object.assign(T, recipeToT(r))
