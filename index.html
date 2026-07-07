@@ -2287,200 +2287,230 @@ function renderExploreResults() {
   clearTimeout(_expOverlayTimer)
   _expOverlayTimer = setTimeout(updateRadarOverlay, 0)
 }
+function svgPill(x, y, text, strokeColor, bgColor, textColor) {
+  const w = Math.max(text.length * 5.5 + 8, 22)
+  return `<rect x="${x - w/2}" y="${y}" width="${w}" height="14" rx="4" fill="${bgColor}" stroke="${strokeColor}" stroke-width="1"/>` +
+         `<text x="${x}" y="${y + 10}" text-anchor="middle" font-size="9" fill="${textColor}" font-family="Inter,sans-serif" font-weight="700">${text}</text>`
+}
+
 function updateRadarOverlay() {
+  const svg = document.getElementById('exp-radar-svg')
+  if (!svg) return
+
+  const N = 5
+  const cx = 130, cy = 125, R = 80
+  const AXES = T_PARAMS.slice(0, 5)
+
+  function ang(i) { return (2 * Math.PI * i / N) - Math.PI / 2 }
+  function unitVec(i) { return [Math.cos(ang(i)), Math.sin(ang(i))] }
+  function axisPoint(val, p, i) {
+    const r = tNorm(p, val) * R
+    const [ux, uy] = unitVec(i)
+    return [cx + r * ux, cy + r * uy]
+  }
+
   const closest = computeSimilarity(T)[0]
-  const svgIds = ['exp-overlay-svg', 'exp-radar-main-svg']
+  const rt = closest ? recipeToT(closest) : null
 
-  // Radar axes — mirror fingerprint() axes exactly
-  const axes = [
-    {key:'highlight', l:'HL', lo:-2, hi:4},
-    {key:'shadow',    l:'SH', lo:-2, hi:4},
-    {key:'color',     l:'COL',lo:-4, hi:4},
-    {key:'sharpness', l:'SHP',lo:-4, hi:3},
-    {key:'clarity',   l:'CL', lo:-5, hi:5},
-  ]
-  const N=axes.length, cx=40, cy=40, R=28
+  // Build dynamic layer HTML
+  let html = ''
 
-  function axisPoint(value, lo, hi, i) {
-    const ang = (2*Math.PI*i/N) - Math.PI/2
-    const ratio = clamp((value-lo)/(hi-lo), 0, 1)
-    return [cx + R*ratio*Math.cos(ang), cy + R*ratio*Math.sin(ang)]
+  // Ghost polygon — closest match
+  if (rt) {
+    const gpts = AXES.map((p, i) => axisPoint(rt[p.key] ?? 0, p, i).join(',')).join(' ')
+    html += `<polygon id="exp-radar-match" points="${gpts}" fill="rgba(91,154,240,.08)" stroke="#5b9af0" stroke-width="1.6" stroke-dasharray="5,3"/>`
   }
 
-  function buildOverlaySvg(svgEl) {
-    if (!svgEl) return
-    // Grid + spokes (same as fingerprint)
-    const grids = [.33,.67,1].map(t=>{
-      const gp=axes.map((_,i)=>{const a=(2*Math.PI*i/N)-Math.PI/2;return [cx+R*t*Math.cos(a),cy+R*t*Math.sin(a)]})
-      return `<polygon points="${gp.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#2a2a30" stroke-width=".8"/>`
-    }).join('')
-    const spokes = axes.map((_,i)=>{const a=(2*Math.PI*i/N)-Math.PI/2;return `<line x1="${cx}" y1="${cy}" x2="${cx+R*Math.cos(a)}" y2="${cy+R*Math.sin(a)}" stroke="#2a2a30" stroke-width=".8"/>`}).join('')
-    const labels = axes.map((a,i)=>{const ang=(2*Math.PI*i/N)-Math.PI/2;const x=cx+(R+9)*Math.cos(ang),y=cy+(R+9)*Math.sin(ang);return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="7" fill="#5e5e6e">${a.l}</text>`}).join('')
+  // Your polygon
+  const tpts = AXES.map((p, i) => axisPoint(T[p.key] ?? 0, p, i).join(',')).join(' ')
+  html += `<polygon id="exp-radar-yours" points="${tpts}" fill="rgba(212,168,67,.15)" stroke="#d4a843" stroke-width="2.2"/>`
 
-    // Ghost shape — closest match
-    const rt = closest ? recipeToT(closest) : null
-    let ghostPoly = ''
-    let deltas = ''
-    if (rt) {
-      const gpts = axes.map((a,i) => axisPoint(rt[a.key] ?? 0, a.lo, a.hi, i))
-      ghostPoly = `<polygon points="${gpts.map(p=>p.join(',')).join(' ')}" fill="rgba(91,154,240,.12)" stroke="#5b9af0" stroke-width="1.2" stroke-dasharray="2,1.5"/>`
-      // Delta annotations
-      deltas = axes.map((a,i) => {
-        const d = (rt[a.key] ?? 0) - T[a.key]
-        if (Math.abs(d) < 0.4) return ''
-        const ang = (2*Math.PI*i/N) - Math.PI/2
-        const x = cx + (R+16)*Math.cos(ang), y = cy + (R+16)*Math.sin(ang)
-        const sign = d > 0 ? '+' : ''
-        const col = d > 0 ? 'var(--green)' : 'var(--blue)'
-        return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="5.5" fill="${col}" font-weight="700">${sign}${Math.round(d*10)/10}</text>`
-      }).join('')
-    }
+  // Diamond handles + value pills
+  AXES.forEach((p, i) => {
+    const [hx, hy] = axisPoint(T[p.key] ?? 0, p, i)
+    const s = 4
+    const dpts = `${hx},${hy-s} ${hx+s},${hy} ${hx},${hy+s} ${hx-s},${hy}`
+    html += `<polygon class="radar-handle" data-idx="${i}" points="${dpts}" fill="#d4a843" stroke="#0d0d0f" stroke-width="1.2" style="cursor:grab"/>`
+    // Value pill beside handle
+    const [ux, uy] = unitVec(i)
+    const px = hx + ux * 8, py = hy + uy * 8
+    const val = T[p.key]
+    const valTxt = (val > 0 ? '+' : '') + val
+    html += svgPill(px, py - 7, valTxt, '#d4a843', '#1c1c20', '#e8c05a')
+  })
 
-    // T shape
-    const tpts = axes.map((a,i) => axisPoint(T[a.key] ?? 0, a.lo, a.hi, i))
-    const tPoly = `<polygon points="${tpts.map(p=>p.join(',')).join(' ')}" fill="rgba(212,168,67,.25)" stroke="var(--accent)" stroke-width="1.8"/>`
-
-    // Axis-tip value labels showing T[axis.key]
-    const axisValLabels = axes.map((a,i) => {
-      const ang = (2*Math.PI*i/N) - Math.PI/2
-      const x = cx + (R+5)*Math.cos(ang), y = cy + (R+5)*Math.sin(ang)
-      return `<text id="exp-radar-lbl-${i}" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="5" fill="var(--accent2)" font-weight="600">${T[a.key]}</text>`
-    }).join('')
-
-    svgEl.innerHTML = grids + spokes + ghostPoly + tPoly + labels + deltas + axisValLabels
-  }
-
-  svgIds.forEach(id => {
-    const svgEl = document.getElementById(id)
-    if (!svgEl) return
-    // Preserve existing handle circles (added by buildRadarPane)
-    const handles = Array.from(svgEl.querySelectorAll('.radar-handle'))
-    buildOverlaySvg(svgEl)
-    handles.forEach(h => svgEl.appendChild(h))
-    // Update handle positions
-    handles.forEach(h => {
-      const i = parseInt(h.dataset.idx)
-      const a = axes[i]
-      const ang = (2*Math.PI*i/N) - Math.PI/2
-      const ratio = clamp((T[a.key]-a.lo)/(a.hi-a.lo), 0, 1)
-      h.setAttribute('cx', cx + R*ratio*Math.cos(ang))
-      h.setAttribute('cy', cy + R*ratio*Math.sin(ang))
+  // Delta pills — for each axis where |yours − match| >= step*0.5
+  if (rt) {
+    AXES.forEach((p, i) => {
+      const diff = (rt[p.key] ?? 0) - (T[p.key] ?? 0)
+      if (Math.abs(diff) < p.step * 0.5) return
+      const [ux, uy] = unitVec(i)
+      const px = cx + (R + 22) * ux
+      const py = cy + (R + 22) * uy
+      const color = diff > 0 ? '#4caf7d' : '#5b9af0'
+      const bgAlpha = diff > 0 ? 'rgba(76,175,125,.2)' : 'rgba(91,154,240,.18)'
+      const stroke = diff > 0 ? 'rgba(76,175,125,.4)' : 'rgba(91,154,240,.4)'
+      const sign = diff > 0 ? '+' : ''
+      html += `<rect x="${px-12}" y="${py-7}" width="24" height="14" rx="4" fill="${bgAlpha}" stroke="${stroke}" stroke-width=".8"/>`
+      html += `<text x="${px}" y="${py+3}" text-anchor="middle" font-size="9" fill="${color}" font-family="Inter,sans-serif" font-weight="700">${sign}${Math.round(diff*10)/10}</text>`
     })
-  })
+  }
 
-  // Update readout bars
-  T_PARAMS.forEach(p => {
-    const fill = document.getElementById('exp-ro-fill-' + p.key)
-    const val  = document.getElementById('exp-ro-val-'  + p.key)
-    if (fill) fill.style.width = (p.norm(T[p.key]) * 100) + '%'
-    if (val)  val.textContent  = T[p.key]
-  })
+  const dyn = document.getElementById('exp-radar-dyn')
+  if (dyn) dyn.innerHTML = html
 }
 function updateExploreViews() { syncExploreControls(); updateRadarOverlay() }
 
 function buildRadarPane() {
-  const pane = document.getElementById('exp-pane-radar')
-  if (!pane) return
+  const svg = document.getElementById('exp-radar-svg')
+  if (!svg) return
 
-  // Main draggable radar SVG
-  const radarWrap = document.createElement('div')
-  radarWrap.className = 'exp-radar-wrap'
-  radarWrap.innerHTML = '<svg id="exp-radar-main-svg" class="exp-radar-svg" width="220" height="220" viewBox="0 0 80 80"></svg>'
-  pane.appendChild(radarWrap)
+  const N = 5
+  const cx = 130, cy = 125, R = 80
+  const AXES = T_PARAMS.slice(0, 5)  // HL, SH, COL, CCE, CCB
 
-  // Draggable handles for radar axes
-  const axes = [
-    {key:'highlight', l:'HL', lo:-2, hi:4},
-    {key:'shadow',    l:'SH', lo:-2, hi:4},
-    {key:'color',     l:'COL',lo:-4, hi:4},
-    {key:'sharpness', l:'SHP',lo:-4, hi:3},
-    {key:'clarity',   l:'CL', lo:-5, hi:5},
-  ]
-  const N=axes.length, cx=40, cy=40, R=28
+  function ang(i) { return (2 * Math.PI * i / N) - Math.PI / 2 }
+  function unitVec(i) { return [Math.cos(ang(i)), Math.sin(ang(i))] }
+  function axisPoint(val, p, i) {
+    const r = tNorm(p, val) * R
+    const [ux, uy] = unitVec(i)
+    return [cx + r * ux, cy + r * uy]
+  }
 
-  const svg = document.getElementById('exp-radar-main-svg')
+  // Static structure (grid + spokes) — drawn once
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+  g.id = 'exp-radar-static'
+  const rings = [0.25, 0.5, 0.75, 1.0]
+  rings.forEach(frac => {
+    const pts = AXES.map((_, i) => {
+      const [ux, uy] = unitVec(i)
+      return `${cx + R * frac * ux},${cy + R * frac * uy}`
+    }).join(' ')
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
+    poly.setAttribute('points', pts)
+    poly.setAttribute('fill', 'none')
+    poly.setAttribute('stroke', frac === 0.5 ? '#3a3a42' : '#2a2a30')
+    poly.setAttribute('stroke-width', frac === 0.5 ? '1.2' : '0.8')
+    g.appendChild(poly)
+  })
+  AXES.forEach((_, i) => {
+    const [ux, uy] = unitVec(i)
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+    line.setAttribute('x1', cx); line.setAttribute('y1', cy)
+    line.setAttribute('x2', cx + R * ux); line.setAttribute('y2', cy + R * uy)
+    line.setAttribute('stroke', '#2a2a30'); line.setAttribute('stroke-width', '0.8')
+    g.appendChild(line)
+  })
+  svg.appendChild(g)
 
-  // Draw static structure first via updateRadarOverlay
+  // Dynamic layer (polygons + handles + pills) — replaced by updateRadarOverlay
+  const dyn = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+  dyn.id = 'exp-radar-dyn'
+  svg.appendChild(dyn)
+
+  // Axis name labels (outside ring)
+  const labelNames = ['HL','SH','COL','CCE','CCB']
+  const labelOffsets = [[0,-15],[18,-8],[12,12],[-12,12],[-18,-8]]
+  AXES.forEach((_, i) => {
+    const [ux, uy] = unitVec(i)
+    const lx = cx + (R + 20) * ux + labelOffsets[i][0]
+    const ly = cy + (R + 20) * uy + labelOffsets[i][1]
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+    t.setAttribute('x', lx); t.setAttribute('y', ly)
+    t.setAttribute('text-anchor', 'middle')
+    t.setAttribute('font-size', '10')
+    t.setAttribute('fill', '#5e5e6e')
+    t.setAttribute('font-family', 'Inter,sans-serif')
+    t.setAttribute('font-weight', '600')
+    t.textContent = labelNames[i]
+    svg.appendChild(t)
+  })
+
+  // Legend toggle buttons (inside the SVG, bottom)
+  const legendG = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+  legendG.id = 'exp-radar-legend'
+  legendG.innerHTML = `
+    <g id="exp-legend-yours" style="cursor:pointer">
+      <rect x="10" y="232" width="72" height="18" rx="6" fill="rgba(212,168,67,.15)" stroke="#d4a843" stroke-width="1"/>
+      <line x1="18" y1="241" x2="30" y2="241" stroke="#d4a843" stroke-width="2"/>
+      <text x="34" y="245" font-size="9" fill="#d4a843" font-family="Inter,sans-serif" font-weight="600">Yours</text>
+    </g>
+    <g id="exp-legend-match" style="cursor:pointer">
+      <rect x="90" y="232" width="120" height="18" rx="6" fill="rgba(91,154,240,.12)" stroke="#5b9af0" stroke-width="1"/>
+      <line x1="98" y1="241" x2="110" y2="241" stroke="#5b9af0" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <text x="114" y="245" font-size="9" fill="#5b9af0" font-family="Inter,sans-serif" font-weight="600">Closest match</text>
+    </g>`
+  svg.appendChild(legendG)
+
+  // Legend toggle state
+  let yoursVisible = true, matchVisible = true
+  document.getElementById('exp-legend-yours').addEventListener('click', () => {
+    yoursVisible = !yoursVisible
+    const poly = document.getElementById('exp-radar-yours')
+    const btn = document.getElementById('exp-legend-yours')
+    if (poly) poly.style.opacity = yoursVisible ? '1' : '0.1'
+    btn.querySelector('rect').setAttribute('fill', yoursVisible ? 'rgba(212,168,67,.15)' : 'rgba(212,168,67,.04)')
+    btn.querySelector('rect').setAttribute('stroke', yoursVisible ? '#d4a843' : '#3a3a42')
+    btn.querySelectorAll('line,text').forEach(el => el.style.opacity = yoursVisible ? '1' : '0.3')
+  })
+  document.getElementById('exp-legend-match').addEventListener('click', () => {
+    matchVisible = !matchVisible
+    const poly = document.getElementById('exp-radar-match')
+    const btn = document.getElementById('exp-legend-match')
+    if (poly) poly.style.opacity = matchVisible ? '1' : '0.1'
+    btn.querySelector('rect').setAttribute('fill', matchVisible ? 'rgba(91,154,240,.12)' : 'rgba(91,154,240,.03)')
+    btn.querySelector('rect').setAttribute('stroke', matchVisible ? '#5b9af0' : '#3a3a42')
+    btn.querySelectorAll('line,text').forEach(el => el.style.opacity = matchVisible ? '1' : '0.3')
+  })
+
+  // Draw initial state
   updateRadarOverlay()
 
-  // Add draggable handle circles
-  axes.forEach((a, i) => {
-    const ang = (2*Math.PI*i/N) - Math.PI/2
-    const ratio = clamp((T[a.key]-a.lo)/(a.hi-a.lo), 0, 1)
-    const hx = cx + R*ratio*Math.cos(ang), hy = cy + R*ratio*Math.sin(ang)
-    const handle = document.createElementNS('http://www.w3.org/2000/svg','circle')
-    handle.setAttribute('class','radar-handle')
-    handle.setAttribute('cx', hx); handle.setAttribute('cy', hy)
-    handle.setAttribute('r','3'); handle.setAttribute('fill','var(--accent)')
-    handle.setAttribute('stroke','var(--bg)'); handle.setAttribute('stroke-width','0.8')
-    handle.dataset.idx = i
-    svg.appendChild(handle)
-
-    let active = false
-    handle.addEventListener('mousedown', e => { active = true; e.preventDefault() })
-    document.addEventListener('mouseup', () => { active = false })
-    document.addEventListener('mousemove', e => {
-      if (!active) return
-      const rect = svg.getBoundingClientRect()
-      const scale = 80 / rect.width
-      const mx = (e.clientX - rect.left) * scale - cx
-      const my = (e.clientY - rect.top)  * scale - cy
-      const ang2 = (2*Math.PI*i/N) - Math.PI/2
-      // Project mouse onto axis via dot product
-      const axX = Math.cos(ang2), axY = Math.sin(ang2)
-      const proj = clamp((mx*axX + my*axY) / R, 0, 1)
-      const rawVal = a.lo + proj*(a.hi-a.lo)
-      // Snap to step
-      const p = T_PARAMS.find(x => x.key === a.key)
-      T[a.key] = Math.round(rawVal / p.step) * p.step
-      // Update handle position
-      const newRatio = clamp((T[a.key]-a.lo)/(a.hi-a.lo), 0, 1)
-      handle.setAttribute('cx', cx + R*newRatio*Math.cos(ang2))
-      handle.setAttribute('cy', cy + R*newRatio*Math.sin(ang2))
-      const lbl = document.getElementById('exp-radar-lbl-' + i)
-      if (lbl) lbl.textContent = T[a.key]
-      syncExploreControls()
-      expDebounce()
-    })
-    // Touch
-    handle.addEventListener('touchstart', e => { active = true; e.preventDefault() }, {passive:false})
-    document.addEventListener('touchend', () => { active = false })
-    document.addEventListener('touchmove', e => {
-      if (!active) return
-      const t2 = e.touches[0]
-      const rect = svg.getBoundingClientRect()
-      const scale = 80 / rect.width
-      const mx = (t2.clientX - rect.left) * scale - cx
-      const my = (t2.clientY - rect.top)  * scale - cy
-      const ang2 = (2*Math.PI*i/N) - Math.PI/2
-      const axX = Math.cos(ang2), axY = Math.sin(ang2)
-      const proj = clamp((mx*axX + my*axY) / R, 0, 1)
-      const rawVal = a.lo + proj*(a.hi-a.lo)
-      const p = T_PARAMS.find(x => x.key === a.key)
-      T[a.key] = Math.round(rawVal / p.step) * p.step
-      const newRatio = clamp((T[a.key]-a.lo)/(a.hi-a.lo), 0, 1)
-      handle.setAttribute('cx', cx + R*newRatio*Math.cos(ang2))
-      handle.setAttribute('cy', cy + R*newRatio*Math.sin(ang2))
-      const lbl = document.getElementById('exp-radar-lbl-' + i)
-      if (lbl) lbl.textContent = T[a.key]
-      syncExploreControls()
-      expDebounce()
-    })
+  // Wire drag events on handles (delegated — handles added by updateRadarOverlay)
+  let activeHandle = null
+  svg.addEventListener('mousedown', e => {
+    const h = e.target.closest('.radar-handle')
+    if (h) { activeHandle = h; e.preventDefault() }
   })
-
-  // Read-only readout bars below radar
-  const readouts = document.createElement('div')
-  readouts.className = 'exp-readouts'
-  T_PARAMS.forEach(p => {
-    const item = document.createElement('div')
-    item.className = 'exp-readout-item'
-    item.innerHTML = `
-      <span class="exp-readout-lbl">${p.label}</span>
-      <div class="exp-readout-bar"><div class="exp-readout-fill" id="exp-ro-fill-${p.key}" style="width:${p.norm(T[p.key])*100}%"></div></div>
-      <span class="exp-readout-val" id="exp-ro-val-${p.key}">${T[p.key]}</span>`
-    readouts.appendChild(item)
+  document.addEventListener('mouseup', () => { activeHandle = null })
+  document.addEventListener('mousemove', e => {
+    if (!activeHandle) return
+    const i = parseInt(activeHandle.dataset.idx)
+    const p = AXES[i]
+    const rect = svg.getBoundingClientRect()
+    const scaleX = 260 / rect.width, scaleY = 250 / rect.height
+    const mx = (e.clientX - rect.left) * scaleX - cx
+    const my = (e.clientY - rect.top)  * scaleY - cy
+    const [ux, uy] = unitVec(i)
+    const proj = clamp((mx * ux + my * uy) / R, 0, 1)
+    const extent = Math.max(Math.abs(p.lo), Math.abs(p.hi))
+    const rawVal = proj * 2 * extent - extent
+    T[p.key] = Math.round(rawVal / p.step) * p.step
+    syncExploreControls()
+    expDebounce()
   })
-  pane.appendChild(readouts)
+  svg.addEventListener('touchstart', e => {
+    const h = e.target.closest('.radar-handle')
+    if (h) { activeHandle = h; e.preventDefault() }
+  }, {passive:false})
+  document.addEventListener('touchend', () => { activeHandle = null })
+  document.addEventListener('touchmove', e => {
+    if (!activeHandle) return
+    const i = parseInt(activeHandle.dataset.idx)
+    const p = AXES[i]
+    const t2 = e.touches[0]
+    const rect = svg.getBoundingClientRect()
+    const scaleX = 260 / rect.width, scaleY = 250 / rect.height
+    const mx = (t2.clientX - rect.left) * scaleX - cx
+    const my = (t2.clientY - rect.top)  * scaleY - cy
+    const [ux, uy] = unitVec(i)
+    const proj = clamp((mx * ux + my * uy) / R, 0, 1)
+    const extent = Math.max(Math.abs(p.lo), Math.abs(p.hi))
+    const rawVal = proj * 2 * extent - extent
+    T[p.key] = Math.round(rawVal / p.step) * p.step
+    syncExploreControls()
+    expDebounce()
+  }, {passive:false})
 }
 
 function syncExploreControls() {
