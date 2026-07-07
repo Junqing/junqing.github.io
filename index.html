@@ -2536,7 +2536,7 @@ function onCompareCardClick(r) {
 }
 
 function initCompare() {
-  if (compareBuilt) { renderCompare(); return }
+  if (compareBuilt) { syncCmpSelects(); renderCompare(); return }
   compareBuilt = true
 
   const shell = document.getElementById('cmp-shell')
@@ -2575,6 +2575,7 @@ function initCompare() {
   const swapBtn = document.createElement('button')
   swapBtn.className = 'cmp-btn'; swapBtn.textContent = '⇄ Swap'
   swapBtn.addEventListener('click', () => {
+    if (!C.a || !C.b) return
     const tmp = C.a; C.a = C.b; C.b = tmp
     syncCmpSelects(); renderCompare()
   })
@@ -2838,7 +2839,7 @@ function renderCompareRowDiff(container) {
   const tbody = document.createElement('tbody')
   addRow(tbody, 'Film Sim',    C.a.film_simulation,   C.b.film_simulation)
   addRow(tbody, 'WB Mode',     ta.white_balance,       tb.white_balance)
-  addRow(tbody, 'DR',          C.a.dynamic_range,      C.b.dynamic_range)
+  addRow(tbody, 'DR',          ta.dynamic_range,       tb.dynamic_range)
   addRow(tbody, 'Grain',       C.a.grain_effect,       C.b.grain_effect)
   addRow(tbody, 'Grain Size',  ta.grain_size,          tb.grain_size)
   addRow(tbody, 'HL',          ta.highlight,           tb.highlight)
