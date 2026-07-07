@@ -2527,6 +2527,9 @@ function buildRadarPane() {
 }
 
 function syncExploreControls() {
+  // Film sim filter
+  const filmSimSel = document.getElementById('exp-film-sim')
+  if (filmSimSel && filmSimSel.value !== T.film_sim_filter) filmSimSel.value = T.film_sim_filter
   // WB
   const wbMode = document.getElementById('exp-wb-mode')
   if (wbMode && wbMode.value !== T.white_balance) wbMode.value = T.white_balance
@@ -2945,6 +2948,19 @@ function initExplore() {
       updateWbDot()
       syncCompactDiffs()
     })
+  }
+
+  // WB mode dropdown — populate from dataset
+  const wbSel = document.getElementById('exp-wb-mode')
+  if (wbSel) {
+    wbSel.innerHTML = ''
+    const wbVals = [...new Set(RECIPES.map(r => r.white_balance).filter(Boolean))].sort()
+    wbVals.forEach(v => {
+      const opt = document.createElement('option')
+      opt.value = v; opt.textContent = v
+      wbSel.appendChild(opt)
+    })
+    wbSel.value = T.white_balance
   }
 
   // WB grid
