@@ -2665,7 +2665,148 @@ function cmpSimCard(r) {
   return div
 }
 
-function renderCompareSideBySide(container) { container.innerHTML = '<div class="cmp-empty" style="color:var(--text3);font-size:11px">Side-by-side view — coming in next task</div>' }
+function renderCompareSideBySide(container) {
+  const ta = recipeToT(C.a), tb = recipeToT(C.b)
+  const kwA = new Set([...(C.a.mood_keywords||[]), ...(C.a.scenario_keywords||[])])
+  const kwB = new Set([...(C.b.mood_keywords||[]), ...(C.b.scenario_keywords||[])])
+  const allKw = [...new Set([...kwA, ...kwB])]
+
+  function makeCol(r, t, label) {
+    const col = document.createElement('div')
+    col.className = 'cmp-col'
+
+    // Title + badges
+    const title = document.createElement('div')
+    title.className = 'cmp-col-title'
+    title.textContent = r.name
+    col.appendChild(title)
+    const badges = document.createElement('div')
+    badges.className = 'cmp-col-badges'
+    badges.innerHTML = `<span class="badge b-sim">${r.film_simulation||'?'}</span>${r.color_direction?`<span class="badge ${bc(r.color_direction)}">${r.color_direction}</span>`:''}`
+    col.appendChild(badges)
+
+    // Radar
+    const fpWrap = document.createElement('div')
+    fpWrap.style.cssText = 'display:flex;justify-content:center;margin-bottom:8px'
+    fpWrap.innerHTML = fingerprint(r)
+    col.appendChild(fpWrap)
+
+    // WB grid
+    const wbSl = document.createElement('div')
+    wbSl.className = 'cmp-section-label'
+    wbSl.textContent = 'WB Shift'
+    col.appendChild(wbSl)
+    const wbWrap = document.createElement('div')
+    wbWrap.style.cssText = 'display:flex;justify-content:center;margin-bottom:8px'
+    wbWrap.innerHTML = wbMiniGrid(r)
+    col.appendChild(wbWrap)
+
+    // Param pills
+    const paramSl = document.createElement('div')
+    paramSl.className = 'cmp-section-label'
+    paramSl.textContent = 'Settings'
+    col.appendChild(paramSl)
+    const pills = document.createElement('div')
+    pills.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px'
+    ;[
+      ['DR', r.dynamic_range],
+      ['Grain', r.grain_effect],
+      ['SHP', r.sharpness != null ? (r.sharpness > 0 ? '+' : '') + r.sharpness : null],
+      ['CL',  r.clarity   != null ? (r.clarity   > 0 ? '+' : '') + r.clarity   : null],
+      ['ISO', r.iso_max ? 'up to ' + r.iso_max : null],
+      ['EV',  r.exposure_compensation],
+    ].filter(([, v]) => v != null && v !== '' && v !== 'N/A').forEach(([k, v]) => {
+      const sp = document.createElement('span')
+      sp.className = 'cs-pill'
+      sp.innerHTML = `<strong>${k}</strong> ${v}`
+      pills.appendChild(sp)
+    })
+    col.appendChild(pills)
+
+    // Keywords
+    const kwSl = document.createElement('div')
+    kwSl.className = 'cmp-section-label'
+    kwSl.textContent = 'Keywords'
+    col.appendChild(kwSl)
+    const kwWrap = document.createElement('div')
+    kwWrap.style.cssText = 'margin-bottom:10px'
+    const myKw = label === 'a' ? kwA : kwB
+    const otherKw = label === 'a' ? kwB : kwA
+    allKw.forEach(k => {
+      if (!myKw.has(k)) return
+      const sp = document.createElement('span')
+      sp.className = 'cmp-kw ' + (otherKw.has(k) ? 'cmp-kw-shared' : ('cmp-kw-' + label))
+      sp.textContent = k
+      kwWrap.appendChild(sp)
+    })
+    col.appendChild(kwWrap)
+
+    // Top 3 similar
+    const simSl = document.createElement('div')
+    simSl.className = 'cmp-section-label'
+    simSl.textContent = 'Top 3 similar'
+    col.appendChild(simSl)
+    const top3 = document.createElement('div')
+    top3.className = 'cmp-top3'
+    cmpTop3(r).forEach(s => top3.appendChild(cmpSimCard(s)))
+    col.appendChild(top3)
+
+    return col
+  }
+
+  function makeDiffStrip() {
+    const strip = document.createElement('div')
+    strip.className = 'cmp-diff-strip'
+    const lbl = document.createElement('div')
+    lbl.className = 'cmp-diff-label'
+    lbl.textContent = 'Diff'
+    strip.appendChild(lbl)
+
+    T_PARAMS.forEach(p => {
+      const na = tNorm(p, ta[p.key]), nb = tNorm(p, tb[p.key])
+      if (Math.abs(na - nb) < 0.05) return
+      const diff = ta[p.key] - tb[p.key]
+      const badge = document.createElement('div')
+      badge.className = 'cmp-diff-badge ' + (diff > 0 ? 'a' : 'b')
+      badge.textContent = p.label + ' ' + (diff > 0 ? '+' : '') + (Math.round(diff * 10) / 10)
+      strip.appendChild(badge)
+    })
+    const dR = ta.wb_shift_red - tb.wb_shift_red
+    const dB = ta.wb_shift_blue - tb.wb_shift_blue
+    if (Math.abs(dR) >= 1) {
+      const b = document.createElement('div')
+      b.className = 'cmp-diff-badge ' + (dR > 0 ? 'a' : 'b')
+      b.textContent = 'WB R ' + (dR > 0 ? '+' : '') + dR
+      strip.appendChild(b)
+    }
+    if (Math.abs(dB) >= 1) {
+      const b = document.createElement('div')
+      b.className = 'cmp-diff-badge ' + (dB > 0 ? 'a' : 'b')
+      b.textContent = 'WB B ' + (dB > 0 ? '+' : '') + dB
+      strip.appendChild(b)
+    }
+    if (ta.white_balance !== tb.white_balance) {
+      const b = document.createElement('div')
+      b.className = 'cmp-diff-badge b'
+      b.textContent = 'WB mode'
+      strip.appendChild(b)
+    }
+    if (ta.grain_size !== tb.grain_size) {
+      const b = document.createElement('div')
+      b.className = 'cmp-diff-badge b'
+      b.textContent = 'Grain size'
+      strip.appendChild(b)
+    }
+    return strip
+  }
+
+  const layout = document.createElement('div')
+  layout.className = 'cmp-layout'
+  layout.appendChild(makeCol(C.a, ta, 'a'))
+  layout.appendChild(makeDiffStrip())
+  layout.appendChild(makeCol(C.b, tb, 'b'))
+  container.appendChild(layout)
+}
 function renderCompareRowDiff(container)    { container.innerHTML = '<div class="cmp-empty" style="color:var(--text3);font-size:11px">Row diff view — coming in next task</div>' }
 function renderCompareOverlay(container)    { container.innerHTML = '<div class="cmp-empty" style="color:var(--text3);font-size:11px">Overlay view — coming in next task</div>' }
 
