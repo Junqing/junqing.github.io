@@ -56,6 +56,7 @@ This file is intentionally human-readable and editable directly on GitHub. If it
 | Keywords | `clouds` | `renderClouds()` | |
 | Directions | `directions` | `renderDirections()` | |
 | Correlation | `correlations` | `renderCorrelations()` | |
+| Explore | `explore` | `initExplore()` | See `docs/explore.md` for full design |
 
 Charts tab and `renderCharts()` / `renderSaveSlots()` still exist in the codebase but are not in the tab bar. Do not remove the code — just leave it unused.
 
@@ -68,6 +69,16 @@ Charts tab and `renderCharts()` / `renderSaveSlots()` still exist in the codebas
 - `fingerprint(r)` — generates inline SVG radar visual for a recipe's numeric settings.
 - `renderCustomSlots()` — renders `MY_CUSTOM_SLOTS` with a C1–C7 sub-tab bar; one pane visible at a time.
 - `renderGear()` — reads `MY_CAMERAS` / `MY_LENSES`; prepends `<img class="gear-img">` when `item.image` is set.
+
+### Explore tab functions (`docs/explore.md` has the full design)
+- `initExplore()` — builds the entire Explore tab once, guarded by `exploreBuilt`. Called by `switchTab('explore')`.
+- `computeSimilarity(t)` — returns `RECIPES` sorted by normalized Euclidean distance from `t`. Pure function.
+- `recipeToT(r)` — maps a recipe object to the `T` state shape (numeric values, 0/1/2 for CC/grain, etc).
+- `buildRadarPane()` — builds the 5-axis draggable radar (HL, SH, COL, CCE, CCB). Zero-centered scale: middle ring = 0, outer = max positive, center = max negative.
+- `updateRadarOverlay()` — redraws both polygons (yours + ghost), value pill labels, delta pills, updates legend toggle state.
+- `buildWbGrid()` — builds WB shift SVG with gold diamond (yours) + blue crosshair (match) dots, both with value labels.
+- `syncExploreControls()` — pushes `T` state into all controls (compact steppers, DR/grain toggles, WB dot positions).
+- `expDebounce()` — 80ms debounce; called on every `T` mutation to trigger `renderExploreResults()` + `updateRadarOverlay()`.
 
 ## MY_CUSTOM_SLOTS structure
 
