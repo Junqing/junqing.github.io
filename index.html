@@ -962,6 +962,17 @@ function makeCard(r) {
   const heroEl=div.querySelector('.card-img')
   if(heroEl) heroEl.addEventListener('click',e=>{e.stopPropagation();openLightbox(allImgs,0)})
 
+  // Compare button
+  const cmpBtn = document.createElement('button')
+  cmpBtn.className = 'cmp-card-btn'
+  cmpBtn.dataset.recipe = r.name
+  cmpBtn.textContent = 'Compare'
+  if (compareSlots[0] && compareSlots[0].name === r.name) { cmpBtn.textContent = 'A ✕'; cmpBtn.className = 'cmp-card-btn slot-a' }
+  if (compareSlots[1] && compareSlots[1].name === r.name) { cmpBtn.textContent = 'B ✕'; cmpBtn.className = 'cmp-card-btn slot-b' }
+  cmpBtn.style.cssText = 'margin:4px 12px 8px;display:block'
+  cmpBtn.addEventListener('click', e => { e.stopPropagation(); onCompareCardClick(r) })
+  div.appendChild(cmpBtn)
+
   // Toggle expand
   div.addEventListener('click',e=>{
     if(e.target.tagName==='A'||e.target.tagName==='IMG') return
@@ -2708,6 +2719,15 @@ function renderExploreResults() {
         ${kws?`<div class="exp-kws">${kws}</div>`:''}
       </div>`
     card.addEventListener('click', () => openRecipeModal(r.name))
+    const expCmpBtn = document.createElement('button')
+    expCmpBtn.className = 'cmp-card-btn'
+    expCmpBtn.dataset.recipe = r.name
+    expCmpBtn.textContent = 'Compare'
+    if (compareSlots[0] && compareSlots[0].name === r.name) { expCmpBtn.textContent = 'A ✕'; expCmpBtn.className = 'cmp-card-btn slot-a' }
+    if (compareSlots[1] && compareSlots[1].name === r.name) { expCmpBtn.textContent = 'B ✕'; expCmpBtn.className = 'cmp-card-btn slot-b' }
+    expCmpBtn.style.cssText = 'margin-top:4px;display:block'
+    expCmpBtn.addEventListener('click', e => { e.stopPropagation(); onCompareCardClick(r) })
+    card.querySelector('.exp-result-info').appendChild(expCmpBtn)
     list.appendChild(card)
   })
   // Update overlay to show closest match
