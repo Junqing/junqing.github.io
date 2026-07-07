@@ -203,11 +203,17 @@ main{display:flex;flex:1;overflow:hidden}
   .hist-wrap{grid-template-columns:1fr}
   .gear-cards,.mr-grid,.sg-cards{grid-template-columns:1fr}
   .cs-single-grid{grid-template-columns:1fr}
-  .cs-sim-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .cs-sim-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
   .corr-grid{grid-template-columns:1fr!important}
   .header-inner{flex-wrap:wrap;gap:4px}
   h1{font-size:14px!important}
   h1 span{display:none}
+  .mr-viz-row{flex-direction:column;align-items:center}
+  .mr-fp svg{width:140px!important;height:140px!important}
+  .mr-detail-col{width:100%}
+  .mr-wb-svg{max-width:100%!important}
+  .cs-pc-wrap{grid-template-columns:1fr}
+  .exp-radar-legend-row{flex-wrap:wrap}
 }
 
 /* ─── Footer ─── */
@@ -272,7 +278,13 @@ main{display:flex;flex:1;overflow:hidden}
 .mr-usage{font-size:12px;color:var(--text2);line-height:1.6;margin:8px 0;padding:8px 10px;background:var(--surf2);border-radius:var(--r);border-left:3px solid var(--accent)}
 .mr-notes{font-size:11px;color:var(--text3);line-height:1.5;font-style:italic;margin-bottom:8px}
 .mr-narr{font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.mr-fp{display:flex;justify-content:center;padding:6px 0}
+.mr-viz-row{display:flex;gap:12px;align-items:flex-start;margin:8px 0 6px}
+.mr-fp{display:flex;align-items:flex-start;flex-shrink:0}.mr-fp svg{width:150px!important;height:150px!important}
+.mr-detail-col{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;padding-top:2px}
+.mr-detail-row{display:flex;align-items:center;gap:5px}
+.mr-detail-label{font-size:10px;color:var(--text3);font-weight:600;width:22px;flex-shrink:0}
+.mr-detail-val{font-size:11px;color:var(--text2)}
+.cs-fp{display:flex;justify-content:center;padding:8px 0 4px}.cs-fp svg{width:150px!important;height:150px!important}
 .mr-gallery{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px}
 .mr-gallery img{height:60px;width:auto;min-width:60px;object-fit:cover;border-radius:4px;cursor:pointer;flex-shrink:0;border:1px solid var(--border)}
 .mr-gallery img:hover{border-color:var(--accent)}
@@ -318,6 +330,7 @@ main{display:flex;flex:1;overflow:hidden}
 .cs-pill{font-size:10px;padding:2px 7px;border-radius:99px;background:var(--surf2);border:1px solid var(--border);color:var(--text2)}
 .cs-pill strong{color:var(--text);font-weight:600}
 .cs-sim-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:7px}
+.cs-sim-fp{display:flex;justify-content:center;padding:4px 0 2px}.cs-sim-fp svg{width:72px!important;height:72px!important}
 .cs-sim-item{padding:7px 9px;background:var(--surf2);border-radius:var(--r);border:1px solid var(--border);transition:border-color .15s,background .15s}
 .cs-sim-item[style*="pointer"]:hover{border-color:var(--accent);background:rgba(212,168,67,.07)}
 .cs-sim-fs{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.03em;margin-bottom:2px}
@@ -341,6 +354,121 @@ main{display:flex;flex:1;overflow:hidden}
 .cs-pc-list li{font-size:10px;color:var(--text2);line-height:1.55;margin-bottom:3px}
 .cs-pc-list li:last-child{margin-bottom:0}
 @media(max-width:520px){.cs-pc-wrap{grid-template-columns:1fr}}
+
+/* ─── Explore Tab ─── */
+.exp-layout{display:flex;flex-direction:column;gap:16px}
+.exp-header{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.exp-seed{display:flex;flex-direction:column;gap:4px;flex:1;min-width:160px}
+.exp-seed label{font-size:11px;color:var(--text2);font-weight:600;letter-spacing:.4px;text-transform:uppercase}
+.exp-row2{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.exp-wb-col{display:flex;flex-direction:column;gap:8px;width:168px;flex-shrink:0}
+.exp-radar-col{display:flex;flex-direction:column;align-items:flex-start;flex:1;min-width:220px}
+.exp-col-label{font-size:11px;color:var(--text2);font-weight:600;letter-spacing:.4px;text-transform:uppercase}
+.exp-wb-grid{cursor:crosshair;border-radius:var(--r);overflow:hidden;background:var(--surf2);border:1px solid var(--border);display:block}
+.exp-wb-match-row{display:flex;align-items:center;gap:5px;padding:3px 8px;background:var(--surf2);border:1px solid var(--border);border-radius:6px}
+.exp-wb-match-icon{width:6px;height:6px;border-radius:50%;border:1px dashed #5b9af0;flex-shrink:0;display:inline-block}
+.exp-wb-values{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);padding:0 1px}
+.exp-wb-val-yours,.exp-wb-val-match{display:flex;align-items:center;gap:3px}
+.exp-radar-legend-row{display:flex;gap:6px;margin-bottom:4px}
+.exp-legend-btn{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600;cursor:pointer;user-select:none;border:1px solid transparent;transition:opacity .15s}
+.exp-legend-yours-btn{background:rgba(212,168,67,.12);color:#d4a843;border-color:rgba(212,168,67,.35)}
+.exp-legend-match-btn{background:rgba(91,154,240,.1);color:#5b9af0;border-color:rgba(91,154,240,.3)}
+.exp-legend-btn.dimmed{opacity:.35}
+.exp-legend-swatch{width:16px;height:2px;border-radius:1px;flex-shrink:0}
+.exp-legend-swatch-dash{width:16px;height:0;border-top:2px dashed #5b9af0;flex-shrink:0}
+.exp-radar-hint{font-size:11px;color:var(--text3);margin:4px 0 0;text-align:center;width:100%;max-width:280px}
+.exp-compact{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;flex-direction:column;gap:10px}
+.exp-compact-title{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.4px;text-transform:uppercase}
+.exp-compact-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px}
+.exp-compact-row{display:flex;align-items:center;gap:8px}
+.exp-compact-lbl{font-size:12px;color:var(--text2);width:72px;flex-shrink:0}
+.exp-stepper-btn{width:22px;height:22px;border-radius:4px;background:var(--surf2);border:1px solid var(--border);color:var(--text2);font-size:14px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1}
+.exp-stepper-val{font-size:13px;font-weight:700;color:var(--accent2);width:26px;text-align:center;flex-shrink:0}
+.exp-toggle-group{display:flex;gap:3px}
+.exp-toggle-btn{padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;background:var(--surf2);color:var(--text2);border:1px solid var(--border);cursor:pointer}
+.exp-toggle-btn.on{background:var(--accent);color:#000;border-color:var(--accent)}
+.exp-diff-pill{font-size:10px;padding:1px 6px;border-radius:4px;font-weight:600;margin-left:2px}
+.exp-diff-pill.pos{background:rgba(76,175,125,.15);color:#4caf7d}
+.exp-diff-pill.neg{background:rgba(91,154,240,.15);color:#5b9af0}
+.exp-diff-pill.neut{background:var(--surf2);color:var(--text3)}
+.exp-results{margin-top:4px}
+.exp-results-title{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}
+.exp-result-card{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surf);border:1px solid var(--border);border-radius:var(--r);cursor:pointer;transition:border-color .15s;margin-bottom:6px}
+.exp-result-card:hover{border-color:var(--accent)}
+.exp-mini-fp{flex-shrink:0}
+.exp-result-info{flex:1;min-width:0}
+.exp-result-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exp-result-badges{display:flex;flex-wrap:wrap;gap:4px;margin:3px 0}
+.exp-diff-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.exp-delta{font-size:10px;padding:1px 5px;border-radius:3px;font-variant-numeric:tabular-nums}
+.exp-delta.pos{background:rgba(76,175,125,.15);color:#4caf7d}
+.exp-delta.neg{background:rgba(91,154,240,.15);color:#5b9af0}
+.exp-kws{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
+.exp-kw{font-size:10px;padding:1px 5px;border-radius:3px;background:var(--surf2);color:var(--text3)}
+/* ─── Compare Tab ─── */
+.cmp-header{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.cmp-select-wrap{display:flex;flex-direction:column;gap:3px;flex:1;min-width:160px}
+.cmp-select-label{font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase}
+.cmp-select-label.a{color:#d4a843}.cmp-select-label.b{color:#5b9af0}
+.cmp-select{background:var(--surf2);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:5px 10px;font-size:12px;width:100%}
+.cmp-select.a{border-color:rgba(212,168,67,.4)}.cmp-select.b{border-color:rgba(91,154,240,.4)}
+.cmp-btn{padding:5px 12px;border-radius:var(--r);border:1px solid var(--border);background:var(--surf2);color:var(--text2);font-size:12px;cursor:pointer}
+.cmp-btn:hover{border-color:var(--accent);color:var(--text)}
+.cmp-subtabs{display:flex;gap:4px;margin-bottom:14px}
+.cmp-subtab{padding:4px 12px;border-radius:5px;font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--surf2);color:var(--text2);cursor:pointer}
+.cmp-subtab.on{background:var(--accent2);border-color:var(--accent2);color:#000}
+.cmp-empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px}
+.cmp-layout{display:flex;gap:0;align-items:flex-start}
+.cmp-col{flex:1;min-width:0;padding:0 12px}
+.cmp-col:first-child{padding-left:0;border-right:1px solid var(--border)}
+.cmp-col:last-child{padding-right:0;border-left:1px solid var(--border)}
+.cmp-col-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px}
+.cmp-col-badges{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.cmp-diff-strip{width:80px;flex-shrink:0;display:flex;flex-direction:column;gap:4px;padding:0 6px;padding-top:4px}
+.cmp-diff-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;text-align:center;white-space:nowrap}
+.cmp-diff-badge.a{background:rgba(212,168,67,.15);color:#d4a843}
+.cmp-diff-badge.b{background:rgba(91,154,240,.15);color:#5b9af0}
+.cmp-diff-label{font-size:9px;color:var(--text3);text-align:center;margin-bottom:2px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.cmp-section-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin:10px 0 5px}
+.cmp-kw-a{background:rgba(212,168,67,.15);color:#d4a843;border:1px solid rgba(212,168,67,.3)}
+.cmp-kw-b{background:rgba(91,154,240,.15);color:#5b9af0;border:1px solid rgba(91,154,240,.3)}
+.cmp-kw-shared{background:var(--surf2);color:var(--text3);border:1px solid var(--border)}
+.cmp-kw{font-size:10px;padding:2px 7px;border-radius:99px;display:inline-block;margin:2px}
+.cmp-top3{display:flex;flex-direction:column;gap:4px}
+.cmp-sim-card{padding:5px 8px;background:var(--surf2);border:1px solid var(--border);border-radius:var(--r);cursor:pointer;font-size:11px;display:flex;align-items:center;gap:6px}
+.cmp-sim-card:hover{border-color:var(--accent)}
+.cmp-sim-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--text)}
+.cmp-row-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px}
+.cmp-row-table td{padding:4px 6px;border-bottom:1px solid var(--border)}
+.cmp-row-table td:first-child{color:var(--text3);width:30%;font-weight:600}
+.cmp-row-table td:last-child{text-align:right}
+.cmp-row-table td.cmp-diff-cell{text-align:center;font-weight:700}
+.cmp-row-table tr.match td{opacity:.35}
+.cmp-row-table tr.diff td:first-child,.cmp-row-table tr.diff .cmp-diff-cell{color:var(--text)}
+.cmp-kw-row{display:flex;gap:6px;align-items:flex-start}
+.cmp-kw-col{flex:1;min-width:0}
+.cmp-overlay-top{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:16px}
+.cmp-overlay-radar{flex:1;min-width:220px}
+.cmp-overlay-wb{flex-shrink:0}
+.cmp-overlay-legend{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.cmp-overlay-legend-btn{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600;border:1px solid transparent}
+.cmp-overlay-legend-a{background:rgba(212,168,67,.12);color:#d4a843;border-color:rgba(212,168,67,.35)}
+.cmp-overlay-legend-b{background:rgba(91,154,240,.1);color:#5b9af0;border-color:rgba(91,154,240,.3)}
+.cmp-overlay-swatch{width:16px;height:2px;border-radius:1px;flex-shrink:0}
+.cmp-overlay-swatch-dash{width:16px;height:0;border-top:2px dashed #5b9af0;flex-shrink:0}
+.cmp-top3-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.cmp-card-btn{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;border:1px solid var(--border);background:var(--surf2);color:var(--text2);cursor:pointer;margin-top:4px;transition:background .1s,border-color .1s}
+.cmp-card-btn.slot-a{background:rgba(212,168,67,.15);color:#d4a843;border-color:rgba(212,168,67,.5)}
+.cmp-card-btn.slot-b{background:rgba(91,154,240,.15);color:#5b9af0;border-color:rgba(91,154,240,.5)}
+@media(max-width:680px){
+  .cmp-layout{flex-direction:column}
+  .cmp-col:first-child{border-right:none;border-bottom:1px solid var(--border);padding:0 0 12px}
+  .cmp-col:last-child{border-left:none;padding:12px 0 0}
+  .cmp-diff-strip{width:100%;flex-direction:row;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .cmp-top3-grid{grid-template-columns:1fr}
+  .cmp-overlay-top{flex-direction:column}
+}
+@media(max-width:680px){.exp-header{flex-direction:column}.exp-row2{flex-direction:column}.exp-wb-col{width:100%}.exp-compact-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -397,6 +525,8 @@ main{display:flex;flex:1;overflow:hidden}
     <div class="tab" data-tab="clouds">Keywords</div>
     <div class="tab" data-tab="directions">Directions</div>
     <div class="tab" data-tab="correlations">Correlation</div>
+    <div class="tab" data-tab="explore">Explore</div>
+    <div class="tab" data-tab="compare">Compare</div>
   </div>
 
   <!-- GRID -->
@@ -472,6 +602,91 @@ main{display:flex;flex:1;overflow:hidden}
     <div class="sec-desc">C1–C7 settings saved on your cameras — single recipes and multi-simulation sets with full settings, usage notes, and a filter guide for C7.</div>
     <div id="custom-slots-body"></div>
     <div class="mr-grid" id="myrecipes-body"></div>
+  </div>
+
+  <!-- EXPLORE -->
+  <div class="pane" id="pane-explore">
+    <div class="sec-title">Explore</div>
+    <div class="sec-desc">Tweak parameters and find similar recipes in real time.</div>
+    <div class="exp-layout">
+
+      <!-- ROW 1: SEED + FILM SIM -->
+      <div class="exp-header">
+        <div class="exp-seed">
+          <label>Start from</label>
+          <div class="exp-seed-wrap" style="position:relative">
+            <input type="text" id="exp-seed-input" placeholder="Search recipes..." autocomplete="off"
+              style="background:var(--surf2);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:6px 10px;font-size:13px;width:100%;box-sizing:border-box">
+            <div id="exp-seed-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:50;background:var(--surf2);border:1px solid var(--border);border-radius:var(--r);max-height:200px;overflow-y:auto;"></div>
+          </div>
+        </div>
+        <div class="exp-seed">
+          <label>Film Sim</label>
+          <select id="exp-film-sim" style="background:var(--surf2);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:6px 10px;font-size:13px;width:100%">
+            <option value="">— any —</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ROW 2: WB + RADAR -->
+      <div class="exp-row2">
+
+        <!-- WB column -->
+        <div class="exp-wb-col">
+          <label class="exp-col-label">White Balance</label>
+          <select id="exp-wb-mode" style="background:var(--surf2);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:5px 10px;font-size:12px;width:100%">
+            <option>Auto</option>
+            <option selected>Daylight</option>
+            <option>Shade</option>
+            <option>Fluorescent 1</option>
+            <option>Fluorescent 2</option>
+            <option>Fluorescent 3</option>
+            <option>Incandescent</option>
+            <option>Underwater</option>
+            <option>Custom</option>
+          </select>
+          <div class="exp-wb-match-row">
+            <span class="exp-wb-match-icon"></span>
+            <span style="font-size:10px;color:var(--text3)">Match:</span>
+            <span id="exp-wb-match-mode" style="font-size:10px;color:#5b9af0;font-weight:600">—</span>
+          </div>
+          <svg id="exp-wb-svg" class="exp-wb-grid" width="160" height="160" viewBox="-9 -9 18 18"></svg>
+          <div class="exp-wb-values">
+            <span class="exp-wb-val-yours"><svg width="8" height="8" viewBox="0 0 10 10"><polygon points="5,1 9,5 5,9 1,5" fill="#d4a843"/></svg><span id="exp-wb-yours-txt" style="color:#e8c05a;font-weight:600">—</span></span>
+            <span class="exp-wb-val-match"><svg width="8" height="8" viewBox="0 0 10 10"><line x1="2" y1="5" x2="8" y2="5" stroke="#5b9af0" stroke-width=".9"/><line x1="5" y1="2" x2="5" y2="8" stroke="#5b9af0" stroke-width=".9"/><circle cx="5" cy="5" r="2" fill="none" stroke="#5b9af0" stroke-width=".7"/></svg><span id="exp-wb-match-txt" style="color:#5b9af0;font-weight:600">—</span></span>
+          </div>
+        </div>
+
+        <!-- Radar column -->
+        <div class="exp-radar-col">
+          <label class="exp-col-label">Color &amp; Tone</label>
+          <div class="exp-radar-legend-row">
+            <span id="exp-legend-yours-btn" class="exp-legend-btn exp-legend-yours-btn">
+              <span class="exp-legend-swatch" style="background:#d4a843"></span>Yours
+            </span>
+            <span id="exp-legend-match-btn" class="exp-legend-btn exp-legend-match-btn">
+              <span class="exp-legend-swatch-dash"></span>Closest match
+            </span>
+          </div>
+          <svg id="exp-radar-svg" viewBox="0 0 260 230" style="width:100%;max-width:280px;overflow:visible" aria-label="5-axis radar chart"></svg>
+        </div>
+
+      </div>
+
+      <!-- ROW 3: COMPACT CONTROLS -->
+      <div id="exp-compact-controls" class="exp-compact"></div>
+
+      <!-- ROW 4: RESULTS -->
+      <div class="exp-results">
+        <div class="exp-results-title">Similar recipes</div>
+        <div id="exp-results-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPARE -->
+  <div class="pane" id="pane-compare">
+    <div id="cmp-shell"></div>
   </div>
 
 </section>
@@ -625,27 +840,71 @@ document.addEventListener('keydown',e=>{
 // ══════════════════════════════════════════
 // RECIPE FINGERPRINT SVG
 // ══════════════════════════════════════════
+function wbMiniGrid(r) {
+  const rx = pn(r.wb_shift_red)  ?? 0
+  const ry = -(pn(r.wb_shift_blue) ?? 0)
+  let html = ''
+  for (let i = -6; i <= 6; i += 3) {
+    const thick = i === 0
+    html += `<line x1="${i}" y1="-9" x2="${i}" y2="9" stroke="${thick?'#333340':'#242428'}" stroke-width="${thick?.6:.3}"/>`
+    html += `<line x1="-9" y1="${i}" x2="9" y2="${i}" stroke="${thick?'#333340':'#242428'}" stroke-width="${thick?.6:.3}"/>`
+  }
+  html += `<rect x="-9" y="-9" width="18" height="18" fill="none" stroke="#2e2e34" stroke-width=".6"/>`
+  html += `<text x="-9.4" y=".7" font-size="1.7" fill="#5e5e6e" text-anchor="end" font-family="Inter,sans-serif">R−</text>`
+  html += `<text x="9.4"  y=".7" font-size="1.7" fill="#5e5e6e" text-anchor="start" font-family="Inter,sans-serif">R+</text>`
+  html += `<text x="0" y="-9.6" font-size="1.7" fill="#5e5e6e" text-anchor="middle" font-family="Inter,sans-serif">B+</text>`
+  html += `<text x="0" y="10.8" font-size="1.7" fill="#5e5e6e" text-anchor="middle" font-family="Inter,sans-serif">B−</text>`
+  const rLabel = (rx >= 0 ? 'R+' : 'R') + rx
+  const bLabel = ((pn(r.wb_shift_blue)??0) >= 0 ? 'B+' : 'B') + (pn(r.wb_shift_blue)??0)
+  const txt = rLabel + ' ' + bLabel
+  const pillW = txt.length * 1.1 + 2
+  const pillX = clamp(rx + 1.5, -8.8, 9 - pillW)
+  const pillY = ry - 1.4
+  html += `<polygon points="${diamondPoints(rx, ry, 1.1)}" fill="#d4a843" stroke="#0d0d0f" stroke-width=".3"/>`
+  html += `<rect x="${pillX}" y="${pillY}" width="${pillW}" height="2.6" rx=".8" fill="#1c1c20" stroke="#d4a843" stroke-width=".3"/>`
+  html += `<text x="${pillX + pillW/2}" y="${pillY + 1.9}" font-size="1.5" fill="#e8c05a" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">${txt}</text>`
+  return `<svg class="mr-wb-svg" viewBox="-11 -11 22 22" style="width:100%;max-width:120px;display:block;border-radius:var(--r);background:var(--surf2);border:1px solid var(--border)">${html}</svg>`
+}
 function fingerprint(r) {
+  const ccMap={'Off':0,'Weak':1,'Strong':2}
+  const ccLbl=['Off','Weak','Strong']
   const axes=[
-    {l:'HL',v:pn(r.highlight),lo:-2,hi:4},{l:'SH',v:pn(r.shadow),lo:-2,hi:4},
-    {l:'COL',v:pn(r.color),lo:-4,hi:4},{l:'SHP',v:pn(r.sharpness),lo:-4,hi:3},
-    {l:'CL',v:pn(r.clarity),lo:-5,hi:5},
+    {l:'HL', v:pn(r.highlight)??0,                    lo:-2,hi:4, fmt:v=>v>0?'+'+v:''+v},
+    {l:'SH', v:pn(r.shadow)??0,                       lo:-2,hi:4, fmt:v=>v>0?'+'+v:''+v},
+    {l:'COL',v:pn(r.color)??0,                        lo:-4,hi:4, fmt:v=>v>0?'+'+v:''+v},
+    {l:'CCE',v:ccMap[r.color_chrome_effect]??0,        lo:0, hi:2, fmt:v=>ccLbl[v]},
+    {l:'CCB',v:ccMap[r.color_chrome_fx_blue]??0,       lo:0, hi:2, fmt:v=>ccLbl[v]},
   ]
-  const N=axes.length,cx=40,cy=40,R=28
+  const N=axes.length,cx=60,cy=60,R=38
   const pts=axes.map((a,i)=>{
     const ang=(2*Math.PI*i/N)-Math.PI/2
-    const ratio=a.v==null?.5:clamp((a.v-a.lo)/(a.hi-a.lo),0,1)
+    const extent=Math.max(Math.abs(a.lo),Math.abs(a.hi))
+    const ratio=clamp((a.v+extent)/(2*extent),0,1)
     return [cx+R*ratio*Math.cos(ang),cy+R*ratio*Math.sin(ang)]
   })
   const poly=pts.map(p=>p.join(',')).join(' ')
-  const grids=[.33,.67,1].map(t=>{
+  const grids=[.25,.5,.75,1].map(t=>{
     const gp=axes.map((_,i)=>{const a=(2*Math.PI*i/N)-Math.PI/2;return [cx+R*t*Math.cos(a),cy+R*t*Math.sin(a)]})
-    return `<polygon points="${gp.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#2a2a30" stroke-width=".8"/>`
+    return `<polygon points="${gp.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${t===.5?'#3a3a42':'#2a2a30'}" stroke-width="${t===.5?'1':'.8'}"/>`
   }).join('')
   const spokes=axes.map((_,i)=>{const a=(2*Math.PI*i/N)-Math.PI/2;return `<line x1="${cx}" y1="${cy}" x2="${cx+R*Math.cos(a)}" y2="${cy+R*Math.sin(a)}" stroke="#2a2a30" stroke-width=".8"/>`}).join('')
-  const labels=axes.map((a,i)=>{const ang=(2*Math.PI*i/N)-Math.PI/2;const x=cx+(R+9)*Math.cos(ang),y=cy+(R+9)*Math.sin(ang);return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="7" fill="#5e5e6e">${a.l}</text>`}).join('')
+  const labels=axes.map((a,i)=>{
+    const ang=(2*Math.PI*i/N)-Math.PI/2
+    const uy=Math.sin(ang)
+    const lx=cx+(R+16)*Math.cos(ang), ly=cy+(R+16)*uy
+    const lw=a.l.length*5+6
+    const valStr=a.fmt(a.v)
+    const vw=valStr.length*4.5+6
+    // Place value pill toward the outside radially: below if upper half, above if lower half
+    const vyOff = uy <= 0 ? 8 : -16
+    const vy = ly + vyOff
+    return `<rect x="${lx-lw/2}" y="${ly-7}" width="${lw}" height="12" rx="3" fill="#1a1a22" stroke="#3a3a4a" stroke-width=".6"/>` +
+           `<text x="${lx}" y="${ly+1}" text-anchor="middle" dominant-baseline="middle" font-size="7.5" font-weight="700" fill="#c0c0d0" font-family="Inter,sans-serif">${a.l}</text>` +
+           `<rect x="${lx-vw/2}" y="${vy}" width="${vw}" height="10" rx="2.5" fill="#111116" stroke="#2a2a36" stroke-width=".5"/>` +
+           `<text x="${lx}" y="${vy+6}" text-anchor="middle" dominant-baseline="middle" font-size="6.5" font-weight="600" fill="#9090a8" font-family="Inter,sans-serif">${valStr}</text>`
+  }).join('')
   const col=dc(r.color_direction)
-  return `<svg width="80" height="80" viewBox="0 0 80 80">${grids}${spokes}<polygon points="${poly}" fill="${col}" fill-opacity=".25" stroke="${col}" stroke-width="1.5"/>${labels}</svg>`
+  return `<svg width="120" height="120" viewBox="0 0 120 120" overflow="visible">${grids}${spokes}<polygon points="${poly}" fill="${col}" fill-opacity=".25" stroke="${col}" stroke-width="1.5"/>${labels}</svg>`
 }
 
 // ══════════════════════════════════════════
@@ -702,6 +961,17 @@ function makeCard(r) {
   // Hero click → open lightbox on hero
   const heroEl=div.querySelector('.card-img')
   if(heroEl) heroEl.addEventListener('click',e=>{e.stopPropagation();openLightbox(allImgs,0)})
+
+  // Compare button
+  const cmpBtn = document.createElement('button')
+  cmpBtn.className = 'cmp-card-btn'
+  cmpBtn.dataset.recipe = r.name
+  cmpBtn.textContent = 'Compare'
+  if (compareSlots[0] && compareSlots[0].name === r.name) { cmpBtn.textContent = 'A ✕'; cmpBtn.className = 'cmp-card-btn slot-a' }
+  if (compareSlots[1] && compareSlots[1].name === r.name) { cmpBtn.textContent = 'B ✕'; cmpBtn.className = 'cmp-card-btn slot-b' }
+  cmpBtn.style.cssText = 'margin:4px 12px 8px;display:block'
+  cmpBtn.addEventListener('click', e => { e.stopPropagation(); onCompareCardClick(r) })
+  div.appendChild(cmpBtn)
 
   // Toggle expand
   div.addEventListener('click',e=>{
@@ -1038,6 +1308,8 @@ function switchTab(id){
   if(id==='settings') renderSettingsGuide()
   if(id==='gear') renderGear()
   if(id==='myrecipes') renderMyRecipes()
+  if(id==='explore') initExplore()
+  if(id==='compare') initCompare()
 }
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   switchTab(t.dataset.tab)
@@ -1777,15 +2049,66 @@ function renderCustomSlots() {
       bl.className = 'cs-sublabel'
       bl.textContent = 'Base Settings'
       body.appendChild(bl)
-      const pills = document.createElement('div')
-      pills.className = 'cs-pills'
-      slot.base_settings.forEach(([lbl, val]) => {
-        const p = document.createElement('span')
-        p.className = 'cs-pill'
-        p.innerHTML = `<strong>${lbl}</strong> ${val}`
-        pills.appendChild(p)
-      })
-      body.appendChild(pills)
+
+      // Derive a representative recipe from the first sim that has one
+      const baseSimRecipe = (slot.simulations || []).map(s => s.recipe_name ? RECIPES.find(rx => rx.name === s.recipe_name) : null).find(Boolean) || null
+
+      if (baseSimRecipe) {
+        const vizRow = document.createElement('div')
+        vizRow.className = 'mr-viz-row'
+        const fp = document.createElement('div')
+        fp.className = 'mr-fp'
+        fp.innerHTML = fingerprint(baseSimRecipe)
+        vizRow.appendChild(fp)
+        const detailCol = document.createElement('div')
+        detailCol.className = 'mr-detail-col'
+        if (baseSimRecipe.dynamic_range && baseSimRecipe.dynamic_range !== 'N/A') {
+          const drRow = document.createElement('div')
+          drRow.className = 'mr-detail-row'
+          drRow.innerHTML = `<span class="mr-detail-label">DR</span><span class="badge b-dr">${baseSimRecipe.dynamic_range}</span>`
+          detailCol.appendChild(drRow)
+        }
+        if (baseSimRecipe.white_balance) {
+          const wbRow = document.createElement('div')
+          wbRow.className = 'mr-detail-row'
+          wbRow.innerHTML = `<span class="mr-detail-label">WB</span><span class="mr-detail-val">${baseSimRecipe.white_balance}</span>`
+          detailCol.appendChild(wbRow)
+        }
+        const wbWrap = document.createElement('div')
+        wbWrap.innerHTML = wbMiniGrid(baseSimRecipe)
+        detailCol.appendChild(wbWrap)
+        vizRow.appendChild(detailCol)
+        body.appendChild(vizRow)
+        // Extra params as pills
+        const extraRows = [
+          ['Grain', baseSimRecipe.grain_effect],
+          ['Sharpness', baseSimRecipe.sharpness != null ? (baseSimRecipe.sharpness > 0 ? '+' : '') + baseSimRecipe.sharpness : null],
+          ['Clarity',   baseSimRecipe.clarity   != null ? (baseSimRecipe.clarity   > 0 ? '+' : '') + baseSimRecipe.clarity   : null],
+          ['ISO Max', baseSimRecipe.iso_max ? 'Auto up to ' + baseSimRecipe.iso_max : null],
+          ['Exposure', baseSimRecipe.exposure_compensation],
+        ].filter(([, v]) => v != null && v !== '' && v !== 'N/A')
+        if (extraRows.length) {
+          const extraPills = document.createElement('div')
+          extraPills.className = 'cs-pills'
+          extraRows.forEach(([lbl, val]) => {
+            const sp = document.createElement('span')
+            sp.className = 'cs-pill'
+            sp.innerHTML = `<strong>${lbl}</strong> ${val}`
+            extraPills.appendChild(sp)
+          })
+          body.appendChild(extraPills)
+        }
+      } else {
+        const pills = document.createElement('div')
+        pills.className = 'cs-pills'
+        slot.base_settings.forEach(([lbl, val]) => {
+          const p = document.createElement('span')
+          p.className = 'cs-pill'
+          p.innerHTML = `<strong>${lbl}</strong> ${val}`
+          pills.appendChild(p)
+        })
+        body.appendChild(pills)
+      }
 
       const sl = document.createElement('div')
       sl.className = 'cs-sublabel'
@@ -1810,7 +2133,59 @@ function renderCustomSlots() {
       })
       body.appendChild(simGrid)
     } else {
-      if (slot.settings) {
+      // Radar + DR/WB for single-type slot
+      const slotRecipe = slot.recipe_name ? RECIPES.find(rx => rx.name === slot.recipe_name) : null
+      if (slotRecipe) {
+        const vizRow = document.createElement('div')
+        vizRow.className = 'mr-viz-row'
+
+        const fp = document.createElement('div')
+        fp.className = 'mr-fp'
+        fp.innerHTML = fingerprint(slotRecipe)
+        vizRow.appendChild(fp)
+
+        const detailCol = document.createElement('div')
+        detailCol.className = 'mr-detail-col'
+        if (slotRecipe.dynamic_range && slotRecipe.dynamic_range !== 'N/A') {
+          const drRow = document.createElement('div')
+          drRow.className = 'mr-detail-row'
+          drRow.innerHTML = `<span class="mr-detail-label">DR</span><span class="badge b-dr">${slotRecipe.dynamic_range}</span>`
+          detailCol.appendChild(drRow)
+        }
+        if (slotRecipe.white_balance) {
+          const wbRow = document.createElement('div')
+          wbRow.className = 'mr-detail-row'
+          wbRow.innerHTML = `<span class="mr-detail-label">WB</span><span class="mr-detail-val">${slotRecipe.white_balance}</span>`
+          detailCol.appendChild(wbRow)
+        }
+        const wbWrap = document.createElement('div')
+        wbWrap.innerHTML = wbMiniGrid(slotRecipe)
+        detailCol.appendChild(wbWrap)
+        vizRow.appendChild(detailCol)
+        body.appendChild(vizRow)
+
+        // Remaining recipe params as compact pills
+        const extraRows = [
+          ['Film Sim', slotRecipe.film_simulation],
+          ['Grain', slotRecipe.grain_effect],
+          ['Sharpness', slotRecipe.sharpness != null ? (slotRecipe.sharpness > 0 ? '+' : '') + slotRecipe.sharpness : null],
+          ['Clarity',   slotRecipe.clarity   != null ? (slotRecipe.clarity   > 0 ? '+' : '') + slotRecipe.clarity   : null],
+          ['ISO Max', slotRecipe.iso_max ? 'Auto up to ' + slotRecipe.iso_max : null],
+          ['Exposure', slotRecipe.exposure_compensation],
+        ].filter(([, v]) => v != null && v !== '' && v !== 'N/A')
+        if (extraRows.length) {
+          const extraPills = document.createElement('div')
+          extraPills.className = 'cs-pills'
+          extraRows.forEach(([lbl, val]) => {
+            const sp = document.createElement('span')
+            sp.className = 'cs-pill'
+            sp.innerHTML = `<strong>${lbl}</strong> ${val}`
+            extraPills.appendChild(sp)
+          })
+          body.appendChild(extraPills)
+        }
+      } else if (slot.settings) {
+        // Fallback to table if recipe not found
         const tbl = document.createElement('table')
         tbl.className = 'stbl'
         slot.settings.forEach(([lbl, val]) => {
@@ -1939,34 +2314,39 @@ function renderMyRecipes() {
       body.appendChild(notes)
     }
 
-    // Fingerprint
+    // Radar + DR/WB details row
+    const vizRow = document.createElement('div')
+    vizRow.className = 'mr-viz-row'
+
     const fp = document.createElement('div')
     fp.className = 'mr-fp'
     fp.innerHTML = fingerprint(r)
-    body.appendChild(fp)
+    vizRow.appendChild(fp)
 
-    // Settings table
-    const tbl = document.createElement('table')
-    tbl.className = 'stbl'
-    const rows = [
-      ['Film Sim', r.film_simulation],
-      ['Dynamic Range', r.dynamic_range],
-      ['White Balance', r.white_balance + (r.wb_shift_red||r.wb_shift_blue ? ` (R${r.wb_shift_red||0}/B${r.wb_shift_blue||0})` : '')],
-      ['Highlight', r.highlight != null ? (r.highlight > 0 ? '+' : '') + r.highlight : null],
-      ['Shadow',    r.shadow    != null ? (r.shadow    > 0 ? '+' : '') + r.shadow    : null],
-      ['Color',     r.color     != null ? (r.color     > 0 ? '+' : '') + r.color     : null],
-      ['Sharpness', r.sharpness != null ? (r.sharpness > 0 ? '+' : '') + r.sharpness : null],
-      ['Clarity',   r.clarity   != null ? (r.clarity   > 0 ? '+' : '') + r.clarity   : null],
-      ['Grain', r.grain_effect],
-      ['ISO Max', r.iso_max],
-      ['Exposure', r.exposure_compensation],
-    ].filter(([,v]) => v != null && v !== '')
-    rows.forEach(([lbl, val]) => {
-      const tr = document.createElement('tr')
-      tr.innerHTML = `<td>${lbl}</td><td>${val}</td>`
-      tbl.appendChild(tr)
-    })
-    body.appendChild(tbl)
+    const detailCol = document.createElement('div')
+    detailCol.className = 'mr-detail-col'
+
+    // DR badge
+    if (r.dynamic_range && r.dynamic_range !== 'N/A') {
+      const drRow = document.createElement('div')
+      drRow.className = 'mr-detail-row'
+      drRow.innerHTML = `<span class="mr-detail-label">DR</span><span class="badge b-dr">${r.dynamic_range}</span>`
+      detailCol.appendChild(drRow)
+    }
+    // WB mode
+    if (r.white_balance) {
+      const wbModeRow = document.createElement('div')
+      wbModeRow.className = 'mr-detail-row'
+      wbModeRow.innerHTML = `<span class="mr-detail-label">WB</span><span class="mr-detail-val">${r.white_balance}</span>`
+      detailCol.appendChild(wbModeRow)
+    }
+    // WB shift grid
+    const wbWrap = document.createElement('div')
+    wbWrap.innerHTML = wbMiniGrid(r)
+    detailCol.appendChild(wbWrap)
+
+    vizRow.appendChild(detailCol)
+    body.appendChild(vizRow)
 
     // Narrative (clipped)
     if (r.narrative) {
@@ -2012,6 +2392,1437 @@ function renderMyRecipes() {
     card.appendChild(body)
     container.appendChild(card)
   })
+}
+
+// ══════════════════════════════════════════
+// EXPLORE TAB
+// ══════════════════════════════════════════
+
+const T = {
+  seedName: null,
+  film_sim_filter: '',
+  highlight: 0, shadow: 0,
+  color: 0,
+  color_chrome_effect: 0,
+  color_chrome_fx_blue: 0,
+  sharpness: 0, clarity: 0, high_iso_nr: 0,
+  dynamic_range: 100,
+  grain_effect: 0,
+  grain_size: 'S',
+  white_balance: 'Daylight',
+  wb_shift_red: 0, wb_shift_blue: 0,
+}
+
+const T_PARAMS = [
+  {key:'highlight',            label:'HL',  lo:-2, hi:4,   step:0.5},
+  {key:'shadow',               label:'SH',  lo:-2, hi:4,   step:0.5},
+  {key:'color',                label:'COL', lo:-4, hi:4,   step:1  },
+  {key:'color_chrome_effect',  label:'CCE', lo:0,  hi:2,   step:1  },
+  {key:'color_chrome_fx_blue', label:'CCB', lo:0,  hi:2,   step:1  },
+  {key:'sharpness',            label:'SHP', lo:-4, hi:4,   step:1  },
+  {key:'clarity',              label:'CL',  lo:-5, hi:5,   step:1  },
+  {key:'high_iso_nr',          label:'NR',  lo:-4, hi:4,   step:1  },
+  {key:'dynamic_range',        label:'DR',  lo:100,hi:400, step:100},
+]
+
+function tNorm(p, v) {
+  const extent = Math.max(Math.abs(p.lo), Math.abs(p.hi))
+  return clamp((v + extent) / (2 * extent), 0, 1)
+}
+
+function recipeToT(r) {
+  const ccMap = {'Off':0,'Weak':1,'Strong':2}
+  const drMap = {'DR100':100,'DR200':200,'DR400':400}
+  const ge = r.grain_effect || 'Off'
+  const geStr = ge.split(',')[0].trim()
+  const geSize = ge.includes('Large') ? 'L' : 'S'
+  return {
+    seedName: r.name,
+    film_sim_filter: '',
+    highlight:            pn(r.highlight) ?? 0,
+    shadow:               pn(r.shadow)    ?? 0,
+    color:                pn(r.color)     ?? 0,
+    color_chrome_effect:  ccMap[r.color_chrome_effect]  ?? 0,
+    color_chrome_fx_blue: ccMap[r.color_chrome_fx_blue] ?? 0,
+    sharpness:            pn(r.sharpness) ?? 0,
+    clarity:              pn(r.clarity)   ?? 0,
+    high_iso_nr:          pn(r.high_iso_nr) ?? 0,
+    dynamic_range:        drMap[r.dynamic_range] ?? (pn(r.dynamic_range) ?? 100),
+    grain_effect:         ccMap[geStr] ?? 0,
+    grain_size:           geSize,
+    white_balance:        r.white_balance || 'Daylight',
+    wb_shift_red:         pn(r.wb_shift_red)  ?? 0,
+    wb_shift_blue:        pn(r.wb_shift_blue) ?? 0,
+  }
+}
+
+function computeSimilarity(t) {
+  let pool = RECIPES
+  if (t.film_sim_filter) pool = pool.filter(r => r.film_simulation === t.film_sim_filter)
+  return pool.map(r => {
+    const rt = recipeToT(r)
+    let sum = 0
+    T_PARAMS.forEach(p => {
+      const d = tNorm(p, t[p.key]) - tNorm(p, rt[p.key])
+      sum += d * d
+    })
+    const dR = (t.wb_shift_red  - rt.wb_shift_red)  / 18
+    const dB = (t.wb_shift_blue - rt.wb_shift_blue) / 18
+    sum += dR * dR + dB * dB
+    const gs = t.grain_size !== rt.grain_size ? 0.25 : 0
+    sum += gs
+    return { r, dist: Math.sqrt(sum) }
+  }).sort((a, b) => a.dist - b.dist).map(x => x.r)
+}
+
+function seedRecipe(name) {
+  if (!name) {
+    Object.assign(T, {
+      seedName:null, film_sim_filter:'',
+      highlight:0, shadow:0, color:0,
+      color_chrome_effect:0, color_chrome_fx_blue:0,
+      sharpness:0, clarity:0, high_iso_nr:0, dynamic_range:100,
+      grain_effect:0, grain_size:'S',
+      white_balance:'Daylight', wb_shift_red:0, wb_shift_blue:0,
+    })
+  } else {
+    const r = RECIPES.find(x => x.name === name)
+    if (r) Object.assign(T, recipeToT(r))
+  }
+  syncExploreControls()
+  renderExploreResults()
+  updateExploreViews()
+}
+
+let exploreBuilt = false
+
+// ══════════════════════════════════════════
+// COMPARE TAB
+// ══════════════════════════════════════════
+const C = { a: null, b: null, view: 'sidebyside' }
+let compareSlots = [null, null]
+let compareBuilt = false
+
+function updateCompareCardButtons() {
+  document.querySelectorAll('.cmp-card-btn').forEach(btn => {
+    const name = btn.dataset.recipe
+    if (compareSlots[0] && compareSlots[0].name === name) {
+      btn.textContent = 'A ✕'; btn.className = 'cmp-card-btn slot-a'
+    } else if (compareSlots[1] && compareSlots[1].name === name) {
+      btn.textContent = 'B ✕'; btn.className = 'cmp-card-btn slot-b'
+    } else {
+      btn.textContent = 'Compare'; btn.className = 'cmp-card-btn'
+    }
+  })
+}
+
+function onCompareCardClick(r) {
+  const idxA = compareSlots.findIndex(s => s && s.name === r.name)
+  if (idxA !== -1) {
+    compareSlots[idxA] = null
+    updateCompareCardButtons()
+    return
+  }
+  if (!compareSlots[0]) {
+    compareSlots[0] = r
+    updateCompareCardButtons()
+    return
+  }
+  compareSlots[1] = r
+  C.a = compareSlots[0]; C.b = compareSlots[1]
+  compareSlots = [null, null]
+  updateCompareCardButtons()
+  switchTab('compare')
+}
+
+function initCompare() {
+  if (compareBuilt) { syncCmpSelects(); renderCompare(); return }
+  compareBuilt = true
+
+  const shell = document.getElementById('cmp-shell')
+  shell.innerHTML = ''
+
+  // Header: two selects + swap + clear
+  const header = document.createElement('div')
+  header.className = 'cmp-header'
+
+  const sortedNames = RECIPES.map(r => r.name).slice().sort()
+
+  function makeSelect(cls, label) {
+    const wrap = document.createElement('div')
+    wrap.className = 'cmp-select-wrap'
+    const lbl = document.createElement('div')
+    lbl.className = 'cmp-select-label ' + cls
+    lbl.textContent = 'Recipe ' + label.toUpperCase()
+    const sel = document.createElement('select')
+    sel.className = 'cmp-select ' + cls
+    sel.id = 'cmp-sel-' + cls
+    const empty = document.createElement('option')
+    empty.value = ''; empty.textContent = '— choose —'
+    sel.appendChild(empty)
+    sortedNames.forEach(name => {
+      const opt = document.createElement('option')
+      opt.value = name; opt.textContent = name
+      sel.appendChild(opt)
+    })
+    wrap.appendChild(lbl); wrap.appendChild(sel)
+    return wrap
+  }
+
+  const wrapA = makeSelect('a', 'a')
+  const wrapB = makeSelect('b', 'b')
+
+  const swapBtn = document.createElement('button')
+  swapBtn.className = 'cmp-btn'; swapBtn.textContent = '⇄ Swap'
+  swapBtn.addEventListener('click', () => {
+    if (!C.a || !C.b) return
+    const tmp = C.a; C.a = C.b; C.b = tmp
+    syncCmpSelects(); renderCompare()
+  })
+
+  const clearBtn = document.createElement('button')
+  clearBtn.className = 'cmp-btn'; clearBtn.textContent = 'Clear'
+  clearBtn.addEventListener('click', () => {
+    C.a = null; C.b = null
+    compareSlots = [null, null]
+    updateCompareCardButtons()
+    syncCmpSelects(); renderCompare()
+  })
+
+  header.appendChild(wrapA); header.appendChild(wrapB)
+  header.appendChild(swapBtn); header.appendChild(clearBtn)
+
+  // Subtabs
+  const subtabs = document.createElement('div')
+  subtabs.className = 'cmp-subtabs'
+  const views = [
+    { id: 'sidebyside', label: 'Side-by-side' },
+    { id: 'rowdiff',    label: 'Row diff' },
+    { id: 'overlay',   label: 'Overlay' },
+  ]
+  views.forEach(v => {
+    const btn = document.createElement('button')
+    btn.className = 'cmp-subtab' + (C.view === v.id ? ' on' : '')
+    btn.textContent = v.label
+    btn.dataset.view = v.id
+    btn.addEventListener('click', () => {
+      C.view = v.id
+      subtabs.querySelectorAll('.cmp-subtab').forEach(b => b.classList.toggle('on', b.dataset.view === v.id))
+      renderCompare()
+    })
+    subtabs.appendChild(btn)
+  })
+
+  // Content area
+  const content = document.createElement('div')
+  content.id = 'cmp-content'
+
+  shell.appendChild(header)
+
+  document.getElementById('cmp-sel-a').addEventListener('change', e => {
+    C.a = RECIPES.find(r => r.name === e.target.value) || null
+    renderCompare()
+  })
+  document.getElementById('cmp-sel-b').addEventListener('change', e => {
+    C.b = RECIPES.find(r => r.name === e.target.value) || null
+    renderCompare()
+  })
+  shell.appendChild(subtabs)
+  shell.appendChild(content)
+
+  syncCmpSelects()
+  renderCompare()
+}
+
+function syncCmpSelects() {
+  const selA = document.getElementById('cmp-sel-a')
+  const selB = document.getElementById('cmp-sel-b')
+  if (selA) selA.value = C.a ? C.a.name : ''
+  if (selB) selB.value = C.b ? C.b.name : ''
+}
+
+function renderCompare() {
+  const content = document.getElementById('cmp-content')
+  if (!content) return
+  content.innerHTML = ''
+  if (!C.a || !C.b) {
+    content.innerHTML = '<div class="cmp-empty">Select two recipes above to compare them.</div>'
+    return
+  }
+  if (C.view === 'sidebyside') renderCompareSideBySide(content)
+  else if (C.view === 'rowdiff') renderCompareRowDiff(content)
+  else renderCompareOverlay(content)
+}
+
+function cmpTop3(r) {
+  return computeSimilarity(recipeToT(r)).filter(s => s.name !== r.name).slice(0, 3)
+}
+
+function cmpSimCard(r) {
+  const div = document.createElement('div')
+  div.className = 'cmp-sim-card'
+  div.innerHTML = `<span class="cmp-sim-name">${r.name}</span><span class="badge b-sim" style="flex-shrink:0">${r.film_simulation||'?'}</span>${r.color_direction?`<span class="badge ${bc(r.color_direction)}" style="flex-shrink:0">${r.color_direction}</span>`:''}`
+  div.addEventListener('click', () => openRecipeModal(r.name))
+  return div
+}
+
+function renderCompareSideBySide(container) {
+  const ta = recipeToT(C.a), tb = recipeToT(C.b)
+  const kwA = new Set([...(C.a.mood_keywords||[]), ...(C.a.scenario_keywords||[])])
+  const kwB = new Set([...(C.b.mood_keywords||[]), ...(C.b.scenario_keywords||[])])
+  const allKw = [...new Set([...kwA, ...kwB])]
+
+  function makeCol(r, t, label) {
+    const col = document.createElement('div')
+    col.className = 'cmp-col'
+
+    // Title + badges
+    const title = document.createElement('div')
+    title.className = 'cmp-col-title'
+    title.textContent = r.name
+    col.appendChild(title)
+    const badges = document.createElement('div')
+    badges.className = 'cmp-col-badges'
+    badges.innerHTML = `<span class="badge b-sim">${r.film_simulation||'?'}</span>${r.color_direction?`<span class="badge ${bc(r.color_direction)}">${r.color_direction}</span>`:''}`
+    col.appendChild(badges)
+
+    // Radar
+    const fpWrap = document.createElement('div')
+    fpWrap.style.cssText = 'display:flex;justify-content:center;margin-bottom:8px'
+    fpWrap.innerHTML = fingerprint(r)
+    col.appendChild(fpWrap)
+
+    // WB grid
+    const wbSl = document.createElement('div')
+    wbSl.className = 'cmp-section-label'
+    wbSl.textContent = 'WB Shift'
+    col.appendChild(wbSl)
+    const wbWrap = document.createElement('div')
+    wbWrap.style.cssText = 'display:flex;justify-content:center;margin-bottom:8px'
+    wbWrap.innerHTML = wbMiniGrid(r)
+    col.appendChild(wbWrap)
+
+    // Param pills
+    const paramSl = document.createElement('div')
+    paramSl.className = 'cmp-section-label'
+    paramSl.textContent = 'Settings'
+    col.appendChild(paramSl)
+    const pills = document.createElement('div')
+    pills.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px'
+    ;[
+      ['DR', r.dynamic_range],
+      ['Grain', r.grain_effect],
+      ['SHP', r.sharpness != null ? (r.sharpness > 0 ? '+' : '') + r.sharpness : null],
+      ['CL',  r.clarity   != null ? (r.clarity   > 0 ? '+' : '') + r.clarity   : null],
+      ['ISO', r.iso_max ? 'up to ' + r.iso_max : null],
+      ['EV',  r.exposure_compensation],
+    ].filter(([, v]) => v != null && v !== '' && v !== 'N/A').forEach(([k, v]) => {
+      const sp = document.createElement('span')
+      sp.className = 'cs-pill'
+      sp.innerHTML = `<strong>${k}</strong> ${v}`
+      pills.appendChild(sp)
+    })
+    col.appendChild(pills)
+
+    // Keywords
+    const kwSl = document.createElement('div')
+    kwSl.className = 'cmp-section-label'
+    kwSl.textContent = 'Keywords'
+    col.appendChild(kwSl)
+    const kwWrap = document.createElement('div')
+    kwWrap.style.cssText = 'margin-bottom:10px'
+    const myKw = label === 'a' ? kwA : kwB
+    const otherKw = label === 'a' ? kwB : kwA
+    allKw.forEach(k => {
+      if (!myKw.has(k)) return
+      const sp = document.createElement('span')
+      sp.className = 'cmp-kw ' + (otherKw.has(k) ? 'cmp-kw-shared' : ('cmp-kw-' + label))
+      sp.textContent = k
+      kwWrap.appendChild(sp)
+    })
+    col.appendChild(kwWrap)
+
+    // Top 3 similar
+    const simSl = document.createElement('div')
+    simSl.className = 'cmp-section-label'
+    simSl.textContent = 'Top 3 similar'
+    col.appendChild(simSl)
+    const top3 = document.createElement('div')
+    top3.className = 'cmp-top3'
+    cmpTop3(r).forEach(s => top3.appendChild(cmpSimCard(s)))
+    col.appendChild(top3)
+
+    return col
+  }
+
+  function makeDiffStrip() {
+    const strip = document.createElement('div')
+    strip.className = 'cmp-diff-strip'
+    const lbl = document.createElement('div')
+    lbl.className = 'cmp-diff-label'
+    lbl.textContent = 'Diff'
+    strip.appendChild(lbl)
+
+    T_PARAMS.forEach(p => {
+      const na = tNorm(p, ta[p.key]), nb = tNorm(p, tb[p.key])
+      if (Math.abs(na - nb) < 0.05) return
+      const diff = ta[p.key] - tb[p.key]
+      const badge = document.createElement('div')
+      badge.className = 'cmp-diff-badge ' + (diff > 0 ? 'a' : 'b')
+      badge.textContent = p.label + ' ' + (diff > 0 ? '+' : '') + (Math.round(diff * 10) / 10)
+      strip.appendChild(badge)
+    })
+    const dR = ta.wb_shift_red - tb.wb_shift_red
+    const dB = ta.wb_shift_blue - tb.wb_shift_blue
+    if (Math.abs(dR) >= 1) {
+      const b = document.createElement('div')
+      b.className = 'cmp-diff-badge ' + (dR > 0 ? 'a' : 'b')
+      b.textContent = 'WB R ' + (dR > 0 ? '+' : '') + dR
+      strip.appendChild(b)
+    }
+    if (Math.abs(dB) >= 1) {
+      const b = document.createElement('div')
+      b.className = 'cmp-diff-badge ' + (dB > 0 ? 'a' : 'b')
+      b.textContent = 'WB B ' + (dB > 0 ? '+' : '') + dB
+      strip.appendChild(b)
+    }
+    if (ta.white_balance !== tb.white_balance) {
+      const b = document.createElement('div')
+      b.className = 'cmp-diff-badge b'
+      b.textContent = 'WB mode'
+      strip.appendChild(b)
+    }
+    if (ta.grain_size !== tb.grain_size) {
+      const b = document.createElement('div')
+      b.className = 'cmp-diff-badge b'
+      b.textContent = 'Grain size'
+      strip.appendChild(b)
+    }
+    return strip
+  }
+
+  const layout = document.createElement('div')
+  layout.className = 'cmp-layout'
+  layout.appendChild(makeCol(C.a, ta, 'a'))
+  layout.appendChild(makeDiffStrip())
+  layout.appendChild(makeCol(C.b, tb, 'b'))
+  container.appendChild(layout)
+}
+function renderCompareRowDiff(container) {
+  const ta = recipeToT(C.a), tb = recipeToT(C.b)
+  const ccLbl = ['Off', 'Weak', 'Strong']
+
+  function addRow(tbl, label, va, vb) {
+    const match = String(va) === String(vb)
+    const tr = document.createElement('tr')
+    tr.className = match ? 'match' : 'diff'
+    let diffHtml = '='
+    if (!match) {
+      const na = parseFloat(va), nb = parseFloat(vb)
+      if (!isNaN(na) && !isNaN(nb)) {
+        const d = na - nb
+        diffHtml = `<span style="color:${d > 0 ? '#d4a843' : '#5b9af0'};font-weight:700">${d > 0 ? '▲' : '▼'}</span>`
+      } else {
+        diffHtml = '≠'
+      }
+    }
+    tr.innerHTML = `<td>${label}</td><td style="color:${match?'':'#d4a843'}">${va ?? '—'}</td><td class="cmp-diff-cell">${diffHtml}</td><td style="color:${match?'':'#5b9af0'};text-align:right">${vb ?? '—'}</td>`
+    tbl.appendChild(tr)
+  }
+
+  const tbl = document.createElement('table')
+  tbl.className = 'cmp-row-table'
+  const thead = document.createElement('thead')
+  thead.innerHTML = `<tr><th style="text-align:left;padding:4px 6px;font-size:10px;color:var(--text3)">Param</th><th style="color:#d4a843;padding:4px 6px;font-size:10px">A</th><th style="padding:4px 6px;font-size:10px;color:var(--text3)"></th><th style="color:#5b9af0;padding:4px 6px;font-size:10px;text-align:right">B</th></tr>`
+  tbl.appendChild(thead)
+
+  const tbody = document.createElement('tbody')
+  addRow(tbody, 'Film Sim',    C.a.film_simulation,   C.b.film_simulation)
+  addRow(tbody, 'WB Mode',     ta.white_balance,       tb.white_balance)
+  addRow(tbody, 'DR',          ta.dynamic_range,       tb.dynamic_range)
+  addRow(tbody, 'Grain',       C.a.grain_effect,       C.b.grain_effect)
+  addRow(tbody, 'Grain Size',  ta.grain_size,          tb.grain_size)
+  addRow(tbody, 'HL',          ta.highlight,           tb.highlight)
+  addRow(tbody, 'SH',          ta.shadow,              tb.shadow)
+  addRow(tbody, 'COL',         ta.color,               tb.color)
+  addRow(tbody, 'CCE',         ccLbl[ta.color_chrome_effect],  ccLbl[tb.color_chrome_effect])
+  addRow(tbody, 'CCB',         ccLbl[ta.color_chrome_fx_blue], ccLbl[tb.color_chrome_fx_blue])
+  addRow(tbody, 'SHP',         ta.sharpness,           tb.sharpness)
+  addRow(tbody, 'CL',          ta.clarity,             tb.clarity)
+  addRow(tbody, 'NR',          ta.high_iso_nr,         tb.high_iso_nr)
+  addRow(tbody, 'WB R',        ta.wb_shift_red,        tb.wb_shift_red)
+  addRow(tbody, 'WB B',        ta.wb_shift_blue,       tb.wb_shift_blue)
+  tbl.appendChild(tbody)
+  container.appendChild(tbl)
+
+  const kwA = new Set([...(C.a.mood_keywords||[]), ...(C.a.scenario_keywords||[])])
+  const kwB = new Set([...(C.b.mood_keywords||[]), ...(C.b.scenario_keywords||[])])
+  const allKw = [...new Set([...kwA, ...kwB])]
+
+  const kwSl = document.createElement('div')
+  kwSl.className = 'cmp-section-label'
+  kwSl.textContent = 'Keywords'
+  container.appendChild(kwSl)
+
+  const kwRow = document.createElement('div')
+  kwRow.className = 'cmp-kw-row'
+
+  function makeKwCol(label, mySet, otherSet) {
+    const col = document.createElement('div')
+    col.className = 'cmp-kw-col'
+    const hdr = document.createElement('div')
+    hdr.style.cssText = `font-size:10px;font-weight:700;color:${label==='a'?'#d4a843':'#5b9af0'};margin-bottom:4px`
+    hdr.textContent = 'Recipe ' + label.toUpperCase()
+    col.appendChild(hdr)
+    allKw.forEach(k => {
+      if (!mySet.has(k)) return
+      const sp = document.createElement('span')
+      sp.className = 'cmp-kw ' + (otherSet.has(k) ? 'cmp-kw-shared' : 'cmp-kw-' + label)
+      sp.textContent = k
+      col.appendChild(sp)
+    })
+    return col
+  }
+
+  kwRow.appendChild(makeKwCol('a', kwA, kwB))
+  kwRow.appendChild(makeKwCol('b', kwB, kwA))
+  container.appendChild(kwRow)
+}
+function renderCompareOverlay(container) {
+  const ta = recipeToT(C.a), tb = recipeToT(C.b)
+  const N = 5, cx = 130, cy = 125, R = 80
+  const AXES = T_PARAMS.slice(0, 5)
+  const ccLbl = ['Off', 'Weak', 'Strong']
+
+  function ang(i) { return (2 * Math.PI * i / N) - Math.PI / 2 }
+  function unitVec(i) { return [Math.cos(ang(i)), Math.sin(ang(i))] }
+  function axisPoint(val, p, i) {
+    const r = tNorm(p, val) * R
+    const [ux, uy] = unitVec(i)
+    return [cx + r * ux, cy + r * uy]
+  }
+
+  // Legend
+  const legend = document.createElement('div')
+  legend.className = 'cmp-overlay-legend'
+  legend.innerHTML = `
+    <span class="cmp-overlay-legend-btn cmp-overlay-legend-a">
+      <span class="cmp-overlay-swatch" style="background:#d4a843"></span>${C.a.name}
+    </span>
+    <span class="cmp-overlay-legend-btn cmp-overlay-legend-b">
+      <span class="cmp-overlay-swatch-dash"></span>${C.b.name}
+    </span>`
+  container.appendChild(legend)
+
+  const topRow = document.createElement('div')
+  topRow.className = 'cmp-overlay-top'
+
+  // Radar SVG
+  const radarWrap = document.createElement('div')
+  radarWrap.className = 'cmp-overlay-radar'
+
+  let svgHtml = ''
+  // Grid rings
+  const rings = [0.25, 0.5, 0.75, 1.0]
+  rings.forEach(frac => {
+    const pts = AXES.map((_, i) => { const [ux, uy] = unitVec(i); return `${cx + R * frac * ux},${cy + R * frac * uy}` }).join(' ')
+    svgHtml += `<polygon points="${pts}" fill="none" stroke="${frac === 0.5 ? '#3a3a42' : '#2a2a30'}" stroke-width="${frac === 0.5 ? '1.2' : '0.8'}"/>`
+  })
+  // Spokes
+  AXES.forEach((_, i) => {
+    const [ux, uy] = unitVec(i)
+    svgHtml += `<line x1="${cx}" y1="${cy}" x2="${cx + R * ux}" y2="${cy + R * uy}" stroke="#2a2a30" stroke-width="0.8"/>`
+  })
+  // Recipe A polygon (gold solid)
+  const ptsA = AXES.map((p, i) => axisPoint(ta[p.key] ?? 0, p, i).join(',')).join(' ')
+  svgHtml += `<polygon points="${ptsA}" fill="rgba(212,168,67,.15)" stroke="#d4a843" stroke-width="2.2"/>`
+  // Recipe B polygon (blue dashed)
+  const ptsB = AXES.map((p, i) => axisPoint(tb[p.key] ?? 0, p, i).join(',')).join(' ')
+  svgHtml += `<polygon points="${ptsB}" fill="rgba(91,154,240,.08)" stroke="#5b9af0" stroke-width="1.6" stroke-dasharray="5,3"/>`
+  // Axis labels with both values
+  const labelNames = ['HL', 'SH', 'COL', 'CCE', 'CCB']
+  const labelOffsets = [[0, -15], [18, -8], [12, 12], [-12, 12], [-18, -8]]
+  AXES.forEach((p, i) => {
+    const [ux, uy] = unitVec(i)
+    const lx = cx + (R + 20) * ux + labelOffsets[i][0]
+    const ly = cy + (R + 20) * uy + labelOffsets[i][1]
+    const va = p.key === 'color_chrome_effect' || p.key === 'color_chrome_fx_blue' ? ccLbl[ta[p.key]] : (ta[p.key] > 0 ? '+' : '') + ta[p.key]
+    const vb = p.key === 'color_chrome_effect' || p.key === 'color_chrome_fx_blue' ? ccLbl[tb[p.key]] : (tb[p.key] > 0 ? '+' : '') + tb[p.key]
+    const lw = 52
+    svgHtml += `<rect x="${lx - lw/2}" y="${ly - 18}" width="${lw}" height="22" rx="4" fill="#1a1a22" stroke="#3a3a4a" stroke-width="0.6"/>`
+    svgHtml += `<text x="${lx}" y="${ly - 8}" text-anchor="middle" font-size="8" font-weight="700" fill="#c0c0d0" font-family="Inter,sans-serif">${labelNames[i]}</text>`
+    svgHtml += `<text x="${lx}" y="${ly + 1}" text-anchor="middle" font-size="7" fill="#d4a843" font-family="Inter,sans-serif">${va}</text>`
+    svgHtml += `<text x="${lx}" y="${ly + 9}" text-anchor="middle" font-size="7" fill="#5b9af0" font-family="Inter,sans-serif">${vb}</text>`
+  })
+
+  radarWrap.innerHTML = `<svg viewBox="0 0 260 230" style="width:100%;max-width:280px;overflow:visible">${svgHtml}</svg>`
+  topRow.appendChild(radarWrap)
+
+  // WB grid with two dots
+  const wbWrap = document.createElement('div')
+  wbWrap.className = 'cmp-overlay-wb'
+  const rA = ta.wb_shift_red, bA = -ta.wb_shift_blue
+  const rB = tb.wb_shift_red, bB = -tb.wb_shift_blue
+  let wbSvg = ''
+  for (let i = -6; i <= 6; i += 3) {
+    const thick = i === 0
+    wbSvg += `<line x1="${i}" y1="-9" x2="${i}" y2="9" stroke="${thick?'#333340':'#242428'}" stroke-width="${thick?.6:.3}"/>`
+    wbSvg += `<line x1="-9" y1="${i}" x2="9" y2="${i}" stroke="${thick?'#333340':'#242428'}" stroke-width="${thick?.6:.3}"/>`
+  }
+  wbSvg += `<rect x="-9" y="-9" width="18" height="18" fill="none" stroke="#2e2e34" stroke-width=".6"/>`
+  wbSvg += `<text x="-9.4" y=".7" font-size="1.7" fill="#5e5e6e" text-anchor="end" font-family="Inter,sans-serif">R−</text>`
+  wbSvg += `<text x="9.4" y=".7" font-size="1.7" fill="#5e5e6e" text-anchor="start" font-family="Inter,sans-serif">R+</text>`
+  wbSvg += `<text x="0" y="-9.6" font-size="1.7" fill="#5e5e6e" text-anchor="middle" font-family="Inter,sans-serif">B+</text>`
+  wbSvg += `<text x="0" y="10.8" font-size="1.7" fill="#5e5e6e" text-anchor="middle" font-family="Inter,sans-serif">B−</text>`
+  // Recipe B dot (blue crosshair+circle) — drawn first so A is on top
+  wbSvg += `<line x1="${rB-1.4}" y1="${bB}" x2="${rB+1.4}" y2="${bB}" stroke="#5b9af0" stroke-width=".3"/>`
+  wbSvg += `<line x1="${rB}" y1="${bB-1.4}" x2="${rB}" y2="${bB+1.4}" stroke="#5b9af0" stroke-width=".3"/>`
+  wbSvg += `<circle cx="${rB}" cy="${bB}" r=".6" fill="rgba(91,154,240,.2)" stroke="#5b9af0" stroke-width=".3"/>`
+  // Recipe A dot (gold diamond)
+  wbSvg += `<polygon points="${diamondPoints(rA, bA, 1.1)}" fill="#d4a843" stroke="#0d0d0f" stroke-width=".3"/>`
+  // Value labels outside
+  const txtA = `A: R${rA>=0?'+':''}${rA} B${ta.wb_shift_blue>=0?'+':''}${ta.wb_shift_blue}`
+  const txtB = `B: R${rB>=0?'+':''}${rB} B${tb.wb_shift_blue>=0?'+':''}${tb.wb_shift_blue}`
+  wbWrap.innerHTML = `<svg viewBox="-11 -11 22 22" style="width:120px;display:block;border-radius:var(--r);background:var(--surf2);border:1px solid var(--border)">${wbSvg}</svg>`
+  wbWrap.innerHTML += `<div style="font-size:10px;color:#d4a843;margin-top:3px">${txtA}</div>`
+  wbWrap.innerHTML += `<div style="font-size:10px;color:#5b9af0">${txtB}</div>`
+  topRow.appendChild(wbWrap)
+  container.appendChild(topRow)
+
+  // Keyword cloud
+  const kwA = new Set([...(C.a.mood_keywords||[]), ...(C.a.scenario_keywords||[])])
+  const kwB = new Set([...(C.b.mood_keywords||[]), ...(C.b.scenario_keywords||[])])
+  const allKw = [...new Set([...kwA, ...kwB])]
+
+  const kwSl = document.createElement('div')
+  kwSl.className = 'cmp-section-label'
+  kwSl.textContent = 'Keywords'
+  container.appendChild(kwSl)
+
+  const kwCloud = document.createElement('div')
+  kwCloud.style.cssText = 'margin-bottom:14px'
+  allKw.forEach(k => {
+    const inA = kwA.has(k), inB = kwB.has(k)
+    const sp = document.createElement('span')
+    if (inA && inB) {
+      sp.className = 'cmp-kw'
+      sp.style.cssText = 'background:linear-gradient(90deg,rgba(212,168,67,.15) 50%,rgba(91,154,240,.15) 50%);border:1px solid rgba(150,150,200,.3);color:var(--text2)'
+    } else {
+      sp.className = 'cmp-kw cmp-kw-' + (inA ? 'a' : 'b')
+    }
+    sp.textContent = k
+    kwCloud.appendChild(sp)
+  })
+  container.appendChild(kwCloud)
+
+  // Top-3 grid
+  const top3Sl = document.createElement('div')
+  top3Sl.className = 'cmp-section-label'
+  top3Sl.textContent = 'Top 3 similar'
+  container.appendChild(top3Sl)
+
+  const top3Grid = document.createElement('div')
+  top3Grid.className = 'cmp-top3-grid'
+
+  function makeTop3Col(r, label, color) {
+    const col = document.createElement('div')
+    const hdr = document.createElement('div')
+    hdr.style.cssText = `font-size:10px;font-weight:700;color:${color};margin-bottom:5px`
+    hdr.textContent = r.name
+    col.appendChild(hdr)
+    const list = document.createElement('div')
+    list.className = 'cmp-top3'
+    cmpTop3(r).forEach(s => list.appendChild(cmpSimCard(s)))
+    col.appendChild(list)
+    return col
+  }
+
+  top3Grid.appendChild(makeTop3Col(C.a, 'a', '#d4a843'))
+  top3Grid.appendChild(makeTop3Col(C.b, 'b', '#5b9af0'))
+  container.appendChild(top3Grid)
+}
+
+let yoursVisible = true, matchVisible = true
+
+let _expOverlayTimer = null
+function renderExploreResults() {
+  const list = document.getElementById('exp-results-list')
+  if (!list) return
+  const top6 = computeSimilarity(T).slice(0, 6)
+  list.innerHTML = ''
+  top6.forEach(r => {
+    const rt = recipeToT(r)
+    const card = document.createElement('div')
+    card.className = 'exp-result-card'
+    // Diff badges — only params that differ
+    const diffBadges = T_PARAMS.filter(p => {
+      return Math.abs(T[p.key] - rt[p.key]) >= p.step * 0.5
+    }).map(p => {
+      const d = rt[p.key] - T[p.key]
+      const cls = d > 0 ? 'pos' : 'neg'
+      const sign = d > 0 ? '+' : ''
+      return `<span class="exp-delta ${cls}">${p.label} ${sign}${d}</span>`
+    }).join('')
+    const wbDiffs = []
+    const dR = rt.wb_shift_red  - T.wb_shift_red
+    const dB = rt.wb_shift_blue - T.wb_shift_blue
+    if (Math.abs(dR) >= 1) wbDiffs.push(`<span class="exp-delta ${dR>0?'pos':'neg'}">WB R ${dR>0?'+':''}${dR}</span>`)
+    if (Math.abs(dB) >= 1) wbDiffs.push(`<span class="exp-delta ${dB>0?'pos':'neg'}">WB B ${dB>0?'+':''}${dB}</span>`)
+    if (rt.white_balance && rt.white_balance !== T.white_balance) {
+      wbDiffs.push(`<span class="exp-delta neg">WB ${rt.white_balance}</span>`)
+    }
+    let grainSizeDiff = ''
+    if (rt.grain_size !== T.grain_size) {
+      grainSizeDiff = `<span class="exp-delta neg">Grain Size ${rt.grain_size}</span>`
+    }
+    const allDiffs = diffBadges + wbDiffs.join('') + grainSizeDiff
+
+    const kws = [...(r.mood_keywords||[]).slice(0,3), ...(r.scenario_keywords||[]).slice(0,2)]
+      .map(k=>`<span class="exp-kw">${k}</span>`).join('')
+
+    card.innerHTML = `
+      <div class="exp-mini-fp">${fingerprint(r)}</div>
+      <div class="exp-result-info">
+        <div class="exp-result-name">${r.name}</div>
+        <div class="exp-result-badges">
+          <span class="badge b-sim">${r.film_simulation||'?'}</span>
+          ${r.color_direction?`<span class="badge ${bc(r.color_direction)}">${r.color_direction}</span>`:''}
+        </div>
+        ${allDiffs?`<div class="exp-diff-row">${allDiffs}</div>`:''}
+        ${kws?`<div class="exp-kws">${kws}</div>`:''}
+      </div>`
+    card.addEventListener('click', () => openRecipeModal(r.name))
+    const expCmpBtn = document.createElement('button')
+    expCmpBtn.className = 'cmp-card-btn'
+    expCmpBtn.dataset.recipe = r.name
+    expCmpBtn.textContent = 'Compare'
+    if (compareSlots[0] && compareSlots[0].name === r.name) { expCmpBtn.textContent = 'A ✕'; expCmpBtn.className = 'cmp-card-btn slot-a' }
+    if (compareSlots[1] && compareSlots[1].name === r.name) { expCmpBtn.textContent = 'B ✕'; expCmpBtn.className = 'cmp-card-btn slot-b' }
+    expCmpBtn.style.cssText = 'margin-top:4px;display:block'
+    expCmpBtn.addEventListener('click', e => { e.stopPropagation(); onCompareCardClick(r) })
+    card.querySelector('.exp-result-info').appendChild(expCmpBtn)
+    list.appendChild(card)
+  })
+  // Update overlay to show closest match
+  clearTimeout(_expOverlayTimer)
+  _expOverlayTimer = setTimeout(updateRadarOverlay, 0)
+}
+function svgPill(x, y, text, strokeColor, bgColor, textColor) {
+  const w = Math.max(text.length * 5.5 + 8, 22)
+  return `<rect x="${x - w/2}" y="${y}" width="${w}" height="14" rx="4" fill="${bgColor}" stroke="${strokeColor}" stroke-width="1"/>` +
+         `<text x="${x}" y="${y + 10}" text-anchor="middle" font-size="9" fill="${textColor}" font-family="Inter,sans-serif" font-weight="700">${text}</text>`
+}
+
+function updateRadarOverlay() {
+  const svg = document.getElementById('exp-radar-svg')
+  if (!svg) return
+
+  const N = 5
+  const cx = 130, cy = 125, R = 80
+  const AXES = T_PARAMS.slice(0, 5)
+
+  function ang(i) { return (2 * Math.PI * i / N) - Math.PI / 2 }
+  function unitVec(i) { return [Math.cos(ang(i)), Math.sin(ang(i))] }
+  function axisPoint(val, p, i) {
+    const r = tNorm(p, val) * R
+    const [ux, uy] = unitVec(i)
+    return [cx + r * ux, cy + r * uy]
+  }
+
+  const closest = computeSimilarity(T)[0]
+  const rt = closest ? recipeToT(closest) : null
+
+  // Build dynamic layer HTML
+  let html = ''
+
+  // Ghost polygon — closest match
+  if (rt) {
+    const gpts = AXES.map((p, i) => axisPoint(rt[p.key] ?? 0, p, i).join(',')).join(' ')
+    html += `<polygon id="exp-radar-match" points="${gpts}" fill="rgba(91,154,240,.08)" stroke="#5b9af0" stroke-width="1.6" stroke-dasharray="5,3"/>`
+  }
+
+  // Your polygon
+  const tpts = AXES.map((p, i) => axisPoint(T[p.key] ?? 0, p, i).join(',')).join(' ')
+  html += `<polygon id="exp-radar-yours" points="${tpts}" fill="rgba(212,168,67,.15)" stroke="#d4a843" stroke-width="2.2"/>`
+
+  // Diamond handles + value pills
+  AXES.forEach((p, i) => {
+    const [hx, hy] = axisPoint(T[p.key] ?? 0, p, i)
+    const s = 4
+    const dpts = `${hx},${hy-s} ${hx+s},${hy} ${hx},${hy+s} ${hx-s},${hy}`
+    html += `<polygon class="radar-handle" data-idx="${i}" points="${dpts}" fill="#d4a843" stroke="#0d0d0f" stroke-width="1.2" style="cursor:grab"/>`
+    // Value pill beside handle
+    const [ux, uy] = unitVec(i)
+    const px = hx + ux * 8, py = hy + uy * 8
+    const val = T[p.key]
+    const valTxt = (val > 0 ? '+' : '') + val
+    html += svgPill(px, py - 7, valTxt, '#d4a843', '#1c1c20', '#e8c05a')
+  })
+
+  // Delta pills — placed below the label group for each axis
+  const labelOffsets2 = [[0,-15],[18,-8],[12,12],[-12,12],[-18,-8]]
+  if (rt) {
+    AXES.forEach((p, i) => {
+      const diff = (rt[p.key] ?? 0) - (T[p.key] ?? 0)
+      if (Math.abs(diff) < p.step * 0.5) return
+      const [ux, uy] = unitVec(i)
+      const lx = cx + (R + 20) * ux + labelOffsets2[i][0]
+      const ly = cy + (R + 20) * uy + labelOffsets2[i][1]
+      const px = lx
+      const py = ly + 14
+      const color = diff > 0 ? '#4caf7d' : '#5b9af0'
+      const bgAlpha = diff > 0 ? 'rgba(76,175,125,.2)' : 'rgba(91,154,240,.18)'
+      const stroke = diff > 0 ? 'rgba(76,175,125,.4)' : 'rgba(91,154,240,.4)'
+      const sign = diff > 0 ? '+' : ''
+      html += `<rect x="${px-12}" y="${py-7}" width="24" height="14" rx="4" fill="${bgAlpha}" stroke="${stroke}" stroke-width=".8"/>`
+      html += `<text x="${px}" y="${py+3}" text-anchor="middle" font-size="9" fill="${color}" font-family="Inter,sans-serif" font-weight="700">${sign}${Math.round(diff*10)/10}</text>`
+    })
+  }
+
+  const dyn = document.getElementById('exp-radar-dyn')
+  if (dyn) dyn.innerHTML = html
+  const yoursPoly = document.getElementById('exp-radar-yours')
+  const matchPoly = document.getElementById('exp-radar-match')
+  if (yoursPoly) yoursPoly.style.opacity = yoursVisible ? '1' : '0.1'
+  if (matchPoly) matchPoly.style.opacity = matchVisible ? '1' : '0.1'
+}
+function updateExploreViews() { syncExploreControls(); updateRadarOverlay() }
+
+function buildRadarPane() {
+  const svg = document.getElementById('exp-radar-svg')
+  if (!svg) return
+
+  const N = 5
+  const cx = 130, cy = 125, R = 80
+  const AXES = T_PARAMS.slice(0, 5)  // HL, SH, COL, CCE, CCB
+
+  function ang(i) { return (2 * Math.PI * i / N) - Math.PI / 2 }
+  function unitVec(i) { return [Math.cos(ang(i)), Math.sin(ang(i))] }
+  function axisPoint(val, p, i) {
+    const r = tNorm(p, val) * R
+    const [ux, uy] = unitVec(i)
+    return [cx + r * ux, cy + r * uy]
+  }
+
+  // Static structure (grid + spokes) — drawn once
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+  g.id = 'exp-radar-static'
+  const rings = [0.25, 0.5, 0.75, 1.0]
+  rings.forEach(frac => {
+    const pts = AXES.map((_, i) => {
+      const [ux, uy] = unitVec(i)
+      return `${cx + R * frac * ux},${cy + R * frac * uy}`
+    }).join(' ')
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
+    poly.setAttribute('points', pts)
+    poly.setAttribute('fill', 'none')
+    poly.setAttribute('stroke', frac === 0.5 ? '#3a3a42' : '#2a2a30')
+    poly.setAttribute('stroke-width', frac === 0.5 ? '1.2' : '0.8')
+    g.appendChild(poly)
+  })
+  AXES.forEach((_, i) => {
+    const [ux, uy] = unitVec(i)
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+    line.setAttribute('x1', cx); line.setAttribute('y1', cy)
+    line.setAttribute('x2', cx + R * ux); line.setAttribute('y2', cy + R * uy)
+    line.setAttribute('stroke', '#2a2a30'); line.setAttribute('stroke-width', '0.8')
+    g.appendChild(line)
+  })
+  svg.appendChild(g)
+
+  // Dynamic layer (polygons + handles + pills) — replaced by updateRadarOverlay
+  const dyn = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+  dyn.id = 'exp-radar-dyn'
+  svg.appendChild(dyn)
+
+  // Axis name labels + +/- buttons with background pill (outside ring)
+  const labelNames = ['HL','SH','COL','CCE','CCB']
+  const labelOffsets = [[0,-15],[18,-8],[12,12],[-12,12],[-18,-8]]
+  AXES.forEach((p, i) => {
+    const [ux, uy] = unitVec(i)
+    const lx = cx + (R + 20) * ux + labelOffsets[i][0]
+    const ly = cy + (R + 20) * uy + labelOffsets[i][1]
+
+    // Group for hit area styling
+    const grp = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+
+    // Background pill behind the whole label+buttons row
+    const pillW = 46, pillH = 16
+    const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+    bg.setAttribute('x', lx - pillW/2); bg.setAttribute('y', ly - 11)
+    bg.setAttribute('width', pillW); bg.setAttribute('height', pillH)
+    bg.setAttribute('rx', '5')
+    bg.setAttribute('fill', '#1a1a20')
+    bg.setAttribute('stroke', '#3a3a4a')
+    bg.setAttribute('stroke-width', '0.8')
+    grp.appendChild(bg)
+
+    // − button
+    const btnMinus = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+    btnMinus.setAttribute('x', lx - 15); btnMinus.setAttribute('y', ly)
+    btnMinus.setAttribute('text-anchor', 'middle')
+    btnMinus.setAttribute('font-size', '12')
+    btnMinus.setAttribute('fill', '#8a8a9a')
+    btnMinus.setAttribute('font-family', 'Inter,sans-serif')
+    btnMinus.setAttribute('font-weight', '700')
+    btnMinus.style.cursor = 'pointer'
+    btnMinus.textContent = '−'
+    btnMinus.addEventListener('click', () => {
+      T[p.key] = Math.max(p.lo, Math.round((T[p.key] - p.step) / p.step) * p.step)
+      syncExploreControls(); expDebounce()
+    })
+    grp.appendChild(btnMinus)
+
+    // Label
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+    t.setAttribute('x', lx); t.setAttribute('y', ly)
+    t.setAttribute('text-anchor', 'middle')
+    t.setAttribute('dominant-baseline', 'auto')
+    t.setAttribute('font-size', '9')
+    t.setAttribute('fill', '#c0c0d0')
+    t.setAttribute('font-family', 'Inter,sans-serif')
+    t.setAttribute('font-weight', '700')
+    t.setAttribute('letter-spacing', '0.3')
+    t.textContent = labelNames[i]
+    grp.appendChild(t)
+
+    // + button
+    const btnPlus = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+    btnPlus.setAttribute('x', lx + 15); btnPlus.setAttribute('y', ly)
+    btnPlus.setAttribute('text-anchor', 'middle')
+    btnPlus.setAttribute('font-size', '12')
+    btnPlus.setAttribute('fill', '#8a8a9a')
+    btnPlus.setAttribute('font-family', 'Inter,sans-serif')
+    btnPlus.setAttribute('font-weight', '700')
+    btnPlus.style.cursor = 'pointer'
+    btnPlus.textContent = '+'
+    btnPlus.addEventListener('click', () => {
+      T[p.key] = Math.min(p.hi, Math.round((T[p.key] + p.step) / p.step) * p.step)
+      syncExploreControls(); expDebounce()
+    })
+    grp.appendChild(btnPlus)
+
+    svg.appendChild(grp)
+  })
+
+  // Legend toggle buttons — wired to HTML elements above the SVG
+  yoursVisible = true
+  matchVisible = true
+  const legendYoursBtn = document.getElementById('exp-legend-yours-btn')
+  const legendMatchBtn = document.getElementById('exp-legend-match-btn')
+  if (legendYoursBtn) {
+    legendYoursBtn.addEventListener('click', () => {
+      yoursVisible = !yoursVisible
+      const poly = document.getElementById('exp-radar-yours')
+      if (poly) poly.style.opacity = yoursVisible ? '1' : '0.1'
+      legendYoursBtn.classList.toggle('dimmed', !yoursVisible)
+    })
+  }
+  if (legendMatchBtn) {
+    legendMatchBtn.addEventListener('click', () => {
+      matchVisible = !matchVisible
+      const poly = document.getElementById('exp-radar-match')
+      if (poly) poly.style.opacity = matchVisible ? '1' : '0.1'
+      legendMatchBtn.classList.toggle('dimmed', !matchVisible)
+    })
+  }
+
+  // Draw initial state
+  updateRadarOverlay()
+
+  // Wire drag events on handles (delegated — handles added by updateRadarOverlay)
+  let activeHandle = null
+  svg.addEventListener('mousedown', e => {
+    const h = e.target.closest('.radar-handle')
+    if (h) { activeHandle = h; e.preventDefault() }
+  })
+  document.addEventListener('mouseup', () => { activeHandle = null })
+  document.addEventListener('mousemove', e => {
+    if (!activeHandle) return
+    const i = parseInt(activeHandle.dataset.idx)
+    const p = AXES[i]
+    const rect = svg.getBoundingClientRect()
+    const scaleX = 260 / rect.width, scaleY = 250 / rect.height
+    const mx = (e.clientX - rect.left) * scaleX - cx
+    const my = (e.clientY - rect.top)  * scaleY - cy
+    const [ux, uy] = unitVec(i)
+    const proj = clamp((mx * ux + my * uy) / R, 0, 1)
+    const extent = Math.max(Math.abs(p.lo), Math.abs(p.hi))
+    const rawVal = clamp(proj * 2 * extent - extent, p.lo, p.hi)
+    T[p.key] = Math.round(rawVal / p.step) * p.step
+    syncExploreControls()
+    expDebounce()
+  })
+  svg.addEventListener('touchstart', e => {
+    const h = e.target.closest('.radar-handle')
+    if (h) { activeHandle = h; e.preventDefault() }
+  }, {passive:false})
+  document.addEventListener('touchend', () => { activeHandle = null })
+  document.addEventListener('touchmove', e => {
+    if (!activeHandle) return
+    const i = parseInt(activeHandle.dataset.idx)
+    const p = AXES[i]
+    const t2 = e.touches[0]
+    const rect = svg.getBoundingClientRect()
+    const scaleX = 260 / rect.width, scaleY = 250 / rect.height
+    const mx = (t2.clientX - rect.left) * scaleX - cx
+    const my = (t2.clientY - rect.top)  * scaleY - cy
+    const [ux, uy] = unitVec(i)
+    const proj = clamp((mx * ux + my * uy) / R, 0, 1)
+    const extent = Math.max(Math.abs(p.lo), Math.abs(p.hi))
+    const rawVal = clamp(proj * 2 * extent - extent, p.lo, p.hi)
+    T[p.key] = Math.round(rawVal / p.step) * p.step
+    syncExploreControls()
+    expDebounce()
+  }, {passive:false})
+}
+
+function syncExploreControls() {
+  // Film sim filter
+  const filmSimSel = document.getElementById('exp-film-sim')
+  if (filmSimSel && filmSimSel.value !== T.film_sim_filter) filmSimSel.value = T.film_sim_filter
+  // WB
+  const wbMode = document.getElementById('exp-wb-mode')
+  if (wbMode && wbMode.value !== T.white_balance) wbMode.value = T.white_balance
+  updateWbDot()
+  // Compact controls (steppers)
+  ;['sharpness','clarity','high_iso_nr'].forEach(key => {
+    const el = document.getElementById('exp-sv-' + key)
+    if (el) el.textContent = T[key]
+  })
+  // Compact controls (toggles)
+  ;['100','200','400'].forEach(v => {
+    const btn = document.querySelector(`#exp-dr-group [data-val="${v}"]`)
+    if (btn) btn.classList.toggle('on', T.dynamic_range === parseInt(v))
+  })
+  ;['0','1','2'].forEach(v => {
+    const btn = document.querySelector(`#exp-grain-group [data-val="${v}"]`)
+    if (btn) btn.classList.toggle('on', T.grain_effect === parseInt(v))
+  })
+  ;['S','L'].forEach(v => {
+    const btn = document.querySelector(`#exp-gs-group [data-val="${v}"]`)
+    if (btn) btn.classList.toggle('on', T.grain_size === v)
+  })
+  syncCompactDiffs()
+}
+
+function diamondPoints(cx, cy, s) {
+  return `${cx},${cy-s} ${cx+s},${cy} ${cx},${cy+s} ${cx-s},${cy}`
+}
+
+function buildWbGrid() {
+  const svg = document.getElementById('exp-wb-svg')
+  if (!svg) return
+
+  let html = ''
+  // Grid lines every 3 units
+  for (let i = -6; i <= 6; i += 3) {
+    const thick = i === 0
+    html += `<line x1="${i}" y1="-9" x2="${i}" y2="9" stroke="${thick?'#333340':'#242428'}" stroke-width="${thick?.6:.3}"/>`
+    html += `<line x1="-9" y1="${i}" x2="9" y2="${i}" stroke="${thick?'#333340':'#242428'}" stroke-width="${thick?.6:.3}"/>`
+  }
+  html += `<rect x="-9" y="-9" width="18" height="18" fill="none" stroke="#2e2e34" stroke-width=".6"/>`
+  // Axis labels
+  html += `<text x="-9.4" y=".7" font-size="1.7" fill="#5e5e6e" text-anchor="end" font-family="Inter,sans-serif">R−</text>`
+  html += `<text x="9.4"  y=".7" font-size="1.7" fill="#5e5e6e" text-anchor="start" font-family="Inter,sans-serif">R+</text>`
+  html += `<text x="0" y="-9.6" font-size="1.7" fill="#5e5e6e" text-anchor="middle" font-family="Inter,sans-serif">B+</text>`
+  html += `<text x="0" y="10.8" font-size="1.7" fill="#5e5e6e" text-anchor="middle" font-family="Inter,sans-serif">B−</text>`
+  // Tick values
+  html += `<text x="-6" y="1.3" font-size="1.3" fill="#2e2e34" text-anchor="middle" font-family="Inter,sans-serif">−6</text>`
+  html += `<text x="-3" y="1.3" font-size="1.3" fill="#2e2e34" text-anchor="middle" font-family="Inter,sans-serif">−3</text>`
+  html += `<text x="3"  y="1.3" font-size="1.3" fill="#2e2e34" text-anchor="middle" font-family="Inter,sans-serif">+3</text>`
+  html += `<text x="6"  y="1.3" font-size="1.3" fill="#2e2e34" text-anchor="middle" font-family="Inter,sans-serif">+6</text>`
+  html += `<text x=".8" y="-5.7" font-size="1.3" fill="#2e2e34" font-family="Inter,sans-serif">+6</text>`
+  html += `<text x=".8" y="-2.7" font-size="1.3" fill="#2e2e34" font-family="Inter,sans-serif">+3</text>`
+  html += `<text x=".8" y="4.3"  font-size="1.3" fill="#2e2e34" font-family="Inter,sans-serif">−3</text>`
+  html += `<text x=".8" y="7.3"  font-size="1.3" fill="#2e2e34" font-family="Inter,sans-serif">−6</text>`
+
+  // Match dot group (hairline crosshair + open circle + value pill) — updated by updateWbDot
+  html += `<g id="exp-wb-match-g" opacity="0"></g>`
+
+  // Your dot — gold diamond
+  html += `<polygon id="exp-wb-dot" points="${diamondPoints(T.wb_shift_red, -T.wb_shift_blue, 1.1)}" fill="#d4a843" stroke="#0d0d0f" stroke-width=".3" style="cursor:crosshair"/>`
+
+  svg.innerHTML = html
+
+  // Wire WB mode select
+  const modeSelect = document.getElementById('exp-wb-mode')
+  if (modeSelect) {
+    modeSelect.value = T.white_balance
+    modeSelect.addEventListener('change', () => {
+      T.white_balance = modeSelect.value
+      expDebounce()
+    })
+  }
+
+  // Drag handlers
+  function svgCoords(e) {
+    const rect = svg.getBoundingClientRect()
+    const scaleX = 18 / rect.width, scaleY = 18 / rect.height
+    const rx = clamp(Math.round((e.clientX - rect.left) * scaleX - 9), -9, 9)
+    const ry = clamp(Math.round((e.clientY - rect.top)  * scaleY - 9), -9, 9)
+    return { r: rx, b: -ry }
+  }
+  let dragging = false
+  svg.addEventListener('mousedown', e => {
+    dragging = true
+    const {r, b} = svgCoords(e)
+    T.wb_shift_red = r; T.wb_shift_blue = b
+    updateWbDot(); renderExploreResults()
+  })
+  svg.addEventListener('mousemove', e => {
+    if (!dragging) return
+    const {r, b} = svgCoords(e)
+    T.wb_shift_red = r; T.wb_shift_blue = b
+    updateWbDot(); expDebounce()
+  })
+  document.addEventListener('mouseup', () => { dragging = false })
+  svg.addEventListener('touchstart', e => {
+    e.preventDefault()
+    const {r, b} = svgCoords(e.touches[0])
+    T.wb_shift_red = r; T.wb_shift_blue = b
+    updateWbDot(); renderExploreResults()
+  }, {passive:false})
+  svg.addEventListener('touchmove', e => {
+    e.preventDefault()
+    const {r, b} = svgCoords(e.touches[0])
+    T.wb_shift_red = r; T.wb_shift_blue = b
+    updateWbDot(); expDebounce()
+  }, {passive:false})
+
+  updateWbDot()
+}
+
+function pillSvg(x, y, text, strokeColor, bgColor, textColor) {
+  const w = text.length * 1.1 + 2
+  const cx = clamp(x, -8.8, 9 - w)
+  return `<rect x="${cx}" y="${y}" width="${w}" height="2.6" rx=".8" fill="${bgColor}" stroke="${strokeColor}" stroke-width=".3"/>` +
+         `<text x="${cx + w/2}" y="${y + 1.9}" font-size="1.5" fill="${textColor}" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">${text}</text>`
+}
+
+function updateWbDot() {
+  const dot = document.getElementById('exp-wb-dot')
+  if (dot) dot.setAttribute('points', diamondPoints(T.wb_shift_red, -T.wb_shift_blue, 1.1))
+
+  // Your value — written to HTML outside the SVG
+  const rLabel = (T.wb_shift_red >= 0 ? 'R+' : 'R') + T.wb_shift_red
+  const bLabel = (T.wb_shift_blue >= 0 ? 'B+' : 'B') + T.wb_shift_blue
+  const yoursTxt = document.getElementById('exp-wb-yours-txt')
+  if (yoursTxt) yoursTxt.textContent = rLabel + ' ' + bLabel
+
+  // Match dot + match value in HTML
+  const closest = computeSimilarity(T)[0]
+  const matchG = document.getElementById('exp-wb-match-g')
+  if (matchG && closest) {
+    const rt = recipeToT(closest)
+    const mx = rt.wb_shift_red, my = -rt.wb_shift_blue
+    matchG.innerHTML =
+      `<line x1="${mx-1.4}" y1="${my}" x2="${mx+1.4}" y2="${my}" stroke="#5b9af0" stroke-width=".25" opacity=".7"/>` +
+      `<line x1="${mx}" y1="${my-1.4}" x2="${mx}" y2="${my+1.4}" stroke="#5b9af0" stroke-width=".25" opacity=".7"/>` +
+      `<circle cx="${mx}" cy="${my}" r=".55" fill="rgba(91,154,240,.15)" stroke="#5b9af0" stroke-width=".3"/>`
+    matchG.setAttribute('opacity', '1')
+    const rL = (rt.wb_shift_red >= 0 ? 'R+' : 'R') + rt.wb_shift_red
+    const bL = (rt.wb_shift_blue >= 0 ? 'B+' : 'B') + rt.wb_shift_blue
+    const matchTxt = document.getElementById('exp-wb-match-txt')
+    if (matchTxt) matchTxt.textContent = rL + ' ' + bL
+  }
+
+  // WB match mode indicator
+  const matchMode = document.getElementById('exp-wb-match-mode')
+  if (matchMode && closest) {
+    const rt = recipeToT(closest)
+    matchMode.textContent = rt.white_balance || '—'
+  }
+}
+
+let _expTimer = null
+function expDebounce() {
+  clearTimeout(_expTimer)
+  _expTimer = setTimeout(() => { renderExploreResults(); updateExploreViews() }, 80)
+}
+
+function buildSliderPane() {
+  const pane = document.getElementById('exp-pane-sliders')
+  if (!pane) return
+
+  const tonal  = T_PARAMS.filter(p => ['highlight','shadow'].includes(p.key))
+  const style  = T_PARAMS.filter(p => !['highlight','shadow'].includes(p.key))
+
+  function makeGroup(title, params) {
+    const g = document.createElement('div')
+    g.className = 'slider-group'
+    g.innerHTML = `<div class="slider-group-title">${title}</div>`
+    params.forEach(p => {
+      const row = document.createElement('div')
+      row.className = 'slider-row'
+      const dotColor = n => n < 0.33 ? 'var(--blue)' : n < 0.67 ? 'var(--teal)' : 'var(--accent)'
+      row.innerHTML = `
+        <span class="slider-dot" id="exp-dot-${p.key}" style="background:${dotColor(p.norm(T[p.key]))}"></span>
+        <span class="slider-label">${p.label}</span>
+        <input type="range" class="exp-range" id="exp-sl-${p.key}"
+          min="${p.min}" max="${p.max}" step="${p.step}" value="${T[p.key]}">
+        <span class="slider-val" id="exp-slv-${p.key}">${T[p.key]}</span>`
+      const inp = row.querySelector('input')
+      inp.addEventListener('input', () => {
+        T[p.key] = parseFloat(inp.value)
+        document.getElementById('exp-slv-' + p.key).textContent = T[p.key]
+        const dot = document.getElementById('exp-dot-' + p.key)
+        if (dot) dot.style.background = dotColor(p.norm(T[p.key]))
+        expDebounce()
+      })
+      g.appendChild(row)
+    })
+    return g
+  }
+
+  const sliders = document.createElement('div')
+  sliders.className = 'exp-sliders'
+  sliders.appendChild(makeGroup('Tonal', tonal))
+  sliders.appendChild(makeGroup('Style', style))
+  pane.appendChild(sliders)
+
+  // Radar overlay for Sliders sub-tab
+  const owrap = document.createElement('div')
+  owrap.className = 'exp-overlay-wrap'
+  owrap.innerHTML = '<div class="exp-overlay-title">Shape vs closest match</div>'
+  const svgWrap = document.createElement('div')
+  svgWrap.className = 'exp-radar-wrap'
+  svgWrap.innerHTML = '<svg id="exp-overlay-svg" class="exp-radar-svg" width="220" height="220" viewBox="0 0 80 80"></svg>'
+  owrap.appendChild(svgWrap)
+  pane.appendChild(owrap)
+}
+
+function buildCompactControls() {
+  const container = document.getElementById('exp-compact-controls')
+  if (!container) return
+  container.innerHTML = ''
+
+  const title = document.createElement('div')
+  title.className = 'exp-compact-title'
+  title.textContent = 'Detail & Range'
+  container.appendChild(title)
+
+  const grid = document.createElement('div')
+  grid.className = 'exp-compact-grid'
+  container.appendChild(grid)
+
+  // Stepper controls for SHP, CL, NR (T_PARAMS entries 5,6,7)
+  const stepperKeys = ['sharpness','clarity','high_iso_nr']
+  const stepperLabels = {'sharpness':'Sharpness','clarity':'Clarity','high_iso_nr':'ISO NR'}
+  stepperKeys.forEach(key => {
+    const p = T_PARAMS.find(x => x.key === key)
+    const row = document.createElement('div')
+    row.className = 'exp-compact-row'
+    row.innerHTML = `
+      <span class="exp-compact-lbl">${stepperLabels[key]}</span>
+      <button class="exp-stepper-btn" data-key="${key}" data-dir="-1">−</button>
+      <span class="exp-stepper-val" id="exp-sv-${key}">${T[key]}</span>
+      <button class="exp-stepper-btn" data-key="${key}" data-dir="1">+</button>
+      <span class="exp-diff-pill neut" id="exp-dp-${key}"></span>`
+    grid.appendChild(row)
+    row.querySelectorAll('.exp-stepper-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const dir = parseInt(btn.dataset.dir)
+        T[key] = clamp(T[key] + dir * p.step, p.lo, p.hi)
+        document.getElementById('exp-sv-' + key).textContent = T[key]
+        syncCompactDiffs()
+        expDebounce()
+      })
+    })
+  })
+
+  // Dynamic Range toggle
+  const drRow = document.createElement('div')
+  drRow.className = 'exp-compact-row'
+  drRow.innerHTML = `
+    <span class="exp-compact-lbl">Dyn Range</span>
+    <div class="exp-toggle-group" id="exp-dr-group">
+      <button class="exp-toggle-btn${T.dynamic_range===100?' on':''}" data-val="100">100</button>
+      <button class="exp-toggle-btn${T.dynamic_range===200?' on':''}" data-val="200">200</button>
+      <button class="exp-toggle-btn${T.dynamic_range===400?' on':''}" data-val="400">400</button>
+    </div>
+    <span class="exp-diff-pill neut" id="exp-dp-dynamic_range"></span>`
+  grid.appendChild(drRow)
+  drRow.querySelectorAll('.exp-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      T.dynamic_range = parseInt(btn.dataset.val)
+      drRow.querySelectorAll('.exp-toggle-btn').forEach(b => b.classList.toggle('on', b === btn))
+      syncCompactDiffs()
+      expDebounce()
+    })
+  })
+
+  // Grain strength toggle
+  const grainRow = document.createElement('div')
+  grainRow.className = 'exp-compact-row'
+  grainRow.innerHTML = `
+    <span class="exp-compact-lbl">Grain</span>
+    <div class="exp-toggle-group" id="exp-grain-group">
+      <button class="exp-toggle-btn${T.grain_effect===0?' on':''}" data-val="0">Off</button>
+      <button class="exp-toggle-btn${T.grain_effect===1?' on':''}" data-val="1">Wk</button>
+      <button class="exp-toggle-btn${T.grain_effect===2?' on':''}" data-val="2">Str</button>
+    </div>
+    <span class="exp-diff-pill neut" id="exp-dp-grain_effect"></span>`
+  grid.appendChild(grainRow)
+  grainRow.querySelectorAll('.exp-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      T.grain_effect = parseInt(btn.dataset.val)
+      grainRow.querySelectorAll('.exp-toggle-btn').forEach(b => b.classList.toggle('on', b === btn))
+      syncCompactDiffs()
+      expDebounce()
+    })
+  })
+
+  // Grain size toggle
+  const gsRow = document.createElement('div')
+  gsRow.className = 'exp-compact-row'
+  gsRow.innerHTML = `
+    <span class="exp-compact-lbl">Grain Size</span>
+    <div class="exp-toggle-group" id="exp-gs-group">
+      <button class="exp-toggle-btn${T.grain_size==='S'?' on':''}" data-val="S">S</button>
+      <button class="exp-toggle-btn${T.grain_size==='L'?' on':''}" data-val="L">L</button>
+    </div>
+    <span class="exp-diff-pill neut" id="exp-dp-grain_size"></span>`
+  grid.appendChild(gsRow)
+  gsRow.querySelectorAll('.exp-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      T.grain_size = btn.dataset.val
+      gsRow.querySelectorAll('.exp-toggle-btn').forEach(b => b.classList.toggle('on', b === btn))
+      syncCompactDiffs()
+      expDebounce()
+    })
+  })
+
+  syncCompactDiffs()
+}
+
+function syncCompactDiffs() {
+  const closest = computeSimilarity(T)[0]
+  if (!closest) return
+  const rt = recipeToT(closest)
+
+  // Stepper diffs
+  ;['sharpness','clarity','high_iso_nr'].forEach(key => {
+    const pill = document.getElementById('exp-dp-' + key)
+    const valEl = document.getElementById('exp-sv-' + key)
+    if (valEl) valEl.textContent = T[key]
+    if (!pill) return
+    const diff = rt[key] - T[key]
+    if (Math.abs(diff) < 0.5) {
+      pill.textContent = '='; pill.className = 'exp-diff-pill neut'
+    } else {
+      pill.textContent = (diff > 0 ? '+' : '') + diff
+      pill.className = 'exp-diff-pill ' + (diff > 0 ? 'pos' : 'neg')
+    }
+  })
+
+  // DR diff
+  const drPill = document.getElementById('exp-dp-dynamic_range')
+  if (drPill) {
+    drPill.textContent = rt.dynamic_range !== T.dynamic_range ? rt.dynamic_range : '='
+    drPill.className = 'exp-diff-pill ' + (rt.dynamic_range !== T.dynamic_range ? 'neg' : 'neut')
+  }
+
+  // Grain diff
+  const gPill = document.getElementById('exp-dp-grain_effect')
+  if (gPill) {
+    const gDiff = rt.grain_effect - T.grain_effect
+    gPill.textContent = gDiff !== 0 ? (['Off','Wk','Str'][rt.grain_effect] || rt.grain_effect) : '='
+    gPill.className = 'exp-diff-pill ' + (gDiff !== 0 ? 'neg' : 'neut')
+  }
+
+  // Grain size diff
+  const gsPill = document.getElementById('exp-dp-grain_size')
+  if (gsPill) {
+    gsPill.textContent = rt.grain_size !== T.grain_size ? rt.grain_size : '='
+    gsPill.className = 'exp-diff-pill ' + (rt.grain_size !== T.grain_size ? 'neg' : 'neut')
+  }
+}
+
+function initExplore() {
+  if (exploreBuilt) return
+
+  // Seed picker
+  const seedInput = document.getElementById('exp-seed-input')
+  const seedDropdown = document.getElementById('exp-seed-dropdown')
+  if (seedInput && seedDropdown) {
+    function showDropdown(query) {
+      const q = query.trim().toLowerCase()
+      const matches = RECIPES.filter(r => r.name.toLowerCase().includes(q)).slice(0, 12)
+      seedDropdown.innerHTML = ''
+      const neutral = document.createElement('div')
+      neutral.textContent = '— neutral —'
+      neutral.style.cssText = 'padding:6px 10px;font-size:13px;cursor:pointer;color:var(--text2)'
+      neutral.addEventListener('mousedown', e => {
+        e.preventDefault()
+        seedRecipe(null)
+        seedInput.value = ''
+        seedDropdown.style.display = 'none'
+      })
+      seedDropdown.appendChild(neutral)
+      matches.forEach(r => {
+        const opt = document.createElement('div')
+        opt.textContent = r.name
+        opt.style.cssText = 'padding:6px 10px;font-size:13px;cursor:pointer;color:var(--text)'
+        opt.addEventListener('mouseover', () => opt.style.background = 'var(--surf3)')
+        opt.addEventListener('mouseout', () => opt.style.background = '')
+        opt.addEventListener('mousedown', e => {
+          e.preventDefault()
+          seedRecipe(r.name)
+          seedInput.value = r.name
+          seedDropdown.style.display = 'none'
+        })
+        seedDropdown.appendChild(opt)
+      })
+      seedDropdown.style.display = (matches.length > 0 || q === '') ? 'block' : 'none'
+    }
+    seedInput.addEventListener('focus', () => showDropdown(seedInput.value))
+    seedInput.addEventListener('input', () => showDropdown(seedInput.value))
+    seedInput.addEventListener('blur', () => setTimeout(() => { seedDropdown.style.display = 'none' }, 150))
+  }
+
+  // Film sim filter — populate options from dataset
+  const filmSimSel = document.getElementById('exp-film-sim')
+  if (filmSimSel) {
+    const sims = [...new Set(RECIPES.map(r => r.film_simulation).filter(Boolean))].sort()
+    sims.forEach(s => {
+      const opt = document.createElement('option')
+      opt.value = s; opt.textContent = s
+      filmSimSel.appendChild(opt)
+    })
+    filmSimSel.addEventListener('change', () => {
+      T.film_sim_filter = filmSimSel.value
+      renderExploreResults()
+      updateRadarOverlay()
+      updateWbDot()
+      syncCompactDiffs()
+    })
+  }
+
+  // WB mode dropdown — populate from dataset
+  const wbSel = document.getElementById('exp-wb-mode')
+  if (wbSel) {
+    wbSel.innerHTML = ''
+    const wbVals = [...new Set(RECIPES.map(r => r.white_balance).filter(Boolean))].sort()
+    wbVals.forEach(v => {
+      const opt = document.createElement('option')
+      opt.value = v; opt.textContent = v
+      wbSel.appendChild(opt)
+    })
+    wbSel.value = T.white_balance
+  }
+
+  // WB grid
+  buildWbGrid()
+
+  // Compact controls
+  buildCompactControls()
+
+  // Radar
+  buildRadarPane()
+
+  exploreBuilt = true
+  renderExploreResults()
 }
 
 // ══════════════════════════════════════════
