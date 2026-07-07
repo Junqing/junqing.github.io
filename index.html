@@ -533,29 +533,73 @@ input[type=range].exp-range{width:100%;accent-color:var(--accent);height:4px;cur
   <!-- EXPLORE -->
   <div class="pane" id="pane-explore">
     <div class="sec-title">Explore</div>
-    <div class="sec-desc">Tweak recipe parameters and find similar recipes in real time.</div>
+    <div class="sec-desc">Tweak parameters and find similar recipes in real time.</div>
     <div class="exp-layout">
+
+      <!-- ROW 1: SEED + FILM SIM -->
       <div class="exp-header">
         <div class="exp-seed">
-          <label>Start from recipe</label>
+          <label>Start from</label>
           <div class="exp-seed-wrap" style="position:relative">
             <input type="text" id="exp-seed-input" placeholder="Search recipes..." autocomplete="off"
               style="background:var(--surf2);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:6px 10px;font-size:13px;width:100%;box-sizing:border-box">
             <div id="exp-seed-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:50;background:var(--surf2);border:1px solid var(--border);border-radius:var(--r);max-height:200px;overflow-y:auto;"></div>
           </div>
         </div>
-        <div class="exp-wb-wrap">
-          <label>WB Shift</label>
-          <div class="exp-wb-preset" id="exp-wb-preset-lbl"></div>
-          <svg id="exp-wb-svg" class="exp-wb-grid" width="130" height="130" viewBox="-9 -9 18 18"></svg>
+        <div class="exp-seed">
+          <label>Film Sim</label>
+          <select id="exp-film-sim" style="background:var(--surf2);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:6px 10px;font-size:13px;width:100%">
+            <option value="">— any —</option>
+          </select>
         </div>
       </div>
-      <div class="exp-subtabs">
-        <div class="exp-subtab on" id="exp-subtab-sliders" data-ep="sliders">Sliders</div>
-        <div class="exp-subtab" id="exp-subtab-radar" data-ep="radar">Radar</div>
+
+      <!-- ROW 2: WB + RADAR -->
+      <div class="exp-row2">
+
+        <!-- WB column -->
+        <div class="exp-wb-col">
+          <label class="exp-col-label">White Balance</label>
+          <select id="exp-wb-mode" style="background:var(--surf2);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:5px 10px;font-size:12px;width:100%">
+            <option>Auto</option>
+            <option selected>Daylight</option>
+            <option>Shade</option>
+            <option>Fluorescent 1</option>
+            <option>Fluorescent 2</option>
+            <option>Fluorescent 3</option>
+            <option>Incandescent</option>
+            <option>Underwater</option>
+            <option>Custom</option>
+          </select>
+          <div class="exp-wb-match-row">
+            <span class="exp-wb-match-icon"></span>
+            <span style="font-size:10px;color:var(--text3)">Match:</span>
+            <span id="exp-wb-match-mode" style="font-size:10px;color:#5b9af0;font-weight:600">—</span>
+          </div>
+          <svg id="exp-wb-svg" class="exp-wb-grid" width="160" height="160" viewBox="-9 -9 18 18"></svg>
+          <div class="exp-wb-legend">
+            <span class="exp-wb-leg-yours">
+              <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="5,1 9,5 5,9 1,5" fill="#d4a843"/></svg>Yours
+            </span>
+            <span class="exp-wb-leg-match">
+              <svg width="10" height="10" viewBox="0 0 10 10"><line x1="2" y1="5" x2="8" y2="5" stroke="#5b9af0" stroke-width=".9"/><line x1="5" y1="2" x2="5" y2="8" stroke="#5b9af0" stroke-width=".9"/><circle cx="5" cy="5" r="2" fill="none" stroke="#5b9af0" stroke-width=".7"/></svg>Match
+            </span>
+          </div>
+        </div>
+
+        <!-- Radar column -->
+        <div class="exp-radar-col">
+          <label class="exp-col-label">Color &amp; Tone</label>
+          <svg id="exp-radar-svg" viewBox="0 0 260 250" style="width:100%;max-width:280px;overflow:visible" aria-label="5-axis radar chart"></svg>
+          <p class="exp-radar-hint">Click legend to isolate a shape</p>
+        </div>
+
       </div>
-      <div class="exp-pane on" id="exp-pane-sliders"></div>
-      <div class="exp-pane" id="exp-pane-radar"></div>
+
+      <!-- ROW 3: COMPACT CONTROLS -->
+      <div id="exp-compact-controls" class="exp-compact"></div>
+
+      <!-- ROW 4: RESULTS -->
       <div class="exp-results">
         <div class="exp-results-title">Similar recipes</div>
         <div id="exp-results-list"></div>
