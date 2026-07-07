@@ -2484,6 +2484,180 @@ function seedRecipe(name) {
 }
 
 let exploreBuilt = false
+
+// ══════════════════════════════════════════
+// COMPARE TAB
+// ══════════════════════════════════════════
+const C = { a: null, b: null, view: 'sidebyside' }
+let compareSlots = [null, null]
+let compareBuilt = false
+
+function updateCompareCardButtons() {
+  document.querySelectorAll('.cmp-card-btn').forEach(btn => {
+    const name = btn.dataset.recipe
+    if (compareSlots[0] && compareSlots[0].name === name) {
+      btn.textContent = 'A ✕'; btn.className = 'cmp-card-btn slot-a'
+    } else if (compareSlots[1] && compareSlots[1].name === name) {
+      btn.textContent = 'B ✕'; btn.className = 'cmp-card-btn slot-b'
+    } else {
+      btn.textContent = 'Compare'; btn.className = 'cmp-card-btn'
+    }
+  })
+}
+
+function onCompareCardClick(r) {
+  const idxA = compareSlots.findIndex(s => s && s.name === r.name)
+  if (idxA !== -1) {
+    compareSlots[idxA] = null
+    updateCompareCardButtons()
+    return
+  }
+  if (!compareSlots[0]) {
+    compareSlots[0] = r
+    updateCompareCardButtons()
+    return
+  }
+  compareSlots[1] = r
+  C.a = compareSlots[0]; C.b = compareSlots[1]
+  compareSlots = [null, null]
+  updateCompareCardButtons()
+  switchTab('compare')
+}
+
+function initCompare() {
+  if (compareBuilt) { renderCompare(); return }
+  compareBuilt = true
+
+  const shell = document.getElementById('cmp-shell')
+  shell.innerHTML = ''
+
+  // Header: two selects + swap + clear
+  const header = document.createElement('div')
+  header.className = 'cmp-header'
+
+  const sortedNames = RECIPES.map(r => r.name).slice().sort()
+
+  function makeSelect(cls, label) {
+    const wrap = document.createElement('div')
+    wrap.className = 'cmp-select-wrap'
+    const lbl = document.createElement('div')
+    lbl.className = 'cmp-select-label ' + cls
+    lbl.textContent = 'Recipe ' + label.toUpperCase()
+    const sel = document.createElement('select')
+    sel.className = 'cmp-select ' + cls
+    sel.id = 'cmp-sel-' + cls
+    const empty = document.createElement('option')
+    empty.value = ''; empty.textContent = '— choose —'
+    sel.appendChild(empty)
+    sortedNames.forEach(name => {
+      const opt = document.createElement('option')
+      opt.value = name; opt.textContent = name
+      sel.appendChild(opt)
+    })
+    wrap.appendChild(lbl); wrap.appendChild(sel)
+    return wrap
+  }
+
+  const wrapA = makeSelect('a', 'a')
+  const wrapB = makeSelect('b', 'b')
+
+  const swapBtn = document.createElement('button')
+  swapBtn.className = 'cmp-btn'; swapBtn.textContent = '⇄ Swap'
+  swapBtn.addEventListener('click', () => {
+    const tmp = C.a; C.a = C.b; C.b = tmp
+    syncCmpSelects(); renderCompare()
+  })
+
+  const clearBtn = document.createElement('button')
+  clearBtn.className = 'cmp-btn'; clearBtn.textContent = 'Clear'
+  clearBtn.addEventListener('click', () => {
+    C.a = null; C.b = null
+    compareSlots = [null, null]
+    updateCompareCardButtons()
+    syncCmpSelects(); renderCompare()
+  })
+
+  header.appendChild(wrapA); header.appendChild(wrapB)
+  header.appendChild(swapBtn); header.appendChild(clearBtn)
+
+  document.getElementById('cmp-sel-a').addEventListener('change', e => {
+    C.a = RECIPES.find(r => r.name === e.target.value) || null
+    renderCompare()
+  })
+  document.getElementById('cmp-sel-b').addEventListener('change', e => {
+    C.b = RECIPES.find(r => r.name === e.target.value) || null
+    renderCompare()
+  })
+
+  // Subtabs
+  const subtabs = document.createElement('div')
+  subtabs.className = 'cmp-subtabs'
+  const views = [
+    { id: 'sidebyside', label: 'Side-by-side' },
+    { id: 'rowdiff',    label: 'Row diff' },
+    { id: 'overlay',   label: 'Overlay' },
+  ]
+  views.forEach(v => {
+    const btn = document.createElement('button')
+    btn.className = 'cmp-subtab' + (C.view === v.id ? ' on' : '')
+    btn.textContent = v.label
+    btn.dataset.view = v.id
+    btn.addEventListener('click', () => {
+      C.view = v.id
+      subtabs.querySelectorAll('.cmp-subtab').forEach(b => b.classList.toggle('on', b.dataset.view === v.id))
+      renderCompare()
+    })
+    subtabs.appendChild(btn)
+  })
+
+  // Content area
+  const content = document.createElement('div')
+  content.id = 'cmp-content'
+
+  shell.appendChild(header)
+  shell.appendChild(subtabs)
+  shell.appendChild(content)
+
+  syncCmpSelects()
+  renderCompare()
+}
+
+function syncCmpSelects() {
+  const selA = document.getElementById('cmp-sel-a')
+  const selB = document.getElementById('cmp-sel-b')
+  if (selA) selA.value = C.a ? C.a.name : ''
+  if (selB) selB.value = C.b ? C.b.name : ''
+}
+
+function renderCompare() {
+  const content = document.getElementById('cmp-content')
+  if (!content) return
+  content.innerHTML = ''
+  if (!C.a || !C.b) {
+    content.innerHTML = '<div class="cmp-empty">Select two recipes above to compare them.</div>'
+    return
+  }
+  if (C.view === 'sidebyside') renderCompareSideBySide(content)
+  else if (C.view === 'rowdiff') renderCompareRowDiff(content)
+  else renderCompareOverlay(content)
+}
+
+function cmpTop3(r) {
+  return computeSimilarity(recipeToT(r)).filter(s => s.name !== r.name).slice(0, 3)
+}
+
+function cmpSimCard(r) {
+  const div = document.createElement('div')
+  div.className = 'cmp-sim-card'
+  div.innerHTML = `<span class="cmp-sim-name">${r.name}</span><span class="badge b-sim" style="flex-shrink:0">${r.film_simulation||'?'}</span>${r.color_direction?`<span class="badge ${bc(r.color_direction)}" style="flex-shrink:0">${r.color_direction}</span>`:''}`
+  div.addEventListener('click', () => openRecipeModal(r.name))
+  return div
+}
+
+function renderCompareSideBySide(container) { container.innerHTML = '<div class="cmp-empty" style="color:var(--text3);font-size:11px">Side-by-side view — coming in next task</div>' }
+function renderCompareRowDiff(container)    { container.innerHTML = '<div class="cmp-empty" style="color:var(--text3);font-size:11px">Row diff view — coming in next task</div>' }
+function renderCompareOverlay(container)    { container.innerHTML = '<div class="cmp-empty" style="color:var(--text3);font-size:11px">Overlay view — coming in next task</div>' }
+
 let yoursVisible = true, matchVisible = true
 
 let _expOverlayTimer = null
