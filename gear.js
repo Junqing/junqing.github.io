@@ -483,3 +483,23 @@ const MY_CUSTOM_SLOTS = [
 // usage:       when/why you reach for this recipe (shown prominently).
 // personal_notes: freeform observations (optional).
 const MY_RECIPES = [];
+
+// ─── RECIPE METADATA PATCHES ─────────────────────────────────
+// Override per-recipe badge fields without touching the main RECIPES blob.
+// Keys must exactly match RECIPES[].name. Only include fields you want to override.
+//
+// warmth_override: "warm" | "neutral" | "cool"
+// punch_override:  "punchy" | "balanced" | "flat"
+//
+// Example format — add entries here to override computed badges for specific recipes:
+// "Recipe Name": { warmth_override: "warm", punch_override: "flat" }
+//
+// To correct a recipe: add an entry below, commit gear.js, done.
+// The app merges these on load — the base RECIPES data is never touched.
+const RECIPE_META_PATCHES = {
+  // Example format — add entries here to override computed badges for specific recipes:
+  // "Recipe Name": { warmth_override: "warm", punch_override: "flat" }
+  //
+  // warmth_override: "warm" | "neutral" | "cool"
+  // punch_override:  "punchy" | "balanced" | "flat"
+};
