@@ -2123,7 +2123,7 @@ function renderCustomSlots() {
       if (slot.recipe_name) {
         const btn = document.createElement('button')
         btn.style.cssText = 'margin-top:10px;font-size:11px;color:var(--accent);background:none;border:1px solid var(--accent);border-radius:var(--r);padding:4px 10px;cursor:pointer;display:block'
-        btn.textContent = 'View sample images →'
+        btn.textContent = 'View recipe details →'
         btn.addEventListener('click', () => openRecipeModal(slot.recipe_name))
         body.appendChild(btn)
       }
