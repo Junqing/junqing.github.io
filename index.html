@@ -42,6 +42,10 @@ main{display:flex;flex:1;overflow:hidden}
 .chip.on{background:var(--accent);border-color:var(--accent);color:#000;font-weight:600}
 .clear-btn{width:100%;padding:6px;background:transparent;border:1px solid var(--border);border-radius:var(--r);color:var(--text2);cursor:pointer;font-size:11px;margin-top:8px;transition:all .12s}
 .clear-btn:hover{border-color:var(--red);color:var(--red)}
+.sb-label{cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.sb-label::after{content:'▾';font-size:9px;color:var(--text3);transition:transform .15s}
+.sb-section.collapsed .sb-label::after{content:'▸'}
+.sb-section.collapsed .chips{display:none}
 
 /* ─── Content ─── */
 .content{flex:1;overflow:auto;padding:20px}
@@ -807,6 +811,17 @@ function initChips() {
   buildChips('f-scene',[...new Set(RECIPES.flatMap(r=>r.scenario_keywords||[]))].sort(),'scene')
   const eras=[...new Set(RECIPES.map(r=>r.era_reference).filter(e=>e&&e!=='none'))].sort()
   buildChips('f-era',eras,'era')
+}
+
+function initCollapsibleFilters() {
+  document.querySelectorAll('.sidebar .sb-section').forEach(section => {
+    const label = section.querySelector('.sb-label')
+    if (!label) return
+    if (!section.querySelector('.chips')) return
+    label.addEventListener('click', () => {
+      section.classList.toggle('collapsed')
+    })
+  })
 }
 
 $('q').addEventListener('input',e=>{S.q=e.target.value.trim();render()})
@@ -3788,6 +3803,7 @@ function init(){
   $('s-total').textContent=RECIPES.length
   $('s-sims').textContent=new Set(RECIPES.map(r=>r.film_simulation).filter(Boolean)).size
   initChips()
+  initCollapsibleFilters()
   render()
   renderClouds()
   renderDirections()
