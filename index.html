@@ -62,9 +62,7 @@ main{display:flex;flex:1;overflow:hidden}
 .card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;cursor:pointer;transition:border-color .15s,transform .12s;display:flex;flex-direction:column}
 .card:hover{border-color:var(--accent);transform:translateY(-1px)}
 .card.open{border-color:var(--accent2)}
-.card-img{width:100%;height:150px;object-fit:cover;display:block;background:var(--surf2)}
 .card-img-fp{width:100%;height:150px;background:var(--surf2);display:flex;align-items:center;justify-content:center;padding:8px;box-sizing:border-box}
-.card-img-ph{width:100%;height:150px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:28px}
 .cbody{padding:12px 12px 8px}
 .ctitle{font-size:13px;font-weight:600;margin-bottom:3px}
 .cnarr{font-size:11px;color:var(--text2);font-style:italic;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:8px}
@@ -91,22 +89,6 @@ main{display:flex;flex:1;overflow:hidden}
 .stbl tr:last-child td{border-bottom:none}
 .kwrow{display:flex;flex-wrap:wrap;gap:3px;margin:6px 0}
 .kw{padding:2px 6px;border-radius:10px;font-size:10px;background:var(--surf2);color:var(--text2)}
-
-/* Gallery strip */
-.gallery-strip{display:flex;gap:6px;margin:8px 0;overflow-x:auto;padding-bottom:4px}
-.gallery-strip img{height:80px;width:auto;min-width:80px;object-fit:cover;border-radius:5px;cursor:pointer;flex-shrink:0;border:1px solid var(--border)}
-.gallery-strip img:hover{border-color:var(--accent)}
-
-/* Lightbox */
-#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:1000;display:none;align-items:center;justify-content:center}
-#lightbox.show{display:flex}
-#lightbox img{max-width:90vw;max-height:88vh;border-radius:var(--r);object-fit:contain}
-#lightbox-close{position:absolute;top:16px;right:20px;font-size:22px;color:var(--text2);cursor:pointer;background:var(--surf);border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;line-height:1}
-#lightbox-close:hover{color:var(--text);background:var(--surf2)}
-#lightbox-prev,#lightbox-next{position:absolute;top:50%;transform:translateY(-50%);font-size:24px;color:var(--text2);cursor:pointer;background:var(--surf);border:none;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center}
-#lightbox-prev:hover,#lightbox-next:hover{color:var(--text)}
-#lightbox-prev{left:16px}
-#lightbox-next{right:16px}
 
 /* ─── Charts ─── */
 .chart-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:18px}
@@ -270,8 +252,6 @@ main{display:flex;flex:1;overflow:hidden}
 /* ─── My Recipes ─── */
 .mr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;padding-bottom:40px}
 .mr-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;display:flex;flex-direction:column}
-.mr-hero{width:100%;height:160px;object-fit:cover;display:block;background:var(--surf2);cursor:pointer}
-.mr-hero-ph{width:100%;height:160px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:32px}
 .mr-hero-fp{width:100%;height:160px;background:var(--surf2);display:flex;align-items:center;justify-content:center;padding:8px;box-sizing:border-box}
 .mr-body{padding:12px 14px}
 .mr-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
@@ -287,9 +267,6 @@ main{display:flex;flex:1;overflow:hidden}
 .mr-detail-label{font-size:10px;color:var(--text3);font-weight:600;width:22px;flex-shrink:0}
 .mr-detail-val{font-size:11px;color:var(--text2)}
 .cs-fp{display:flex;justify-content:center;padding:8px 0 4px}.cs-fp svg{width:150px!important;height:150px!important}
-.mr-gallery{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px}
-.mr-gallery img{height:60px;width:auto;min-width:60px;object-fit:cover;border-radius:4px;cursor:pointer;flex-shrink:0;border:1px solid var(--border)}
-.mr-gallery img:hover{border-color:var(--accent)}
 .mr-not-found{text-align:center;padding:24px;color:var(--text3);font-size:12px;font-style:italic;border:1px dashed var(--border);border-radius:var(--r2)}
 .drawer-link{display:inline-block;margin-top:4px;font-size:11px;color:var(--accent)}
 .drawer-link:hover{text-decoration:underline}
@@ -695,14 +672,6 @@ main{display:flex;flex:1;overflow:hidden}
 </main>
 </div>
 
-<!-- Lightbox -->
-<div id="lightbox">
-  <button id="lightbox-close">✕</button>
-  <button id="lightbox-prev">‹</button>
-  <img id="lightbox-img" src="" alt="">
-  <button id="lightbox-next">›</button>
-</div>
-
 <div id="recipe-modal" class="rmodal" role="dialog" aria-modal="true">
   <div class="rmodal-inner">
     <button class="rmodal-close" id="rmodal-close" aria-label="Close">✕</button>
@@ -792,26 +761,6 @@ $('clear-btn').addEventListener('click',()=>{
   Object.values(S.f).forEach(s=>s.clear())
   document.querySelectorAll('.chip.on').forEach(c=>c.classList.remove('on'))
   render()
-})
-
-// ══════════════════════════════════════════
-// LIGHTBOX
-// ══════════════════════════════════════════
-let lbImages=[], lbIdx=0
-function openLightbox(imgs, idx) {
-  lbImages=imgs; lbIdx=idx
-  $('lightbox-img').src=imgs[idx]
-  $('lightbox').classList.add('show')
-}
-$('lightbox').addEventListener('click',e=>{if(e.target===$('lightbox')||e.target===$('lightbox-close'))$('lightbox').classList.remove('show')})
-$('lightbox-close').addEventListener('click',()=>$('lightbox').classList.remove('show'))
-$('lightbox-prev').addEventListener('click',e=>{e.stopPropagation();lbIdx=(lbIdx-1+lbImages.length)%lbImages.length;$('lightbox-img').src=lbImages[lbIdx]})
-$('lightbox-next').addEventListener('click',e=>{e.stopPropagation();lbIdx=(lbIdx+1)%lbImages.length;$('lightbox-img').src=lbImages[lbIdx]})
-document.addEventListener('keydown',e=>{
-  if(!$('lightbox').classList.contains('show'))return
-  if(e.key==='ArrowLeft'){lbIdx=(lbIdx-1+lbImages.length)%lbImages.length;$('lightbox-img').src=lbImages[lbIdx]}
-  if(e.key==='ArrowRight'){lbIdx=(lbIdx+1)%lbImages.length;$('lightbox-img').src=lbImages[lbIdx]}
-  if(e.key==='Escape')$('lightbox').classList.remove('show')
 })
 
 // ══════════════════════════════════════════
@@ -929,8 +878,6 @@ function makeCard(r) {
 
   const moodK=(r.mood_keywords||[]).map(k=>`<span class="kw">${k}</span>`).join('')
   const scenK=(r.scenario_keywords||[]).map(k=>`<span class="kw">${k}</span>`).join('')
-
-  const galleryStrip=''
 
   div.innerHTML=`${imgHtml}
 <div class="cbody">
