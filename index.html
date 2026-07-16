@@ -272,6 +272,7 @@ main{display:flex;flex:1;overflow:hidden}
 .mr-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;display:flex;flex-direction:column}
 .mr-hero{width:100%;height:160px;object-fit:cover;display:block;background:var(--surf2);cursor:pointer}
 .mr-hero-ph{width:100%;height:160px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:32px}
+.mr-hero-fp{width:100%;height:160px;background:var(--surf2);display:flex;align-items:center;justify-content:center;padding:8px;box-sizing:border-box}
 .mr-body{padding:12px 14px}
 .mr-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
 .mr-slot{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;background:rgba(212,168,67,.18);color:var(--accent2);margin-right:6px;vertical-align:middle}
@@ -2239,22 +2240,11 @@ function renderMyRecipes() {
       return
     }
 
-    // Hero image
-    const allImgs = [r.hero_image, ...(r.gallery_images||[])].filter(Boolean)
-    if (r.hero_image) {
-      const img = document.createElement('img')
-      img.className = 'mr-hero'
-      img.src = r.hero_image
-      img.alt = r.name
-      img.loading = 'lazy'
-      if (allImgs.length) img.addEventListener('click', () => openLightbox(allImgs, 0))
-      card.appendChild(img)
-    } else {
-      const ph = document.createElement('div')
-      ph.className = 'mr-hero-ph'
-      ph.textContent = '🎞'
-      card.appendChild(ph)
-    }
+    // Fingerprint hero
+    const fp = document.createElement('div')
+    fp.className = 'mr-hero-fp'
+    fp.innerHTML = fingerprint(r)
+    card.appendChild(fp)
 
     // Body
     const body = document.createElement('div')
@@ -2340,20 +2330,6 @@ function renderMyRecipes() {
       kwWrap.className = 'kwrow'
       kws.forEach(k => { const s = document.createElement('span'); s.className='kw'; s.textContent=k; kwWrap.appendChild(s) })
       body.appendChild(kwWrap)
-    }
-
-    // Gallery strip (thumbnails, skip hero)
-    const extras = (r.gallery_images||[]).filter(Boolean)
-    if (extras.length) {
-      const strip = document.createElement('div')
-      strip.className = 'mr-gallery'
-      extras.forEach((src, i) => {
-        const img = document.createElement('img')
-        img.src = src; img.loading = 'lazy'
-        img.addEventListener('click', () => openLightbox(allImgs, i + 1))
-        strip.appendChild(img)
-      })
-      body.appendChild(strip)
     }
 
     // Source link
