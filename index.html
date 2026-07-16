@@ -63,6 +63,7 @@ main{display:flex;flex:1;overflow:hidden}
 .card:hover{border-color:var(--accent);transform:translateY(-1px)}
 .card.open{border-color:var(--accent2)}
 .card-img{width:100%;height:150px;object-fit:cover;display:block;background:var(--surf2)}
+.card-img-fp{width:100%;height:150px;background:var(--surf2);display:flex;align-items:center;justify-content:center;padding:8px;box-sizing:border-box}
 .card-img-ph{width:100%;height:150px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:28px}
 .cbody{padding:12px 12px 8px}
 .ctitle{font-size:13px;font-weight:600;margin-bottom:3px}
@@ -912,12 +913,7 @@ function fingerprint(r) {
 // ══════════════════════════════════════════
 function makeCard(r) {
   const div=document.createElement('div'); div.className='card'
-  const allImgs=[r.hero_image,...(r.gallery_images||[])].filter(Boolean)
-  const heroSrc=r.hero_image
-  const imgHtml=heroSrc
-    ?`<img class="card-img" src="${heroSrc}" alt="${r.name}" loading="lazy" onerror="this.parentNode.querySelector('.card-img-ph').style.display='flex';this.style.display='none'">`
-    +`<div class="card-img-ph" style="display:none">🎞</div>`
-    :`<div class="card-img-ph">🎞</div>`
+  const imgHtml=`<div class="card-img-fp">${fingerprint(r)}</div>`
 
   const settings=[
     ['Film Sim',r.film_simulation],['Grain',r.grain_effect],
@@ -933,12 +929,7 @@ function makeCard(r) {
   const moodK=(r.mood_keywords||[]).map(k=>`<span class="kw">${k}</span>`).join('')
   const scenK=(r.scenario_keywords||[]).map(k=>`<span class="kw">${k}</span>`).join('')
 
-  // Gallery strip — show hero + gallery_images
-  const galleryStrip=allImgs.length>1
-    ?`<div class="gallery-strip" id="gs-${r.filename.replace(/\./g,'-')}">`
-      +allImgs.map((img,idx)=>`<img src="${img}" loading="lazy" data-idx="${idx}" alt="sample">`).join('')
-      +`</div>`
-    :''
+  const galleryStrip=''
 
   div.innerHTML=`${imgHtml}
 <div class="cbody">
@@ -951,16 +942,10 @@ function makeCard(r) {
   </div>
 </div>
 <div class="cexpand">
-  <div class="fingerprint">${fingerprint(r)}</div>
-  ${galleryStrip}
   <table class="stbl"><tbody>${settings}</tbody></table>
   ${moodK||scenK?`<div class="kwrow">${moodK}${scenK}</div>`:''}
   <a href="${r.source_url}" target="_blank" style="font-size:11px;color:var(--accent);display:inline-block;margin-top:6px">View on fujixweekly.com ↗</a>
 </div>`
-
-  // Hero click → open lightbox on hero
-  const heroEl=div.querySelector('.card-img')
-  if(heroEl) heroEl.addEventListener('click',e=>{e.stopPropagation();openLightbox(allImgs,0)})
 
   // Compare button
   const cmpBtn = document.createElement('button')
@@ -978,14 +963,6 @@ function makeCard(r) {
     if(e.target.tagName==='A'||e.target.tagName==='IMG') return
     div.classList.toggle('open')
   })
-
-  // Gallery strip clicks
-  const gs=div.querySelector('.gallery-strip')
-  if(gs){
-    gs.querySelectorAll('img').forEach(img=>{
-      img.addEventListener('click',e=>{e.stopPropagation();openLightbox(allImgs,parseInt(img.dataset.idx))})
-    })
-  }
 
   return div
 }
