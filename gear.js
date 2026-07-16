@@ -483,3 +483,13 @@ const MY_CUSTOM_SLOTS = [
 // usage:       when/why you reach for this recipe (shown prominently).
 // personal_notes: freeform observations (optional).
 const MY_RECIPES = [];
+
+// ─── RECIPE METADATA PATCHES ─────────────────────────────────
+// Override computed badge labels for specific recipes without touching RECIPES.
+// Keys must exactly match RECIPES[].name.
+const RECIPE_META_PATCHES = {
+  // "Recipe Name": { warmth_override: "warm", punch_override: "flat" }
+  //
+  // warmth_override: "warm" | "neutral" | "cool"
+  // punch_override:  "punchy" | "balanced" | "flat"
+};
