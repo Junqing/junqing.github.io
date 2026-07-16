@@ -74,6 +74,7 @@ main{display:flex;flex:1;overflow:hidden}
 .b-cool{background:rgba(75,184,170,.18);color:var(--teal)}
 .b-neutral{background:rgba(154,154,170,.14);color:var(--text2)}
 .b-muted{background:rgba(100,100,120,.18);color:var(--text3)}
+.b-flat{background:rgba(100,100,120,.18);color:var(--text3)}
 .b-punchy{background:rgba(224,92,92,.14);color:var(--red)}
 .b-bw{background:rgba(200,200,220,.1);color:var(--text2)}
 .b-default{background:rgba(155,127,232,.14);color:var(--purple)}
@@ -933,7 +934,8 @@ function makeCard(r) {
   <div class="cbadges">
     <span class="badge b-sim">${r.film_simulation||'?'}</span>
     ${r.dynamic_range&&r.dynamic_range!=='N/A'?`<span class="badge b-dr">${r.dynamic_range}</span>`:''}
-    ${r.color_direction?`<span class="badge ${bc(r.color_direction)}">${r.color_direction}</span>`:''}
+    <span class="badge ${warmthClass(r)}">${recipeWarmth(r)}</span>
+    <span class="badge ${punchClass(r)}">${recipePunch(r)}</span>
   </div>
 </div>
 <div class="cexpand">
