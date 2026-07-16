@@ -2257,8 +2257,7 @@ function renderMyRecipes() {
     // Film sim badge
     const badges = document.createElement('div')
     badges.className = 'cbadges'
-    badges.innerHTML = `<span class="badge b-sim">${r.film_simulation||''}</span>`
-    if (r.color_direction) badges.innerHTML += `<span class="badge ${bc(r.color_direction)}">${r.color_direction}</span>`
+    badges.innerHTML = `<span class="badge b-sim">${r.film_simulation||''}</span><span class="badge ${warmthClass(r)}">${recipeWarmth(r)}</span><span class="badge ${punchClass(r)}">${recipePunch(r)}</span>`
     body.appendChild(badges)
 
     // Usage guideline (personal)
@@ -2610,7 +2609,7 @@ function cmpTop3(r) {
 function cmpSimCard(r) {
   const div = document.createElement('div')
   div.className = 'cmp-sim-card'
-  div.innerHTML = `<span class="cmp-sim-name">${r.name}</span><span class="badge b-sim" style="flex-shrink:0">${r.film_simulation||'?'}</span>${r.color_direction?`<span class="badge ${bc(r.color_direction)}" style="flex-shrink:0">${r.color_direction}</span>`:''}`
+  div.innerHTML = `<span class="cmp-sim-name">${r.name}</span><span class="badge b-sim" style="flex-shrink:0">${r.film_simulation||'?'}</span><span class="badge ${warmthClass(r)}" style="flex-shrink:0">${recipeWarmth(r)}</span><span class="badge ${punchClass(r)}" style="flex-shrink:0">${recipePunch(r)}</span>`
   div.addEventListener('click', () => openRecipeModal(r.name))
   return div
 }
@@ -2632,7 +2631,7 @@ function renderCompareSideBySide(container) {
     col.appendChild(title)
     const badges = document.createElement('div')
     badges.className = 'cmp-col-badges'
-    badges.innerHTML = `<span class="badge b-sim">${r.film_simulation||'?'}</span>${r.color_direction?`<span class="badge ${bc(r.color_direction)}">${r.color_direction}</span>`:''}`
+    badges.innerHTML = `<span class="badge b-sim">${r.film_simulation||'?'}</span><span class="badge ${warmthClass(r)}">${recipeWarmth(r)}</span><span class="badge ${punchClass(r)}">${recipePunch(r)}</span>`
     col.appendChild(badges)
 
     // Radar
@@ -3035,7 +3034,8 @@ function renderExploreResults() {
         <div class="exp-result-name">${r.name}</div>
         <div class="exp-result-badges">
           <span class="badge b-sim">${r.film_simulation||'?'}</span>
-          ${r.color_direction?`<span class="badge ${bc(r.color_direction)}">${r.color_direction}</span>`:''}
+          <span class="badge ${warmthClass(r)}">${recipeWarmth(r)}</span>
+          <span class="badge ${punchClass(r)}">${recipePunch(r)}</span>
         </div>
         ${allDiffs?`<div class="exp-diff-row">${allDiffs}</div>`:''}
         ${kws?`<div class="exp-kws">${kws}</div>`:''}
