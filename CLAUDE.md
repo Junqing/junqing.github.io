@@ -35,7 +35,7 @@ This file is intentionally human-readable and editable directly on GitHub. If it
 
 **Data layer** — `RECIPES` (~line 490): a large hardcoded JSON array of ~109 recipes. Each recipe object has:
 - Camera settings: `film_simulation`, `grain_effect`, `color_chrome_effect`, `color_chrome_fx_blue`, `white_balance`, `wb_shift_red/blue`, `dynamic_range`, `highlight`, `shadow`, `color`, `sharpness`, `clarity`, `iso_max`, `exposure_compensation`
-- Metadata: `name`, `filename`, `source_url`, `hero_image`, `gallery_images`, `narrative`
+- Metadata: `name`, `filename`, `source_url`, `narrative`
 - Classification: `mood_keywords[]`, `scenario_keywords[]`, `color_direction`, `era_reference`, `film_emulated`
 
 **State** — a single `S` object holds active filter state (search query + chip selections).
@@ -63,8 +63,7 @@ Charts tab and `renderCharts()` / `renderSaveSlots()` still exist in the codebas
 ## Key functions
 
 - `makeCard(r)` — creates a full expandable recipe card with hero image, fingerprint SVG, gallery strip, settings table, keyword chips, source link. Card shows expanded when it has class `.open`.
-- `openLightbox(imgs, idx)` — full-screen image viewer with prev/next and keyboard nav.
-- `openRecipeModal(name)` — looks up recipe by exact `name` in `RECIPES`, calls `makeCard(r)`, shows it in the `#recipe-modal` overlay. Called from custom slot sim items and single-slot "View sample images" buttons.
+- `openRecipeModal(name)` — looks up recipe by exact `name` in `RECIPES`, calls `makeCard(r)`, shows it in the `#recipe-modal` overlay. Called from custom slot sim items and single-slot "View recipe details" buttons.
 - `goRecipe(name)` — switches to Recipes tab and filters by exact recipe name.
 - `fingerprint(r)` — generates inline SVG radar visual for a recipe's numeric settings.
 - `renderCustomSlots()` — renders `MY_CUSTOM_SLOTS` with a C1–C7 sub-tab bar; one pane visible at a time.
