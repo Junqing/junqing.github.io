@@ -474,8 +474,12 @@ main{display:flex;flex:1;overflow:hidden}
     <div class="chips" id="f-sim"></div>
   </div>
   <div class="sb-section">
-    <div class="sb-label">Color Direction</div>
-    <div class="chips" id="f-dir"></div>
+    <div class="sb-label">Warmth</div>
+    <div class="chips" id="f-warmth"></div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">Punch</div>
+    <div class="chips" id="f-punch"></div>
   </div>
   <div class="sb-section">
     <div class="sb-label">Mood</div>
@@ -694,7 +698,7 @@ const CORR = {"correlations":{"analog":{"count":83,"deltas":{"highlight":0.04,"s
 // ══════════════════════════════════════════
 const S = {
   q: '',
-  f: { sim: new Set(), dir: new Set(), mood: new Set(), scene: new Set(), era: new Set() },
+  f: { sim: new Set(), warmth: new Set(), punch: new Set(), mood: new Set(), scene: new Set(), era: new Set() },
   chartFilter: null,  // {field, value} for histogram clicks
 }
 
@@ -766,7 +770,8 @@ function matches(r) {
     if(!h.includes(q)) return false
   }
   if(S.f.sim.size && !S.f.sim.has(r.film_simulation)) return false
-  if(S.f.dir.size && !S.f.dir.has(r.color_direction)) return false
+  if(S.f.warmth.size && !S.f.warmth.has(recipeWarmth(r))) return false
+  if(S.f.punch.size  && !S.f.punch.has(recipePunch(r)))   return false
   if(S.f.era.size && !S.f.era.has(r.era_reference)) return false
   if(S.f.mood.size && !([...S.f.mood].some(m=>(r.mood_keywords||[]).includes(m)))) return false
   if(S.f.scene.size && !([...S.f.scene].some(s=>(r.scenario_keywords||[]).includes(s)))) return false
@@ -796,7 +801,8 @@ function buildChips(containerId, values, filterKey) {
 
 function initChips() {
   buildChips('f-sim',[...new Set(RECIPES.map(r=>r.film_simulation).filter(Boolean))].sort(),'sim')
-  buildChips('f-dir',[...new Set(RECIPES.map(r=>r.color_direction).filter(Boolean))].sort(),'dir')
+  buildChips('f-warmth', ['warm', 'neutral', 'cool'], 'warmth')
+  buildChips('f-punch',  ['punchy', 'balanced', 'flat'], 'punch')
   buildChips('f-mood',[...new Set(RECIPES.flatMap(r=>r.mood_keywords||[]))].sort(),'mood')
   buildChips('f-scene',[...new Set(RECIPES.flatMap(r=>r.scenario_keywords||[]))].sort(),'scene')
   const eras=[...new Set(RECIPES.map(r=>r.era_reference).filter(e=>e&&e!=='none'))].sort()
