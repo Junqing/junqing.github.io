@@ -43,7 +43,7 @@ main{display:flex;flex:1;overflow:hidden}
 .clear-btn{width:100%;padding:6px;background:transparent;border:1px solid var(--border);border-radius:var(--r);color:var(--text2);cursor:pointer;font-size:11px;margin-top:8px;transition:all .12s}
 .clear-btn:hover{border-color:var(--red);color:var(--red)}
 .sb-label{cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
-.sb-label::after{content:'▾';font-size:9px;color:var(--text3);transition:transform .15s}
+.sb-label:not(.no-collapse)::after{content:'▾';font-size:9px;color:var(--text3);transition:transform .15s}
 .sb-section.collapsed .sb-label::after{content:'▸'}
 .sb-section.collapsed .chips{display:none}
 
@@ -470,7 +470,7 @@ main{display:flex;flex:1;overflow:hidden}
 <main>
 <aside class="sidebar" id="sidebar">
   <div class="sb-section">
-    <div class="sb-label">Search</div>
+    <div class="sb-label no-collapse">Search</div>
     <input class="search" id="q" type="text" placeholder="Recipe name, mood, keyword…">
   </div>
   <div class="sb-section">
@@ -729,6 +729,7 @@ function wbKelvin(wb) {
   if (wb === 'Shade') return 7500
   if (/Auto White Priority/.test(wb)) return 5000
   if (/Auto/.test(wb)) return 5200
+  if (wb === 'Fluorescent 3') return 6500
   if (/Fluorescent/.test(wb)) return 4000
   if (/Tungsten|Incandescent/.test(wb)) return 3200
   return 5200
