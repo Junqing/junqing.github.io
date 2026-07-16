@@ -2188,10 +2188,10 @@ function renderMyRecipes() {
     }
 
     // Fingerprint hero
-    const fp = document.createElement('div')
-    fp.className = 'mr-hero-fp'
-    fp.innerHTML = fingerprint(r)
-    card.appendChild(fp)
+    const heroFp = document.createElement('div')
+    heroFp.className = 'mr-hero-fp'
+    heroFp.innerHTML = fingerprint(r)
+    card.appendChild(heroFp)
 
     // Body
     const body = document.createElement('div')
