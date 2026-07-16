@@ -1305,7 +1305,7 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
 function syncChips(){
   document.querySelectorAll('.chip').forEach(c=>{
     const id=c.closest('.chips').id
-    const fk=id.replace('f-','').replace('dir','dir').replace('scene','scene').replace('mood','mood').replace('era','era').replace('sim','sim')
+    const fk=id.replace('f-','')
     c.classList.toggle('on',S.f[fk]?.has(c.dataset.v))
   })
 }
