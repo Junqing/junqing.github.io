@@ -145,6 +145,13 @@ Product photos live in `images/gear/` and are committed to the repo. Naming conv
 - Adding a new filter facet: chip container in sidebar + key in `S` + `buildChips()` call in `initChips()` + condition in `matches()`.
 - Sidebar filter sections are collapsible — `.sb-section` divs with a `.chips` child get a ▾/▸ toggle via `initCollapsibleFilters()`. Sections without `.chips` (e.g. Search) must have class `no-collapse` on their `.sb-label` to suppress the chevron CSS.
 
+## Skills
+
+Skills are stored in `docs/skills/` and shared in the repo. Invoke by typing the skill name.
+
+- **`/sync-recipes`** — Fetch fujixweekly.com recipe lists for a chosen X-Trans generation, diff against `RECIPES` in `index.html`, and produce a ready-to-paste JS patch for new or changed recipes. See `docs/skills/sync-recipes.md`.
+- **`/update-harness`** — Audit `index.html`, `gear.js`, and all `docs/` files, then rewrite stale sections of `CLAUDE.md` to reflect the current architecture, functions, CSS conventions, and data shape. See `docs/skills/update-harness.md`.
+
 ## What NOT to commit
 
 `.gitignore` blocks these — do not force-add them:
