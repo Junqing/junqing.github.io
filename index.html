@@ -329,6 +329,32 @@ main{display:flex;flex:1;min-height:0}
 .drawer-link{display:inline-block;margin-top:4px;font-size:11px;color:var(--accent)}
 .drawer-link:hover{text-decoration:underline}
 
+/* ─── Scenario Cases ─── */
+.sc-list{display:flex;flex-direction:column;gap:12px;padding-bottom:40px}
+.sc-item{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.sc-header{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;user-select:none}
+.sc-header:hover{background:var(--hover)}
+.sc-chevron{font-size:11px;color:var(--text3);transition:transform .2s;flex-shrink:0}
+.sc-item.open .sc-chevron{transform:rotate(90deg)}
+.sc-title{font-size:14px;font-weight:600;color:var(--text1);flex:1}
+.sc-date{font-size:11px;color:var(--text3);flex-shrink:0}
+.sc-tags{display:flex;gap:4px;flex-wrap:wrap}
+.sc-tag{font-size:10px;background:var(--chip-bg);color:var(--text2);border-radius:4px;padding:2px 6px}
+.sc-body{display:none;padding:0 16px 16px}
+.sc-item.open .sc-body{display:block}
+.sc-bg{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px}
+.sc-section-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin:12px 0 6px}
+.sc-rec{background:var(--bg);border:1px solid var(--border);border-radius:var(--r1);padding:10px 12px;margin-bottom:8px}
+.sc-rec-header{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+.sc-slot{font-size:11px;font-weight:700;color:var(--accent)}
+.sc-recipe-name{font-size:12px;font-weight:600;color:var(--text1)}
+.sc-label{font-size:11px;color:var(--text3)}
+.sc-reason{font-size:12px;color:var(--text2);line-height:1.55}
+.sc-watch-row{display:flex;gap:8px;align-items:baseline;margin-bottom:5px;font-size:12px}
+.sc-watch-dial{font-weight:600;color:var(--text1);min-width:120px;flex-shrink:0}
+.sc-watch-note{color:var(--text2);line-height:1.5}
+.sc-skip{font-size:12px;color:var(--text3);line-height:1.7}
+
 /* ─── Recipe Modal ─── */
 .rmodal{display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.72);overflow-y:auto;padding:20px 16px}
 .rmodal.open{display:flex;align-items:flex-start;justify-content:center}
@@ -696,12 +722,18 @@ main{display:flex;flex:1;min-height:0}
     <div class="inner-subtabs">
       <button class="inner-subtab on" data-inner="inner-my-recipes">My Recipes</button>
       <button class="inner-subtab" data-inner="inner-my-gear">My Gear</button>
+      <button class="inner-subtab" data-inner="inner-my-scenarios">Scenario Cases</button>
     </div>
     <div class="inner-pane on" id="inner-my-recipes">
       <div class="sec-title">My Custom Slots</div>
       <div class="sec-desc">C1–C7 settings saved on your cameras — single recipes and multi-simulation sets with full settings, usage notes, and a filter guide for C7.</div>
       <div id="custom-slots-body"></div>
       <div class="mr-grid" id="myrecipes-body"></div>
+    </div>
+    <div class="inner-pane" id="inner-my-scenarios">
+      <div class="sec-title">Scenario Cases</div>
+      <div class="sec-desc">Real-world shooting situations with recipe and settings recommendations. References recipe names so context stays useful even as C slots evolve.</div>
+      <div id="scenarios-body"></div>
     </div>
     <div class="inner-pane" id="inner-my-gear">
       <div class="sec-title">My Cameras &amp; Lenses</div>
@@ -1508,7 +1540,10 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
 }))
 // Wire inner subtab buttons
 document.querySelectorAll('.inner-subtab').forEach(btn => {
-  btn.addEventListener('click', () => switchInnerTab(btn.dataset.inner))
+  btn.addEventListener('click', () => {
+    switchInnerTab(btn.dataset.inner)
+    if (btn.dataset.inner === 'inner-my-scenarios') renderScenarios()
+  })
 })
 // Sidebar collapse (desktop) and overlay (mobile)
 ;(()=>{
@@ -2622,6 +2657,62 @@ function renderMyRecipes() {
     card.appendChild(body)
     container.appendChild(card)
   })
+}
+
+let scenariosBuilt = false
+function renderScenarios() {
+  if (scenariosBuilt) return
+  scenariosBuilt = true
+  const container = $('scenarios-body')
+  const list = (typeof MY_SCENARIOS !== 'undefined') ? MY_SCENARIOS : []
+  if (!list.length) {
+    container.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:20px 0">No scenario cases yet — add entries to <code>MY_SCENARIOS</code> in gear.js.</div>'
+    return
+  }
+  const ul = document.createElement('div')
+  ul.className = 'sc-list'
+  list.forEach(sc => {
+    const item = document.createElement('div')
+    item.className = 'sc-item'
+
+    const tagsHtml = (sc.tags||[]).map(t=>`<span class="sc-tag">${t}</span>`).join('')
+    item.innerHTML = `
+      <div class="sc-header">
+        <span class="sc-chevron">▶</span>
+        <span class="sc-title">${sc.title}</span>
+        <span class="sc-date">${sc.date || ''}</span>
+      </div>
+      <div class="sc-body">
+        ${tagsHtml ? `<div class="sc-tags" style="margin-bottom:10px">${tagsHtml}</div>` : ''}
+        <div class="sc-bg">${sc.background}</div>
+
+        <div class="sc-section-label">Recipe recommendations</div>
+        ${(sc.recommendations||[]).map(r => `
+          <div class="sc-rec">
+            <div class="sc-rec-header">
+              <span class="sc-slot">${r.slot}</span>
+              <span class="sc-recipe-name">${r.recipe}</span>
+              <span class="sc-label">— ${r.label}</span>
+            </div>
+            <div class="sc-reason">${r.reason}</div>
+          </div>`).join('')}
+
+        <div class="sc-section-label">Settings to watch</div>
+        ${(sc.settings_to_watch||[]).map(w => `
+          <div class="sc-watch-row">
+            <span class="sc-watch-dial">${w.dial}</span>
+            <span class="sc-watch-note">${w.note}</span>
+          </div>`).join('')}
+
+        ${sc.skip && sc.skip.length ? `
+        <div class="sc-section-label">Skip for this scenario</div>
+        <div class="sc-skip">${sc.skip.join('<br>')}</div>` : ''}
+      </div>`
+
+    item.querySelector('.sc-header').addEventListener('click', () => item.classList.toggle('open'))
+    ul.appendChild(item)
+  })
+  container.appendChild(ul)
 }
 
 // ══════════════════════════════════════════

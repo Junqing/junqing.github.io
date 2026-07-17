@@ -478,6 +478,47 @@ const MY_CUSTOM_SLOTS = [
 ];
 
 
+// ─── SCENARIO CASES ──────────────────────────────────────────
+// Real-world shooting situations with gear + recipe recommendations.
+// Add new entries as you encounter noteworthy scenarios.
+const MY_SCENARIOS = [
+  {
+    id: "wedding-dk-jul-2026",
+    title: "Wedding in DK — July '26",
+    date: "2026-07-18",
+    tags: ["event", "outdoor", "indoor", "overcast"],
+    background: "Small wedding (~30 guests) in Denmark. Church ceremony followed by villa garden reception. Weather: mostly overcast with occasional sun. Mixed lighting conditions — dim church interior, then soft diffuse outdoor light.",
+    recommendations: [
+      {
+        slot: "C3",
+        recipe: "Reggie's Portra",
+        label: "Primary — all day",
+        reason: "Auto WB adapts across church interior → overcast garden without any manual adjustment. Flattering skin tones (Classic Chrome, Shadow −1, Sharpness −2). DR Auto is fine in most situations; bump to DR200 if shooting backlit against bright windows.",
+      },
+      {
+        slot: "C6",
+        recipe: "Pacific Blues",
+        label: "Garden reception — overcast",
+        reason: "Overcast light is ideal for this recipe. Shadow +3 + Clarity −3 produces a lifted, dreamy quality that works well on candids and relaxed group shots. 5800K WB runs warm outdoors which is flattering in soft garden light. Switch back to C3 for portraits where skin accuracy matters.",
+      },
+      {
+        slot: "C1",
+        recipe: "X-T50 Film Dial — Universal Recipe",
+        label: "Church — situational",
+        reason: "Use selectively when the church offers interesting light (stained glass, candles, shafts of sun). Dial to PRO Neg. Std for soft flattering portraits or Classic Chrome for atmosphere. Avoid under flat tungsten — Auto WB White Priority can cast orange.",
+      },
+    ],
+    settings_to_watch: [
+      { dial: "Exposure compensation", note: "Most critical dial. Church interiors: start at +⅔. Overcast garden: +⅓. Don't let the camera guess." },
+      { dial: "Auto ISO", note: "Confirm minimum shutter is fast enough for moving subjects (~1/125 for candids)." },
+      { dial: "Film Sim (C1 only)", note: "PRO Neg. Std for skin-focused shots; Classic Chrome for atmospheric frames." },
+      { dial: "DR override", note: "C3 uses DR Auto — switch to DR200 manually when shooting backlit subjects against bright windows." },
+      { dial: "AF mode", note: "Face/Eye AF for portraits and group shots; Zone for candid documentary moments." },
+    ],
+    skip: ["C4 (Kodachrome 64 — strictly sunny direct sun)", "C5 (Kodak Gold 200 — extreme yellow WB shift needs direct sun)", "C7 (Tri-X — B&W only, narrow use at events)"],
+  },
+];
+
 // ─── YOUR SAVED RECIPES (7 custom slots) ─────────────────────
 // recipe_name: must EXACTLY match the name in the dataset (Grid tab).
 // camera:      which of your bodies this is saved on.
