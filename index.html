@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fujifilm X-Trans V Recipe Explorer</title>
+<title>Fujifilm X-Trans Recipe Explorer</title>
 <style>
 :root {
   --bg:#0d0d0f; --bg2:#141416; --surf:#1c1c20; --surf2:#242428; --surf3:#2a2a30;
@@ -26,6 +26,10 @@ header{background:var(--surf);border-bottom:1px solid var(--border);padding:10px
 header h1{font-size:16px;font-weight:700;color:var(--accent);letter-spacing:-.3px;white-space:nowrap}
 header h1 span{color:var(--text2);font-weight:400}
 .header-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.gen-select{appearance:none;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text1);cursor:pointer;font-size:12px;font-family:inherit;padding:4px 24px 4px 8px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%239a9aaa' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center}
+.gen-select:disabled{opacity:0.5;cursor:not-allowed}
+.gen-select:hover:not(:disabled){border-color:var(--accent)}
+@media(max-width:680px){.gen-select{font-size:11px}}
 .stats-pill{display:flex;align-items:center;gap:6px;padding:4px 10px;background:var(--surf2);border:1px solid var(--border);border-radius:99px;cursor:pointer;user-select:none;transition:border-color .12s}
 .stats-pill:hover{border-color:var(--text3)}
 .stats-pill-text{font-size:11px;color:var(--text2);white-space:nowrap}
@@ -534,8 +538,15 @@ main{display:flex;flex:1;min-height:0}
 <div class="app">
 
 <header>
-  <h1>Fujifilm X-Trans V <span>Recipe Explorer</span></h1>
+  <h1>Fujifilm X-Trans <span>Recipe Explorer</span></h1>
   <div class="header-right">
+    <select id="gen-select" class="gen-select" onchange="switchGen(this.value)" title="X-Trans generation">
+      <option value="V" selected>X-Trans V</option>
+      <option value="IV">X-Trans IV</option>
+      <option value="III">X-Trans III</option>
+      <option value="II">X-Trans II</option>
+      <option value="I">X-Trans I</option>
+    </select>
     <div style="position:relative">
       <div class="stats-pill" id="stats-pill">
         <span class="stats-pill-text"><strong id="s-show">—</strong> / <span id="s-total">—</span></span>
