@@ -817,6 +817,37 @@ const S = {
   chartFilter: null,  // {field, value} for histogram clicks
 }
 
+function loadGen(gen) {
+  const globalName = 'RECIPES_' + gen
+  if (window[globalName]) return Promise.resolve()
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script')
+    s.src = 'recipes-' + gen.toLowerCase() + '.js'
+    s.onload = resolve
+    s.onerror = () => reject(new Error('Failed to load recipes-' + gen.toLowerCase() + '.js'))
+    document.head.appendChild(s)
+  })
+}
+
+function switchGen(gen) {
+  const sel = document.getElementById('gen-select')
+  if (sel) { sel.disabled = true; sel.value = gen }
+  loadGen(gen).then(() => {
+    activeGen = gen
+    S.q = ''
+    S.f.sim.clear(); S.f.warmth.clear(); S.f.punch.clear()
+    S.f.mood.clear(); S.f.scene.clear(); S.f.era.clear()
+    exploreBuilt = false
+    if (document.getElementById('q')) document.getElementById('q').value = ''
+    initChips()
+    render()
+    if (sel) sel.disabled = false
+  }).catch(err => {
+    console.error(err)
+    if (sel) { sel.disabled = false; sel.value = activeGen }
+  })
+}
+
 // ══════════════════════════════════════════
 // UTILS
 // ══════════════════════════════════════════
