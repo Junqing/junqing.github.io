@@ -824,7 +824,8 @@ const CORR = {"correlations":{"analog":{"count":83,"deltas":{"highlight":0.04,"s
 // STATE
 // ══════════════════════════════════════════
 let activeGen = 'V'
-function activeRecipes() { return window['RECIPES_' + activeGen] || [] }
+const RECIPE_POOLS = { V: RECIPES_V, IV: RECIPES_IV, III: RECIPES_III, II: RECIPES_II, I: RECIPES_I }
+function activeRecipes() { return RECIPE_POOLS[activeGen] || [] }
 
 const S = {
   q: '',
@@ -833,12 +834,11 @@ const S = {
 }
 
 function loadGen(gen) {
-  const globalName = 'RECIPES_' + gen
-  if (window[globalName]) return Promise.resolve()
+  if (RECIPE_POOLS[gen]) return Promise.resolve()
   return new Promise((resolve, reject) => {
     const s = document.createElement('script')
     s.src = 'recipes-' + gen.toLowerCase() + '.js'
-    s.onload = resolve
+    s.onload = () => { RECIPE_POOLS[gen] = window['RECIPES_' + gen] || []; resolve() }
     s.onerror = () => reject(new Error('Failed to load recipes-' + gen.toLowerCase() + '.js'))
     document.head.appendChild(s)
   })
