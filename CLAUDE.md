@@ -25,20 +25,28 @@ No package.json, no npm, no bundler.
 <script src="gear.js"></script>   <!-- loaded before the main inline script -->
 ```
 
-**`gear.js`** defines four plain globals:
+**`gear.js`** defines five plain globals:
 - `MY_CAMERAS` — camera bodies with specs and `image` field pointing to `images/gear/`
 - `MY_LENSES` — lenses with specs and `image` field
 - `MY_CUSTOM_SLOTS` — C1–C7 custom recipe slots (see below)
 - `MY_RECIPES` — currently empty `[]`; reserved for future use
+- `RECIPE_META_PATCHES` — override computed badge labels per recipe. Keys must exactly match `RECIPES[].name`. Supported fields: `warmth_override` (`'warm'|'neutral'|'cool'`), `punch_override` (`'punchy'|'balanced'|'flat'`). Currently empty — add entries here when the formula misfires on a specific recipe.
 
 This file is intentionally human-readable and editable directly on GitHub. If it fails to load (e.g. `file://` without a server), all personal tabs show a graceful empty state.
 
-**Data layer** — `RECIPES` (~line 490): a large hardcoded JSON array of ~109 recipes. Each recipe object has:
+**Data layer** — `RECIPES` (~line 687): a large hardcoded JSON array of ~111 recipes. Each recipe object has:
 - Camera settings: `film_simulation`, `grain_effect`, `color_chrome_effect`, `color_chrome_fx_blue`, `white_balance`, `wb_shift_red/blue`, `dynamic_range`, `highlight`, `shadow`, `color`, `sharpness`, `clarity`, `iso_max`, `exposure_compensation`
 - Metadata: `name`, `filename`, `source_url`, `narrative`
-- Classification: `mood_keywords[]`, `scenario_keywords[]`, `color_direction`, `era_reference`, `film_emulated`
+- Classification: `mood_keywords[]`, `scenario_keywords[]`, `color_direction` (legacy, not read by UI), `era_reference`, `film_emulated`
 
-**State** — a single `S` object holds active filter state (search query + chip selections).
+**Badge classification** — two pure functions replace the old `color_direction` badge:
+- `recipeWarmth(r)` → `'warm' | 'neutral' | 'cool'` — derived from WB kelvin, WB shift (R−B), film sim bias
+- `recipePunch(r)` → `'punchy' | 'balanced' | 'flat'` — derived from Color dial, Clarity, highlight/shadow spread
+- Override fields: add `warmth_override` / `punch_override` to `RECIPE_META_PATCHES` in `gear.js`
+- Helper maps: `WARMTH_CLASS`, `PUNCH_CLASS`, `warmthClass(r)`, `punchClass(r)`
+- B&W sims always return `'neutral'` warmth (WB irrelevant on monochrome)
+
+**State** — a single `S` object holds active filter state (search query + chip selections). Filter sets: `S.f.sim`, `S.f.warmth`, `S.f.punch`, `S.f.mood`, `S.f.scene`, `S.f.era` — note `S.f.dir` no longer exists (replaced by warmth + punch).
 
 **Rendering pipeline**:
 1. `init()` bootstraps chip filters and tab listeners, calls `render()`
@@ -62,7 +70,7 @@ Charts tab and `renderCharts()` / `renderSaveSlots()` still exist in the codebas
 
 ## Key functions
 
-- `makeCard(r)` — creates a full expandable recipe card with hero image, fingerprint SVG, gallery strip, settings table, keyword chips, source link. Card shows expanded when it has class `.open`.
+- `makeCard(r)` — creates a full expandable recipe card with fingerprint SVG, settings table, keyword chips, source link. Badge row shows `[Film Sim] [DR] [warmth] [punch]` using `warmthClass`/`punchClass`. Card shows expanded when it has class `.open`.
 - `openRecipeModal(name)` — looks up recipe by exact `name` in `RECIPES`, calls `makeCard(r)`, shows it in the `#recipe-modal` overlay. Called from custom slot sim items and single-slot "View recipe details" buttons.
 - `goRecipe(name)` — switches to Recipes tab and filters by exact recipe name.
 - `fingerprint(r)` — generates inline SVG radar visual for a recipe's numeric settings.
@@ -135,6 +143,7 @@ Product photos live in `images/gear/` and are committed to the repo. Naming conv
 - **User data lives in `gear.js`**, not in `index.html`.
 - Adding a new tab: HTML pane div + tab entry in `.tabs` + `renderXxx()` function + case in `switchTab()`.
 - Adding a new filter facet: chip container in sidebar + key in `S` + `buildChips()` call in `initChips()` + condition in `matches()`.
+- Sidebar filter sections are collapsible — `.sb-section` divs with a `.chips` child get a ▾/▸ toggle via `initCollapsibleFilters()`. Sections without `.chips` (e.g. Search) must have class `no-collapse` on their `.sb-label` to suppress the chevron CSS.
 
 ## What NOT to commit
 
@@ -144,8 +153,8 @@ Product photos live in `images/gear/` and are committed to the repo. Naming conv
 
 ## Git / PR workflow
 
-- Branch: `feature/gear-recipes-responsive` (active working branch)
 - Remote: `github.com:Junqing/junqing.github.io`
 - Git identity: set in local git config (not committed)
 - PRs created with `gh pr create`; always include a test plan checklist in the body
 - Main branch deploys automatically to GitHub Pages
+- `feature/keyword-tags-revision` — PR open: two computed badge system (warmth/punch), collapsible sidebar filters, Settings Guide formula section
