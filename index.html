@@ -14,14 +14,14 @@
   --r:8px; --r2:12px; --r3:18px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.6}
+html{height:100%;overflow:hidden}
+body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.6}
 a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
 ::-webkit-scrollbar{width:5px;height:5px} ::-webkit-scrollbar-track{background:var(--bg2)}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
 /* ─── Layout ─── */
-.app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
 header{background:var(--surf);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:200}
 header h1{font-size:17px;font-weight:700;color:var(--accent);letter-spacing:-.3px}
 header h1 span{color:var(--text2);font-weight:400}
@@ -218,14 +218,14 @@ main{display:flex;flex:1;min-height:0}
 
 /* ─── Phone (≤ 680px): sidebar as overlay, single-column layout ─── */
 @media(max-width:680px){
-  .sidebar{position:fixed;left:0;top:53px;height:calc(100vh - 53px);width:0;z-index:300;border-right:none;box-shadow:4px 0 20px rgba(0,0,0,.45);transition:width .22s ease}
+  .sidebar{position:fixed;left:0;top:53px;height:calc(100dvh - 53px);width:0;z-index:300;border-right:none;box-shadow:4px 0 20px rgba(0,0,0,.45);transition:width .22s ease}
   .sidebar.open{width:260px}
   .sidebar.open .sb-inner{visibility:visible;pointer-events:auto}
   .sidebar.collapsed{width:0}
   .sb-collapse-btn{display:none}
   .mob-filter-btn{display:flex}
   .content-sticky{padding:8px 10px 0}
-  .content-scroll{padding:8px 10px 20px}
+  .content-scroll{padding:0 10px 20px}
   .inner-subtabs{margin:0 -10px;padding:10px 10px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
   .inner-subtabs::-webkit-scrollbar{display:none}
   .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
