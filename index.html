@@ -809,6 +809,9 @@ const CORR = {"correlations":{"analog":{"count":83,"deltas":{"highlight":0.04,"s
 // ══════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════
+let activeGen = 'V'
+function activeRecipes() { return window['RECIPES_' + activeGen] || [] }
+
 const S = {
   q: '',
   f: { sim: new Set(), warmth: new Set(), punch: new Set(), mood: new Set(), scene: new Set(), era: new Set() },
