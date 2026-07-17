@@ -129,10 +129,39 @@ Product photos live in `images/gear/` and are committed to the repo. Naming conv
 - On mobile (≤680px) goes full-screen with no border radius
 - Forces `.cexpand` visible so the full card detail shows immediately
 
+## Layout structure
+
+The viewport is locked to `100vh` (`html, body, .app { height: 100vh; overflow: hidden }`). All scrolling happens inside `.content-scroll`.
+
+```
+.app (100vh, flex column)
+  header (sticky, ~53px)
+  main (flex row, flex:1, min-height:0)
+    .sidebar (collapsible, desktop only)
+    .content (flex column, flex:1)
+      .content-sticky  ← tab bar, position:sticky top:0, z-index:100
+      .content-scroll  ← overflow-y:auto, holds all panes
+        .inner-subtabs ← position:sticky top:0 inside scroll, pill buttons
+        .inner-pane    ← padding-top:16px
+```
+
+**Do not** add `overflow` or `height` to `.app`/`main`/`.content` without understanding this chain — breaking it will cause sticky tabs to stop working.
+
+## Sidebar
+
+- Desktop: `width:240px`, collapses to `36px` via `.sidebar.collapsed` + chevron button (`#sb-collapse-btn`)
+- Mobile (≤680px): `position:fixed`, `width:0` by default, opens as overlay (`.sidebar.open`) with a backdrop (`#sb-overlay`)
+- Sidebar content is wrapped in `.sb-inner` (scrollable). The collapse button is a full-width strip pinned to the bottom with a top border.
+- Info popovers on filter labels (Warmth, Punch, Mood, Scenario, Era) are wired in `initBadgeFormula()` via `[data-formula]` buttons.
+
+## View toggle (Recipes tab)
+
+The **Visual / Cheatsheet** toggle (`#tabs-end-toggle`) lives in the right end of the main tab bar. It is shown/hidden by `switchTab()` — only visible when the Recipes tab is active. Cheatsheet mode adds `.cheatsheet` to `#grid`, which hides `.card-img-fp`, `.cpills`, `.cnarr` and forces `.cexpand` visible.
+
 ## Responsive breakpoints
 
-- `≤1024px` — tablet: sidebar narrows, tabs scroll horizontally
-- `≤680px` — phone: sidebar collapses behind a "Filters" toggle button (`.mob-filter-btn`); single-column layouts
+- `≤1024px` — tablet: sidebar narrows to 200px, tabs scroll horizontally
+- `≤680px` — phone: sidebar becomes a fixed overlay opened by `.mob-filter-btn`; single-column layouts
 
 ## Key conventions
 
@@ -141,7 +170,7 @@ Product photos live in `images/gear/` and are committed to the repo. Naming conv
 - `filtered()` is `() => RECIPES.filter(matches)` — called fresh on every render.
 - Build-once flags (`gearBuilt`, `myRecipesBuilt`) prevent re-rendering personal tabs on every switch.
 - **User data lives in `gear.js`**, not in `index.html`.
-- Adding a new tab: HTML pane div + tab entry in `.tabs` + `renderXxx()` function + case in `switchTab()`.
+- Adding a new tab: HTML pane div + tab entry in `.tabs` + `renderXxx()` function + case in `switchTab()`. If the tab has no inner-subtabs, add class `pane-no-subtabs` for correct top padding.
 - Adding a new filter facet: chip container in sidebar + key in `S` + `buildChips()` call in `initChips()` + condition in `matches()`.
 - Sidebar filter sections are collapsible — `.sb-section` divs with a `.chips` child get a ▾/▸ toggle via `initCollapsibleFilters()`. Sections without `.chips` (e.g. Search) must have class `no-collapse` on their `.sb-label` to suppress the chevron CSS.
 
