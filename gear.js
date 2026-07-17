@@ -173,6 +173,7 @@ const MY_CUSTOM_SLOTS = [
     source_url: "https://fujixweekly.com/2025/03/28/universal-negative-14-fujifilm-x100vi-x-trans-v-film-simulation-recipes-yes-14/",
     type: "multi",
     description: "14 distinct looks sharing one set of base settings — dial-style exploration without saving 14 separate recipes. Settings are tuned for a negative-film character: pulled contrast, restrained color, heavy DR400 shadow recovery. Rotate through simulations to find the right mood; the base settings hold across all of them.",
+    usage: "Versatile across lighting conditions — the muted, neutral-to-cool base (Color −2, 4000K) keeps most sims flat and analogue-pulled rather than vivid. Reach for it in overcast, indoor natural light, golden hour, or mixed light where a neutral character works in your favour. Not the first choice for punchy sunny scenes or portraits where warm skin tones matter.",
     pros: [
       "Single recipe to remember — only the Film Sim changes",
       "Covers the entire tonal spectrum from punchy color to gritty B&W",
@@ -222,6 +223,7 @@ const MY_CUSTOM_SLOTS = [
     source_url: "https://fujixweekly.com/2024/05/16/fujifilm-x-t50-film-dial-settings-14-new-film-simulation-recipes-yes-14/",
     type: "multi",
     description: "One recipe saved in C2, used across all 14 film simulations via the X-T50's physical Film Dial. Base settings are warm-leaning (Auto WB White Priority, Color +3) — designed so each simulation looks good without per-sim tweaking. Spinning the dial mid-shoot is instant and tactile, making it easy to experiment on the fly.",
+    usage: "Best in natural and golden-hour light — the warm base (Auto WB White Priority, R+2/B−4, Color +3) pushes most sims into warm-balanced territory. Good for travel, outdoor events, people, and casual street where you want rich, flattering colour without thinking. Avoid in artificial or mixed indoor light where Auto WB can drift warm unpredictably.",
     pros: [
       "Physical dial makes switching simulations instant — no menu diving",
       "Warm color tuning (R+2/B−4) works well in natural light and golden hour",

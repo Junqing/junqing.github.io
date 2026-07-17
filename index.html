@@ -14,25 +14,33 @@
   --r:8px; --r2:12px; --r3:18px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.6;min-height:100vh}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.6}
 a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
 ::-webkit-scrollbar{width:5px;height:5px} ::-webkit-scrollbar-track{background:var(--bg2)}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
 /* ─── Layout ─── */
-.app{display:flex;flex-direction:column;min-height:100vh}
+.app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
 header{background:var(--surf);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:200}
 header h1{font-size:17px;font-weight:700;color:var(--accent);letter-spacing:-.3px}
 header h1 span{color:var(--text2);font-weight:400}
 .stats{display:flex;gap:18px;flex-wrap:wrap}
 .stat .n{font-size:20px;font-weight:700;color:var(--accent2);line-height:1}
 .stat .l{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
-main{display:flex;flex:1;overflow:hidden}
+main{display:flex;flex:1;min-height:0}
 
 /* ─── Sidebar ─── */
-.sidebar{width:240px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:14px 12px;height:calc(100vh - 53px);position:sticky;top:53px;flex-shrink:0}
+.sidebar{width:240px;min-width:0;background:var(--bg2);border-right:1px solid var(--border);overflow:hidden;flex-shrink:0;transition:width .22s ease;display:flex;flex-direction:column}
+.sidebar.collapsed{width:36px}
+.sb-inner{flex:1;overflow-y:auto;padding:14px 12px;min-width:216px}
+.sidebar.collapsed .sb-inner{visibility:hidden;pointer-events:none}
+.sb-collapse-btn{flex-shrink:0;width:100%;height:32px;display:flex;align-items:center;justify-content:flex-end;padding:0 8px;cursor:pointer;color:var(--text2);background:var(--bg2);border:none;border-top:1px solid var(--border);transition:color .12s}
+.sidebar.collapsed .sb-collapse-btn{justify-content:center;padding:0}
+.sb-collapse-btn:hover{color:var(--accent)}
+.sb-collapse-btn svg{transition:transform .22s ease;flex-shrink:0}
 .sb-section{margin-bottom:14px}
-.sb-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--text3);margin-bottom:6px}
+.sb-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--text2);margin-bottom:6px}
 .search{width:100%;background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:7px 10px;color:var(--text);font-size:12px;outline:none;transition:border-color .15s}
 .search:focus{border-color:var(--accent)}
 .search::placeholder{color:var(--text3)}
@@ -43,13 +51,16 @@ main{display:flex;flex:1;overflow:hidden}
 .clear-btn{width:100%;padding:6px;background:transparent;border:1px solid var(--border);border-radius:var(--r);color:var(--text2);cursor:pointer;font-size:11px;margin-top:8px;transition:all .12s}
 .clear-btn:hover{border-color:var(--red);color:var(--red)}
 .sb-label{cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
-.sb-label:not(.no-collapse)::after{content:'▾';font-size:9px;color:var(--text3);transition:transform .15s}
+.sb-label:not(.no-collapse)::after{content:'▾';font-size:9px;color:var(--text2);transition:transform .15s}
 .sb-section.collapsed .sb-label::after{content:'▸'}
 .sb-section.collapsed .chips{display:none}
 
 /* ─── Content ─── */
-.content{flex:1;overflow:auto;padding:20px}
-.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:20px;gap:0}
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.content-sticky{position:sticky;top:0;z-index:100;background:var(--bg);padding:16px 20px 0}
+.content-scroll{flex:1;overflow-y:auto;padding:0 20px 20px}
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:0;gap:0;align-items:stretch}
+.tabs-end{margin-left:auto;display:flex;align-items:center;padding:0 12px;border-left:1px solid var(--border)}
 .tab{padding:9px 16px;cursor:pointer;font-size:13px;color:var(--text2);border-bottom:2px solid transparent;transition:all .15s;user-select:none}
 .tab:hover{color:var(--text)}
 .tab.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
@@ -60,15 +71,33 @@ main{display:flex;flex:1;overflow:hidden}
 .sec-desc{font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.5}
 
 /* ─── Grid ─── */
+.view-toggle{display:flex;background:var(--surf2);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.vtog{padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;background:none;border:none;color:var(--text2);transition:all .15s;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.vtog+.vtog{border-left:1px solid var(--border)}
+.vtog.on{background:var(--surf3);color:var(--text)}
+.vtog svg{opacity:.6;flex-shrink:0}
+.vtog.on svg{opacity:1}
 .rcount{font-size:12px;color:var(--text3);margin-bottom:14px}
 .rcount strong{color:var(--text2)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
-.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;cursor:pointer;transition:border-color .15s,transform .12s;display:flex;flex-direction:column}
-.card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.grid.cheatsheet{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.grid.cheatsheet .card-img-fp{display:none}
+.grid.cheatsheet .cpills{display:none}
+.grid.cheatsheet .cnarr{display:none}
+.grid.cheatsheet .cbadges{margin-bottom:2px}
+.grid.cheatsheet .cexpand{display:block;border-top:none;padding-top:0}
+.grid.cheatsheet .cbody{padding-bottom:4px}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;transition:border-color .15s;display:flex;flex-direction:column}
 .card.open{border-color:var(--accent2)}
-.card-img-fp{width:100%;height:150px;background:var(--surf2);display:flex;align-items:center;justify-content:center;padding:8px;box-sizing:border-box}
+.card-img-fp{width:100%;height:150px;background:var(--surf2);display:flex;align-items:center;justify-content:center;padding:8px;box-sizing:border-box;gap:16px}
+.card-fp-inner{flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.card-drwb{display:flex;flex-direction:column;gap:4px;flex-shrink:0;align-items:center}
+.card-drwb .mr-wb-svg{max-width:80px!important}
 .cbody{padding:12px 12px 8px}
-.ctitle{font-size:13px;font-weight:600;margin-bottom:3px}
+.ctitle-row{display:flex;align-items:baseline;gap:6px;margin-bottom:3px}
+.ctitle{font-size:13px;font-weight:600;flex:1;min-width:0}
+.src-btn{flex-shrink:0;font-size:11px;font-weight:600;color:var(--accent);background:rgba(212,168,67,.12);border:1px solid rgba(212,168,67,.3);border-radius:5px;padding:3px 8px;text-decoration:none;line-height:1.5;transition:background .12s;display:inline-flex;align-items:center;gap:4px}
+.src-btn:hover{background:rgba(212,168,67,.22);text-decoration:none}
 .cnarr{font-size:11px;color:var(--text2);font-style:italic;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:8px}
 .cbadges{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px}
 .badge{padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600}
@@ -83,7 +112,11 @@ main{display:flex;flex:1;overflow:hidden}
 .b-bw{background:rgba(200,200,220,.1);color:var(--text2)}
 .b-default{background:rgba(155,127,232,.14);color:var(--purple)}
 
-/* Expanded section */
+.cpills{display:flex;flex-wrap:wrap;gap:3px;padding:0 12px 8px}
+.cpill{display:inline-flex;align-items:baseline;gap:3px;padding:2px 7px;border-radius:99px;background:var(--surf3);border:1px solid #3e3e48;font-size:10px;line-height:1.4}
+.cpill-lbl{color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.03em;font-size:9px}
+.cpill-val{color:var(--text);font-weight:600}
+/* Expanded section (modal only) */
 .cexpand{display:none;padding:0 12px 12px;border-top:1px solid var(--border)}
 .card.open .cexpand{display:block}
 .fingerprint{display:flex;justify-content:center;padding:8px 0 4px}
@@ -171,21 +204,31 @@ main{display:flex;flex:1;overflow:hidden}
 
 /* ─── Tablet (≤ 1024px): slim sidebar, scrollable tabs ─── */
 @media(max-width:1024px){
-  .sidebar{width:200px;min-width:180px}
+  .sidebar{width:200px}
+  .sidebar.collapsed{width:36px}
   .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
   .tabs::-webkit-scrollbar{display:none}
   .tab{flex-shrink:0}
   .sg-cards{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
 }
 
-/* ─── Phone (≤ 680px): collapsed sidebar, single-column layout ─── */
+/* ─── Sidebar overlay backdrop (mobile) ─── */
+.sb-overlay{display:none;position:fixed;inset:0;z-index:299;background:rgba(0,0,0,.55)}
+.sb-overlay.open{display:block}
+
+/* ─── Phone (≤ 680px): sidebar as overlay, single-column layout ─── */
 @media(max-width:680px){
-  main{flex-direction:column}
-  .sidebar{display:none;width:100%;min-width:0;height:auto;max-height:60vh;overflow-y:auto;position:static;border-right:none;border-bottom:1px solid var(--border)}
-  .sidebar.open{display:block}
+  .sidebar{position:fixed;left:0;top:53px;height:calc(100vh - 53px);width:0;z-index:300;border-right:none;box-shadow:4px 0 20px rgba(0,0,0,.45);transition:width .22s ease}
+  .sidebar.open{width:260px}
+  .sidebar.open .sb-inner{visibility:visible;pointer-events:auto}
+  .sidebar.collapsed{width:0}
+  .sb-collapse-btn{display:none}
   .mob-filter-btn{display:flex}
-  .content{padding:10px 10px 20px}
-  .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:10px;scrollbar-width:none}
+  .content-sticky{padding:8px 10px 0}
+  .content-scroll{padding:8px 10px 20px}
+  .inner-subtabs{margin:0 -10px;padding:10px 10px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
+  .inner-subtabs::-webkit-scrollbar{display:none}
+  .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
   .tabs::-webkit-scrollbar{display:none}
   .tab{flex-shrink:0;padding:6px 11px;font-size:12px}
   .hist-wrap{grid-template-columns:1fr}
@@ -265,12 +308,13 @@ main{display:flex;flex:1;overflow:hidden}
 .mr-usage{font-size:12px;color:var(--text2);line-height:1.6;margin:8px 0;padding:8px 10px;background:var(--surf2);border-radius:var(--r);border-left:3px solid var(--accent)}
 .mr-notes{font-size:11px;color:var(--text3);line-height:1.5;font-style:italic;margin-bottom:8px}
 .mr-narr{font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.mr-viz-row{display:flex;gap:12px;align-items:flex-start;margin:8px 0 6px}
-.mr-fp{display:flex;align-items:flex-start;flex-shrink:0}.mr-fp svg{width:150px!important;height:150px!important}
-.mr-detail-col{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;padding-top:2px}
+.mr-viz-row{display:flex;gap:12px;align-items:center;margin:8px 0 6px}
+.mr-fp{display:flex;align-items:center;flex-shrink:0}.mr-fp svg{width:150px!important;height:150px!important}
+.mr-detail-col{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;align-items:center}
 .mr-detail-row{display:flex;align-items:center;gap:5px}
-.mr-detail-label{font-size:10px;color:var(--text3);font-weight:600;width:22px;flex-shrink:0}
-.mr-detail-val{font-size:11px;color:var(--text2)}
+.mr-detail-label{font-size:11px;color:var(--text2);font-weight:600;width:24px;flex-shrink:0}
+.mr-detail-val{font-size:12px;color:var(--text)}
+.mr-wb-label{display:flex;align-items:center;gap:3px;font-size:11px;color:var(--text2);padding:2px 1px 0}
 .cs-fp{display:flex;justify-content:center;padding:8px 0 4px}.cs-fp svg{width:150px!important;height:150px!important}
 .mr-not-found{text-align:center;padding:24px;color:var(--text3);font-size:12px;font-style:italic;border:1px dashed var(--border);border-radius:var(--r2)}
 .drawer-link{display:inline-block;margin-top:4px;font-size:11px;color:var(--accent)}
@@ -297,6 +341,32 @@ main{display:flex;flex:1;overflow:hidden}
 .cs-subtab.active .cs-subtab-name{color:rgba(0,0,0,.55)}
 .cs-slot-pane{display:none}
 .cs-slot-pane.active{display:block}
+/* Inner subtabs (Recipes+Keywords, Insights) */
+.inner-subtabs{display:flex;gap:6px;position:sticky;top:0;z-index:50;background:var(--bg);margin:0 -20px;padding:10px 20px;border-bottom:1px solid var(--border)}
+.inner-subtab{padding:5px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);background:var(--surf2);border:1px solid var(--border);border-radius:99px;transition:all .15s;white-space:nowrap}
+.inner-subtab:hover{color:var(--text);border-color:var(--text3)}
+.inner-subtab.on{background:var(--accent);border-color:var(--accent);color:#000}
+.inner-pane{display:none;padding-top:16px}
+.inner-pane.on{display:block}
+.pane-no-subtabs{padding-top:16px}
+/* Sidebar info button */
+.sb-label{display:flex;align-items:center;gap:5px}
+.sb-info-btn{flex-shrink:0;width:14px;height:14px;border-radius:50%;border:1px solid var(--text3);background:var(--surf2);color:var(--text2);font-size:9px;font-style:italic;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1;padding:0;margin-left:auto;transition:border-color .12s,color .12s}
+.sb-info-btn:hover{border-color:var(--accent);color:var(--accent)}
+/* Info popover */
+.formula-popover{position:fixed;z-index:1200;background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.55);font-size:12px;line-height:1.55}
+.formula-popover h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin:0 0 8px}
+.formula-popover p{color:var(--text2);margin:0 0 6px}
+.formula-popover em{color:var(--text3)}
+.formula-popover-close{position:absolute;top:6px;right:8px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;line-height:1}
+/* Badge formula collapsible */
+.badge-formula-details{border:1px solid var(--border);border-radius:var(--r2);margin-bottom:16px;overflow:hidden}
+.badge-formula-details summary{padding:9px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);list-style:none;display:flex;align-items:center;gap:6px;user-select:none}
+.badge-formula-details summary::-webkit-details-marker{display:none}
+.badge-formula-details summary::before{content:'▸';font-size:10px;color:var(--text3);transition:transform .15s;flex-shrink:0}
+.badge-formula-details[open] summary::before{transform:rotate(90deg)}
+.badge-formula-details summary:hover{color:var(--text)}
+.badge-formula-details .bfd-body{padding:0 14px 14px;display:flex;flex-direction:column;gap:14px}
 .cs-usage-bar{background:rgba(212,168,67,.09);border:1px solid rgba(212,168,67,.28);border-left:3px solid var(--accent2);border-radius:var(--r);padding:9px 12px;font-size:12px;color:var(--text);line-height:1.55;margin-bottom:12px}
 .cs-usage-bar strong{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--accent2);margin-bottom:3px;font-weight:800}
 .cs-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
@@ -469,63 +539,98 @@ main{display:flex;flex:1;overflow:hidden}
 
 <main>
 <aside class="sidebar" id="sidebar">
-  <div class="sb-section">
-    <div class="sb-label no-collapse">Search</div>
-    <input class="search" id="q" type="text" placeholder="Recipe name, mood, keyword…">
+  <div class="sb-inner">
+    <div class="sb-section">
+      <div class="sb-label no-collapse">Search</div>
+      <input class="search" id="q" type="text" placeholder="Recipe name, mood, keyword…">
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Film Simulation</div>
+      <div class="chips" id="f-sim"></div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Warmth<button class="sb-info-btn" data-formula="warmth" aria-label="How warmth is scored">i</button></div>
+      <div class="chips" id="f-warmth"></div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Punch<button class="sb-info-btn" data-formula="punch" aria-label="How punch is scored">i</button></div>
+      <div class="chips" id="f-punch"></div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Mood<button class="sb-info-btn" data-formula="mood" aria-label="How mood keywords are assigned">i</button></div>
+      <div class="chips" id="f-mood"></div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Scenario<button class="sb-info-btn" data-formula="scenario" aria-label="How scenario keywords are assigned">i</button></div>
+      <div class="chips" id="f-scene"></div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Era<button class="sb-info-btn" data-formula="era" aria-label="How era references are assigned">i</button></div>
+      <div class="chips" id="f-era"></div>
+    </div>
+    <button class="clear-btn" id="clear-btn">Clear all filters</button>
   </div>
-  <div class="sb-section">
-    <div class="sb-label">Film Simulation</div>
-    <div class="chips" id="f-sim"></div>
-  </div>
-  <div class="sb-section">
-    <div class="sb-label">Warmth</div>
-    <div class="chips" id="f-warmth"></div>
-  </div>
-  <div class="sb-section">
-    <div class="sb-label">Punch</div>
-    <div class="chips" id="f-punch"></div>
-  </div>
-  <div class="sb-section">
-    <div class="sb-label">Mood</div>
-    <div class="chips" id="f-mood"></div>
-  </div>
-  <div class="sb-section">
-    <div class="sb-label">Scenario</div>
-    <div class="chips" id="f-scene"></div>
-  </div>
-  <div class="sb-section">
-    <div class="sb-label">Era</div>
-    <div class="chips" id="f-era"></div>
-  </div>
-  <button class="clear-btn" id="clear-btn">Clear all filters</button>
+  <button class="sb-collapse-btn" id="sb-collapse-btn" aria-label="Collapse sidebar">
+    <svg id="sb-collapse-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="10,4 6,8 10,12"/>
+    </svg>
+  </button>
 </aside>
+<div class="sb-overlay" id="sb-overlay"></div>
 
 <section class="content">
-  <button class="mob-filter-btn" id="mob-filter-btn" aria-label="Toggle filters">
-    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="12" y2="3"/><line x1="3" y1="6.5" x2="10" y2="6.5"/><line x1="5" y1="10" x2="8" y2="10"/></svg>
-    Filters
-  </button>
-  <div class="tabs">
-    <div class="tab" data-tab="myrecipes">My Recipes</div>
-    <div class="tab" data-tab="gear">My Gear</div>
-    <div class="tab on" data-tab="grid">Recipes</div>
-    <div class="tab" data-tab="settings">Settings Guide</div>
-    <div class="tab" data-tab="clouds">Keywords</div>
-    <div class="tab" data-tab="directions">Directions</div>
-    <div class="tab" data-tab="correlations">Correlation</div>
-    <div class="tab" data-tab="explore">Explore</div>
-    <div class="tab" data-tab="compare">Compare</div>
+  <div class="content-sticky">
+    <button class="mob-filter-btn" id="mob-filter-btn" aria-label="Toggle filters">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="12" y2="3"/><line x1="3" y1="6.5" x2="10" y2="6.5"/><line x1="5" y1="10" x2="8" y2="10"/></svg>
+      Filters
+    </button>
+    <div class="tabs">
+      <div class="tab" data-tab="my">My</div>
+      <div class="tab on" data-tab="grid">Recipes</div>
+      <div class="tab" data-tab="insights">Insights</div>
+      <div class="tab" data-tab="explore">Explore</div>
+      <div class="tab" data-tab="compare">Compare</div>
+      <div class="tabs-end" id="tabs-end-toggle">
+        <div class="view-toggle">
+          <button class="vtog on" id="vtog-visual" aria-pressed="true">
+            <svg width="13" height="13" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="8" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="8" width="6" height="6" rx="1.5"/><rect x="8" y="8" width="6" height="6" rx="1.5"/></svg>
+            Visual
+          </button>
+          <button class="vtog" id="vtog-cheatsheet" aria-pressed="false">
+            <svg width="13" height="13" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="4" x2="13" y2="4"/><line x1="2" y1="7.5" x2="13" y2="7.5"/><line x1="2" y1="11" x2="8" y2="11"/></svg>
+            Cheatsheet
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
+  <div class="content-scroll">
 
   <!-- GRID -->
   <div class="pane on" id="pane-grid">
-    <div class="rcount" id="rcount"></div>
-    <div class="grid" id="grid"></div>
-    <div class="empty" id="empty" style="display:none"><div class="big">🎞</div><p>No recipes match your filters.</p></div>
+    <div class="inner-subtabs">
+      <button class="inner-subtab on" data-inner="inner-recipes-list">Recipes</button>
+      <button class="inner-subtab" data-inner="inner-recipes-keywords">Keywords</button>
+    </div>
+    <div class="inner-pane on" id="inner-recipes-list">
+      <div class="rcount" id="rcount"></div>
+      <div class="grid" id="grid"></div>
+      <div class="empty" id="empty" style="display:none"><div class="big">🎞</div><p>No recipes match your filters.</p></div>
+    </div>
+    <div class="inner-pane" id="inner-recipes-keywords">
+      <div class="sec-title">Mood Keywords</div>
+      <div class="sec-desc">Click to filter grid. Size = frequency.</div>
+      <div class="cloud-wrap" id="cld-mood"></div>
+      <div class="sec-title">Scenario Keywords</div>
+      <div class="sec-desc">What kind of shooting situation these recipes are built for.</div>
+      <div class="cloud-wrap" id="cld-scene"></div>
+      <div class="sec-title">Era / Film References</div>
+      <div class="cloud-wrap" id="cld-era"></div>
+    </div>
   </div>
 
   <!-- CHARTS -->
-  <div class="pane" id="pane-charts">
+  <div class="pane pane-no-subtabs" id="pane-charts">
     <div class="sec-title">Film Simulation Distribution</div>
     <div class="sec-desc">Click any bar to filter the recipe grid to that film simulation.</div>
     <div class="chart-card"><div id="ch-sim"></div></div>
@@ -543,57 +648,50 @@ main{display:flex;flex:1;overflow:hidden}
     <canvas id="pcoords"></canvas>
   </div>
 
-  <!-- KEYWORDS -->
-  <div class="pane" id="pane-clouds">
-    <div class="sec-title">Mood Keywords</div>
-    <div class="sec-desc">Click to filter grid. Size = frequency.</div>
-    <div class="cloud-wrap" id="cld-mood"></div>
-
-    <div class="sec-title">Scenario Keywords</div>
-    <div class="sec-desc">What kind of shooting situation these recipes are built for.</div>
-    <div class="cloud-wrap" id="cld-scene"></div>
-
-    <div class="sec-title">Era / Film References</div>
-    <div class="cloud-wrap" id="cld-era"></div>
+  <!-- INSIGHTS -->
+  <div class="pane" id="pane-insights">
+    <div class="inner-subtabs">
+      <button class="inner-subtab on" data-inner="inner-insights-settings">Settings Guide</button>
+      <button class="inner-subtab" data-inner="inner-insights-directions">Directions</button>
+      <button class="inner-subtab" data-inner="inner-insights-correlations">Correlation</button>
+    </div>
+    <div class="inner-pane on" id="inner-insights-settings">
+      <div class="sg-grid" id="sg-grid"></div>
+    </div>
+    <div class="inner-pane" id="inner-insights-directions">
+      <div class="sec-desc">Aesthetic clusters based on film simulation family, color direction, and tonal characteristics. Click recipe names to jump to them in the grid.</div>
+      <div class="dir-grid" id="dir-grid"></div>
+    </div>
+    <div class="inner-pane" id="inner-insights-correlations">
+      <div class="sec-title">Keyword ↔ Setting Correlations</div>
+      <div class="sec-desc">For each keyword, bars show how that group's average setting <em>differs from the global average</em> (delta). Orange = higher than average, Blue = lower. This reveals which dials control each mood or scenario.</div>
+      <p class="note">Global averages: Highlight −0.14 · Shadow −0.21 · Color +1.43 · Sharpness −1.29 · Clarity −1.40. A delta of +1.0 on Color means recipes with this keyword average Color +1.0 higher than the rest.</p>
+      <input class="corr-search" id="corr-q" type="text" placeholder="Filter keywords…">
+      <div class="corr-grid" id="corr-grid"></div>
+    </div>
   </div>
 
-  <!-- DIRECTIONS -->
-  <div class="pane" id="pane-directions">
-    <div class="sec-desc">Aesthetic clusters based on film simulation family, color direction, and tonal characteristics. Click recipe names to jump to them in the grid.</div>
-    <div class="dir-grid" id="dir-grid"></div>
-  </div>
-
-  <!-- CORRELATIONS -->
-  <div class="pane" id="pane-correlations">
-    <div class="sec-title">Keyword ↔ Setting Correlations</div>
-    <div class="sec-desc">For each keyword, bars show how that group's average setting <em>differs from the global average</em> (delta). Orange = higher than average, Blue = lower. This reveals which dials control each mood or scenario.</div>
-    <p class="note">Global averages: Highlight −0.14 · Shadow −0.21 · Color +1.43 · Sharpness −1.29 · Clarity −1.40. A delta of +1.0 on Color means recipes with this keyword average Color +1.0 higher than the rest.</p>
-    <input class="corr-search" id="corr-q" type="text" placeholder="Filter keywords…">
-    <div class="corr-grid" id="corr-grid"></div>
-  </div>
-
-  <!-- SETTINGS GUIDE -->
-  <div class="pane" id="pane-settings">
-    <div class="sg-grid" id="sg-grid"></div>
-  </div>
-
-  <!-- MY GEAR -->
-  <div class="pane" id="pane-gear">
-    <div class="sec-title">My Cameras &amp; Lenses</div>
-    <div class="sec-desc">Your current kit. Edit <code>gear.js</code> on GitHub to update from any device.</div>
-    <div class="gear-grid" id="gear-body"></div>
-  </div>
-
-  <!-- MY RECIPES -->
-  <div class="pane" id="pane-myrecipes">
-    <div class="sec-title">My Custom Slots</div>
-    <div class="sec-desc">C1–C7 settings saved on your cameras — single recipes and multi-simulation sets with full settings, usage notes, and a filter guide for C7.</div>
-    <div id="custom-slots-body"></div>
-    <div class="mr-grid" id="myrecipes-body"></div>
+  <!-- MY (merged My Recipes + My Gear) -->
+  <div class="pane" id="pane-my">
+    <div class="inner-subtabs">
+      <button class="inner-subtab on" data-inner="inner-my-recipes">My Recipes</button>
+      <button class="inner-subtab" data-inner="inner-my-gear">My Gear</button>
+    </div>
+    <div class="inner-pane on" id="inner-my-recipes">
+      <div class="sec-title">My Custom Slots</div>
+      <div class="sec-desc">C1–C7 settings saved on your cameras — single recipes and multi-simulation sets with full settings, usage notes, and a filter guide for C7.</div>
+      <div id="custom-slots-body"></div>
+      <div class="mr-grid" id="myrecipes-body"></div>
+    </div>
+    <div class="inner-pane" id="inner-my-gear">
+      <div class="sec-title">My Cameras &amp; Lenses</div>
+      <div class="sec-desc">Your current kit. Edit <code>gear.js</code> on GitHub to update from any device.</div>
+      <div class="gear-grid" id="gear-body"></div>
+    </div>
   </div>
 
   <!-- EXPLORE -->
-  <div class="pane" id="pane-explore">
+  <div class="pane pane-no-subtabs" id="pane-explore">
     <div class="sec-title">Explore</div>
     <div class="sec-desc">Tweak parameters and find similar recipes in real time.</div>
     <div class="exp-layout">
@@ -673,10 +771,11 @@ main{display:flex;flex:1;overflow:hidden}
   </div>
 
   <!-- COMPARE -->
-  <div class="pane" id="pane-compare">
+  <div class="pane pane-no-subtabs" id="pane-compare">
     <div id="cmp-shell"></div>
   </div>
 
+  </div><!-- .content-scroll -->
 </section>
 </main>
 </div>
@@ -819,6 +918,7 @@ function initCollapsibleFilters() {
     const label = section.querySelector('.sb-label')
     if (!label) return
     if (!section.querySelector('.chips')) return
+    section.classList.add('collapsed')
     label.addEventListener('click', () => {
       section.classList.toggle('collapsed')
     })
@@ -871,20 +971,18 @@ function wbMiniGrid(r) {
     html += `<line x1="-9" y1="${i}" x2="9" y2="${i}" stroke="${thick?'#333340':'#242428'}" stroke-width="${thick?.6:.3}"/>`
   }
   html += `<rect x="-9" y="-9" width="18" height="18" fill="none" stroke="#2e2e34" stroke-width=".6"/>`
-  html += `<text x="-9.4" y=".7" font-size="1.7" fill="#5e5e6e" text-anchor="end" font-family="Inter,sans-serif">R−</text>`
-  html += `<text x="9.4"  y=".7" font-size="1.7" fill="#5e5e6e" text-anchor="start" font-family="Inter,sans-serif">R+</text>`
-  html += `<text x="0" y="-9.6" font-size="1.7" fill="#5e5e6e" text-anchor="middle" font-family="Inter,sans-serif">B+</text>`
-  html += `<text x="0" y="10.8" font-size="1.7" fill="#5e5e6e" text-anchor="middle" font-family="Inter,sans-serif">B−</text>`
-  const rLabel = (rx >= 0 ? 'R+' : 'R') + rx
-  const bLabel = ((pn(r.wb_shift_blue)??0) >= 0 ? 'B+' : 'B') + (pn(r.wb_shift_blue)??0)
-  const txt = rLabel + ' ' + bLabel
-  const pillW = txt.length * 1.1 + 2
-  const pillX = clamp(rx + 1.5, -8.8, 9 - pillW)
-  const pillY = ry - 1.4
+  html += `<text x="-9.4" y=".7" font-size="2.2" fill="#7a7a90" text-anchor="end" font-family="Inter,sans-serif">R−</text>`
+  html += `<text x="9.4"  y=".7" font-size="2.2" fill="#7a7a90" text-anchor="start" font-family="Inter,sans-serif">R+</text>`
+  html += `<text x="0" y="-9.6" font-size="2.2" fill="#7a7a90" text-anchor="middle" font-family="Inter,sans-serif">B+</text>`
+  html += `<text x="0" y="11.2" font-size="2.2" fill="#7a7a90" text-anchor="middle" font-family="Inter,sans-serif">B−</text>`
   html += `<polygon points="${diamondPoints(rx, ry, 1.1)}" fill="#d4a843" stroke="#0d0d0f" stroke-width=".3"/>`
-  html += `<rect x="${pillX}" y="${pillY}" width="${pillW}" height="2.6" rx=".8" fill="#1c1c20" stroke="#d4a843" stroke-width=".3"/>`
-  html += `<text x="${pillX + pillW/2}" y="${pillY + 1.9}" font-size="1.5" fill="#e8c05a" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">${txt}</text>`
-  return `<svg class="mr-wb-svg" viewBox="-11 -11 22 22" style="width:100%;max-width:120px;display:block;border-radius:var(--r);background:var(--surf2);border:1px solid var(--border)">${html}</svg>`
+  const rVal = pn(r.wb_shift_red)  ?? 0
+  const bVal = pn(r.wb_shift_blue) ?? 0
+  const rLabel = (rVal >= 0 ? 'R+' : 'R') + rVal
+  const bLabel = (bVal >= 0 ? 'B+' : 'B') + bVal
+  const svg = `<svg class="mr-wb-svg" viewBox="-11 -11 22 22" style="width:100%;max-width:120px;display:block;border-radius:var(--r);background:#131318;border:1px solid #3a3a46">${html}</svg>`
+  const label = `<div class="mr-wb-label"><svg width="8" height="8" viewBox="0 0 10 10"><polygon points="5,1 9,5 5,9 1,5" fill="#d4a843"/></svg><span style="color:#e8c05a;font-weight:600;font-size:11px">${rLabel} ${bLabel}</span></div>`
+  return svg + label
 }
 function fingerprint(r) {
   const ccMap={'Off':0,'Weak':1,'Strong':2}
@@ -906,23 +1004,23 @@ function fingerprint(r) {
   const poly=pts.map(p=>p.join(',')).join(' ')
   const grids=[.25,.5,.75,1].map(t=>{
     const gp=axes.map((_,i)=>{const a=(2*Math.PI*i/N)-Math.PI/2;return [cx+R*t*Math.cos(a),cy+R*t*Math.sin(a)]})
-    return `<polygon points="${gp.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${t===.5?'#3a3a42':'#2a2a30'}" stroke-width="${t===.5?'1':'.8'}"/>`
+    return `<polygon points="${gp.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${t===.5?'#585868':'#3e3e50'}" stroke-width="${t===.5?'1':'.8'}"/>`
   }).join('')
   const spokes=axes.map((_,i)=>{const a=(2*Math.PI*i/N)-Math.PI/2;return `<line x1="${cx}" y1="${cy}" x2="${cx+R*Math.cos(a)}" y2="${cy+R*Math.sin(a)}" stroke="#2a2a30" stroke-width=".8"/>`}).join('')
   const labels=axes.map((a,i)=>{
     const ang=(2*Math.PI*i/N)-Math.PI/2
     const uy=Math.sin(ang)
-    const lx=cx+(R+16)*Math.cos(ang), ly=cy+(R+16)*uy
+    const lx=cx+(R+22)*Math.cos(ang), ly=cy+(R+22)*uy
     const lw=a.l.length*5+6
     const valStr=a.fmt(a.v)
     const vw=valStr.length*4.5+6
     // Place value pill toward the outside radially: below if upper half, above if lower half
     const vyOff = uy <= 0 ? 8 : -16
     const vy = ly + vyOff
-    return `<rect x="${lx-lw/2}" y="${ly-7}" width="${lw}" height="12" rx="3" fill="#1a1a22" stroke="#3a3a4a" stroke-width=".6"/>` +
-           `<text x="${lx}" y="${ly+1}" text-anchor="middle" dominant-baseline="middle" font-size="7.5" font-weight="700" fill="#c0c0d0" font-family="Inter,sans-serif">${a.l}</text>` +
-           `<rect x="${lx-vw/2}" y="${vy}" width="${vw}" height="10" rx="2.5" fill="#111116" stroke="#2a2a36" stroke-width=".5"/>` +
-           `<text x="${lx}" y="${vy+6}" text-anchor="middle" dominant-baseline="middle" font-size="6.5" font-weight="600" fill="#9090a8" font-family="Inter,sans-serif">${valStr}</text>`
+    return `<rect x="${lx-lw/2}" y="${ly-7}" width="${lw}" height="13" rx="3" fill="#1e1e28" stroke="#44445a" stroke-width=".7"/>` +
+           `<text x="${lx}" y="${ly+1}" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="700" fill="#dcdcec" font-family="Inter,sans-serif">${a.l}</text>` +
+           `<rect x="${lx-vw/2}" y="${vy}" width="${vw}" height="11" rx="2.5" fill="#13131a" stroke="#36364a" stroke-width=".6"/>` +
+           `<text x="${lx}" y="${vy+6.5}" text-anchor="middle" dominant-baseline="middle" font-size="8" font-weight="600" fill="#b8b8d0" font-family="Inter,sans-serif">${valStr}</text>`
   }).join('')
   const col=dc(r.color_direction)
   return `<svg width="120" height="120" viewBox="0 0 120 120" overflow="visible">${grids}${spokes}<polygon points="${poly}" fill="${col}" fill-opacity=".25" stroke="${col}" stroke-width="1.5"/>${labels}</svg>`
@@ -933,7 +1031,33 @@ function fingerprint(r) {
 // ══════════════════════════════════════════
 function makeCard(r) {
   const div=document.createElement('div'); div.className='card'
-  const imgHtml=`<div class="card-img-fp">${fingerprint(r)}</div>`
+  const drBadge = r.dynamic_range && r.dynamic_range !== 'N/A'
+    ? `<div class="mr-detail-row"><span class="badge b-dr">${r.dynamic_range}</span></div>` : ''
+  const wbMode = r.white_balance
+    ? `<div class="mr-detail-row"><span class="mr-detail-label">WB</span><span class="mr-detail-val">${r.white_balance}</span></div>` : ''
+  const imgHtml=`<div class="card-img-fp"><div class="card-fp-inner">${fingerprint(r)}</div><div class="card-drwb">${wbMode}${wbMiniGrid(r)}${drBadge}</div></div>`
+
+  function pill(lbl, val) {
+    if (val == null || val === '' || val === 'N/A') return ''
+    return `<span class="cpill"><span class="cpill-lbl">${lbl}</span><span class="cpill-val">${val}</span></span>`
+  }
+  function signedVal(v) { return v == null ? null : (v > 0 ? '+' + v : '' + v) }
+
+  const pillsHtml = [
+    pill('Grain', r.grain_effect),
+    pill('CCE', r.color_chrome_effect),
+    pill('CCB', r.color_chrome_fx_blue),
+    pill('HL',  signedVal(r.highlight)),
+    pill('SH',  signedVal(r.shadow)),
+    pill('COL', signedVal(r.color)),
+    pill('SHP', signedVal(r.sharpness)),
+    pill('CL',  signedVal(r.clarity)),
+    r.iso_max ? pill('ISO', r.iso_max) : '',
+    r.exposure_compensation ? pill('EV', r.exposure_compensation) : '',
+  ].join('')
+
+  const moodK=(r.mood_keywords||[]).map(k=>`<span class="kw">${k}</span>`).join('')
+  const scenK=(r.scenario_keywords||[]).map(k=>`<span class="kw">${k}</span>`).join('')
 
   const settings=[
     ['Film Sim',r.film_simulation],['Grain',r.grain_effect],
@@ -946,12 +1070,12 @@ function makeCard(r) {
   ].filter(([,v])=>v!=null&&v!=='N/A'&&v!=='')
    .map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('')
 
-  const moodK=(r.mood_keywords||[]).map(k=>`<span class="kw">${k}</span>`).join('')
-  const scenK=(r.scenario_keywords||[]).map(k=>`<span class="kw">${k}</span>`).join('')
-
   div.innerHTML=`${imgHtml}
 <div class="cbody">
-  <div class="ctitle">${r.name}</div>
+  <div class="ctitle-row">
+    <span class="ctitle">${r.name}</span>
+    ${r.source_url?`<a href="${r.source_url}" target="_blank" class="src-btn" title="See photo examples on fujixweekly.com"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2H2a1 1 0 00-1 1v5a1 1 0 001 1h5a1 1 0 001-1V6"/><polyline points="6.5 1 9 1 9 3.5"/><line x1="5" y1="5" x2="9" y2="1"/></svg>fujixweekly</a>`:''}
+  </div>
   <div class="cnarr">${r.narrative||''}</div>
   <div class="cbadges">
     <span class="badge b-sim">${r.film_simulation||'?'}</span>
@@ -960,10 +1084,10 @@ function makeCard(r) {
     <span class="badge ${punchClass(r)}">${recipePunch(r)}</span>
   </div>
 </div>
+<div class="cpills">${pillsHtml}</div>
 <div class="cexpand">
   <table class="stbl"><tbody>${settings}</tbody></table>
   ${moodK||scenK?`<div class="kwrow">${moodK}${scenK}</div>`:''}
-  <a href="${r.source_url}" target="_blank" style="font-size:11px;color:var(--accent);display:inline-block;margin-top:6px">View on fujixweekly.com ↗</a>
 </div>`
 
   // Compare button
@@ -976,12 +1100,6 @@ function makeCard(r) {
   cmpBtn.style.cssText = 'margin:4px 12px 8px;display:block'
   cmpBtn.addEventListener('click', e => { e.stopPropagation(); onCompareCardClick(r) })
   div.appendChild(cmpBtn)
-
-  // Toggle expand
-  div.addEventListener('click',e=>{
-    if(e.target.tagName==='A'||e.target.tagName==='IMG') return
-    div.classList.toggle('open')
-  })
 
   return div
 }
@@ -1266,8 +1384,8 @@ function renderCorrelations(filterQ) {
       <div class="dr-pills">${drPills}</div>`
 
     card.addEventListener('click',()=>{
-      switchTab('clouds')
-      // Highlight the keyword
+      switchTab('grid')
+      switchInnerTab('inner-recipes-keywords')
     })
     grid.appendChild(card)
   })
@@ -1294,28 +1412,98 @@ $('corr-q').addEventListener('input',e=>renderCorrelations(e.target.value.trim()
 // ══════════════════════════════════════════
 // TABS
 // ══════════════════════════════════════════
-function switchTab(id){
+function switchInnerTab(innerPaneId) {
+  const inner = document.getElementById(innerPaneId)
+  if (!inner) return
+  // Find the parent pane and toggle siblings
+  const parent = inner.closest('.pane')
+  parent.querySelectorAll('.inner-pane').forEach(p => p.classList.toggle('on', p === inner))
+  parent.querySelectorAll('.inner-subtab').forEach(b => b.classList.toggle('on', b.dataset.inner === innerPaneId))
+  // Trigger render for the newly-visible panel
+  if (innerPaneId === 'inner-insights-settings') renderSettingsGuide()
+  if (innerPaneId === 'inner-insights-directions') renderDirections()
+  if (innerPaneId === 'inner-insights-correlations') renderCorrelations($('corr-q').value)
+  if (innerPaneId === 'inner-recipes-keywords') renderClouds()
+  if (innerPaneId === 'inner-my-gear') renderGear()
+}
+
+function switchTab(id, innerPaneId) {
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab===id))
   document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.id===`pane-${id}`))
+  const toggleEl = document.getElementById('tabs-end-toggle')
+  if(toggleEl) toggleEl.style.display = id === 'grid' ? 'flex' : 'none'
   if(id==='charts') renderCharts()
-  if(id==='clouds') renderClouds()
-  if(id==='directions') renderDirections()
-  if(id==='correlations') renderCorrelations($('corr-q').value)
-  if(id==='settings') renderSettingsGuide()
-  if(id==='gear') renderGear()
-  if(id==='myrecipes') renderMyRecipes()
+  if(id==='my') { switchInnerTab(innerPaneId || 'inner-my-recipes'); renderMyRecipes(); }
   if(id==='explore') initExplore()
   if(id==='compare') initCompare()
+  if(id==='grid') renderGrid()
+  if(id==='insights') switchInnerTab(innerPaneId || 'inner-insights-settings')
+  if(innerPaneId) switchInnerTab(innerPaneId)
 }
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   switchTab(t.dataset.tab)
-  // close sidebar on mobile when switching tabs
-  document.querySelector('.sidebar').classList.remove('open')
+  closeMobileSidebar()
 }))
+// Wire inner subtab buttons
+document.querySelectorAll('.inner-subtab').forEach(btn => {
+  btn.addEventListener('click', () => switchInnerTab(btn.dataset.inner))
+})
+// Sidebar collapse (desktop) and overlay (mobile)
 ;(()=>{
-  const btn = document.getElementById('mob-filter-btn')
-  const sb  = document.querySelector('.sidebar')
-  if (btn && sb) btn.addEventListener('click', () => sb.classList.toggle('open'))
+  const sb      = document.getElementById('sidebar')
+  const colBtn  = document.getElementById('sb-collapse-btn')
+  const colIcon = document.getElementById('sb-collapse-icon')
+  const overlay = document.getElementById('sb-overlay')
+  const mobBtn  = document.getElementById('mob-filter-btn')
+
+  function isMobile(){ return window.innerWidth <= 680 }
+
+  function setCollapseIcon(collapsed){
+    colIcon.innerHTML = collapsed
+      ? '<polyline points="6,4 10,8 6,12"/>'
+      : '<polyline points="10,4 6,8 10,12"/>'
+  }
+
+  window.closeMobileSidebar = function(){
+    if(!isMobile()) return
+    sb.classList.remove('open')
+    overlay.classList.remove('open')
+  }
+
+  if(colBtn){
+    colBtn.addEventListener('click', ()=>{
+      const now = sb.classList.toggle('collapsed')
+      setCollapseIcon(now)
+    })
+  }
+
+  if(mobBtn){
+    mobBtn.addEventListener('click', ()=>{
+      sb.classList.toggle('open')
+      overlay.classList.toggle('open')
+    })
+  }
+
+  if(overlay){
+    overlay.addEventListener('click', closeMobileSidebar)
+  }
+})()
+
+// ── View toggle (visual / cheatsheet) ──
+;(()=>{
+  const grid = document.getElementById('grid')
+  const btnV  = document.getElementById('vtog-visual')
+  const btnC  = document.getElementById('vtog-cheatsheet')
+  function setView(mode){
+    const cs = mode === 'cheatsheet'
+    grid.classList.toggle('cheatsheet', cs)
+    btnV.classList.toggle('on', !cs)
+    btnC.classList.toggle('on', cs)
+    btnV.setAttribute('aria-pressed', String(!cs))
+    btnC.setAttribute('aria-pressed', String(cs))
+  }
+  btnV.addEventListener('click', () => setView('visual'))
+  btnC.addEventListener('click', () => setView('cheatsheet'))
 })()
 
 function syncChips(){
@@ -1854,42 +2042,6 @@ function renderSettingsGuide() {
     container.appendChild(secDiv)
   })
 
-  // Badge formula explanation section
-  const badgeSection = document.createElement('div')
-  badgeSection.innerHTML = `<div class="sg-section-title">How recipe badges are scored</div>`
-  const badgeContent = document.createElement('div')
-  badgeContent.style.cssText = 'display:flex;flex-direction:column;gap:18px;max-width:720px'
-  badgeContent.innerHTML = `
-    <div>
-      <div style="font-weight:600;color:var(--text);margin-bottom:6px">Warmth badge &nbsp;<span class="badge b-warm">warm</span> <span class="badge b-neutral">neutral</span> <span class="badge b-cool">cool</span></div>
-      <p style="color:var(--text2);font-size:13px;line-height:1.6;margin:0 0 8px">Derived from three inputs: <strong>white balance kelvin value</strong>, <strong>WB shift (Red minus Blue)</strong>, and a small <strong>film simulation adjustment</strong>. Higher kelvin (6500K+) and red-dominant shifts push toward warm; lower kelvin and blue-dominant shifts push toward cool. B&W simulations always score neutral — WB shift has no visible effect on a monochrome image.</p>
-      <p style="color:var(--text2);font-size:13px;line-height:1.6;margin:0 0 8px"><em>Formula: warmthScore = (kelvin − 5200)/2300 × 0.5 + (R shift − B shift)/9 × 0.5 + filmBias</em><br>Warm if score &gt; 0.35 · Cool if score &lt; −0.20 · Neutral otherwise</p>
-      <div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:4px">
-        <div>
-          <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:4px">Warm-biased film sims (+0.15)</div>
-          <div style="font-size:12px;color:var(--text2)">Nostalgic Neg. · Classic Chrome · Eterna · Eterna/Cinema · PRO Neg. Hi · PRO Neg. Std</div>
-        </div>
-        <div>
-          <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:4px">Cool-biased film sims (−0.15)</div>
-          <div style="font-size:12px;color:var(--text2)">Eterna Bleach Bypass · Velvia/Vivid</div>
-        </div>
-        <div>
-          <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:4px">Always neutral</div>
-          <div style="font-size:12px;color:var(--text2)">Acros · Monochrome (all variants) · Sepia</div>
-        </div>
-      </div>
-    </div>
-    <div>
-      <div style="font-weight:600;color:var(--text);margin-bottom:6px">Punch badge &nbsp;<span class="badge b-punchy">punchy</span> <span class="badge b-neutral">balanced</span> <span class="badge b-flat">flat</span></div>
-      <p style="color:var(--text2);font-size:13px;line-height:1.6;margin:0 0 8px">Derived from the <strong>Color dial</strong>, <strong>Clarity dial</strong>, and the spread of <strong>Highlight/Shadow</strong> adjustments. High color and high clarity push toward punchy. Low color, low clarity, and wide highlight/shadow spread (rolled-off tones) push toward flat. Everything in between is balanced.</p>
-      <p style="color:var(--text2);font-size:13px;line-height:1.6;margin:0"><em>Formula: punchScore = Color × 0.5 + Clarity × 0.25 − (|Highlight| + |Shadow|) × 0.1</em><br>Punchy if score &gt; 1.2 · Flat if score &lt; −0.5 · Balanced otherwise</p>
-    </div>
-    <div style="font-size:12px;color:var(--text3);border-top:1px solid var(--border);padding-top:12px">
-      These badges are computed automatically from each recipe's camera settings — no editorial labels. To override a specific recipe, add a <code>warmth_override</code> or <code>punch_override</code> field to its entry in <code>RECIPE_META_PATCHES</code> in gear.js.
-    </div>
-  `
-  badgeSection.appendChild(badgeContent)
-  container.appendChild(badgeSection)
 }
 
 // ══════════════════════════════════════════
@@ -2095,12 +2247,6 @@ function renderCustomSlots() {
         vizRow.appendChild(fp)
         const detailCol = document.createElement('div')
         detailCol.className = 'mr-detail-col'
-        if (baseSimRecipe.dynamic_range && baseSimRecipe.dynamic_range !== 'N/A') {
-          const drRow = document.createElement('div')
-          drRow.className = 'mr-detail-row'
-          drRow.innerHTML = `<span class="mr-detail-label">DR</span><span class="badge b-dr">${baseSimRecipe.dynamic_range}</span>`
-          detailCol.appendChild(drRow)
-        }
         if (baseSimRecipe.white_balance) {
           const wbRow = document.createElement('div')
           wbRow.className = 'mr-detail-row'
@@ -2110,6 +2256,12 @@ function renderCustomSlots() {
         const wbWrap = document.createElement('div')
         wbWrap.innerHTML = wbMiniGrid(baseSimRecipe)
         detailCol.appendChild(wbWrap)
+        if (baseSimRecipe.dynamic_range && baseSimRecipe.dynamic_range !== 'N/A') {
+          const drRow = document.createElement('div')
+          drRow.className = 'mr-detail-row'
+          drRow.innerHTML = `<span class="badge b-dr">${baseSimRecipe.dynamic_range}</span>`
+          detailCol.appendChild(drRow)
+        }
         vizRow.appendChild(detailCol)
         body.appendChild(vizRow)
         // Extra params as pills
@@ -2179,12 +2331,6 @@ function renderCustomSlots() {
 
         const detailCol = document.createElement('div')
         detailCol.className = 'mr-detail-col'
-        if (slotRecipe.dynamic_range && slotRecipe.dynamic_range !== 'N/A') {
-          const drRow = document.createElement('div')
-          drRow.className = 'mr-detail-row'
-          drRow.innerHTML = `<span class="mr-detail-label">DR</span><span class="badge b-dr">${slotRecipe.dynamic_range}</span>`
-          detailCol.appendChild(drRow)
-        }
         if (slotRecipe.white_balance) {
           const wbRow = document.createElement('div')
           wbRow.className = 'mr-detail-row'
@@ -2194,6 +2340,12 @@ function renderCustomSlots() {
         const wbWrap = document.createElement('div')
         wbWrap.innerHTML = wbMiniGrid(slotRecipe)
         detailCol.appendChild(wbWrap)
+        if (slotRecipe.dynamic_range && slotRecipe.dynamic_range !== 'N/A') {
+          const drRow = document.createElement('div')
+          drRow.className = 'mr-detail-row'
+          drRow.innerHTML = `<span class="badge b-dr">${slotRecipe.dynamic_range}</span>`
+          detailCol.appendChild(drRow)
+        }
         vizRow.appendChild(detailCol)
         body.appendChild(vizRow)
 
@@ -2347,13 +2499,6 @@ function renderMyRecipes() {
     const detailCol = document.createElement('div')
     detailCol.className = 'mr-detail-col'
 
-    // DR badge
-    if (r.dynamic_range && r.dynamic_range !== 'N/A') {
-      const drRow = document.createElement('div')
-      drRow.className = 'mr-detail-row'
-      drRow.innerHTML = `<span class="mr-detail-label">DR</span><span class="badge b-dr">${r.dynamic_range}</span>`
-      detailCol.appendChild(drRow)
-    }
     // WB mode
     if (r.white_balance) {
       const wbModeRow = document.createElement('div')
@@ -2365,6 +2510,13 @@ function renderMyRecipes() {
     const wbWrap = document.createElement('div')
     wbWrap.innerHTML = wbMiniGrid(r)
     detailCol.appendChild(wbWrap)
+    // DR badge — below grid so grid aligns with radar height
+    if (r.dynamic_range && r.dynamic_range !== 'N/A') {
+      const drRow = document.createElement('div')
+      drRow.className = 'mr-detail-row'
+      drRow.innerHTML = `<span class="badge b-dr">${r.dynamic_range}</span>`
+      detailCol.appendChild(drRow)
+    }
 
     vizRow.appendChild(detailCol)
     body.appendChild(vizRow)
@@ -3836,12 +3988,87 @@ function initExplore() {
 // ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
+function warmthFormulaHTML() {
+  return `<div>
+    <div style="font-weight:600;color:var(--text);margin-bottom:6px">Warmth &nbsp;<span class="badge b-warm">warm</span> <span class="badge b-neutral">neutral</span> <span class="badge b-cool">cool</span></div>
+    <p style="color:var(--text2);font-size:12px;line-height:1.6;margin:0 0 6px">Derived from <strong>WB kelvin</strong>, <strong>WB shift (R−B)</strong>, and a small <strong>film sim adjustment</strong>. Higher kelvin and red-dominant shifts push warm; lower kelvin and blue-dominant shifts push cool. B&W sims always score neutral.</p>
+    <p style="color:var(--text2);font-size:12px;line-height:1.6;margin:0 0 8px"><em>Score = (kelvin−5200)/2300×0.5 + (R−B)/9×0.5 + filmBias</em><br>Warm &gt;0.35 · Cool &lt;−0.20 · Neutral otherwise</p>
+    <div style="display:flex;gap:16px;flex-wrap:wrap">
+      <div><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:3px">Warm-biased (+0.15)</div><div style="font-size:11px;color:var(--text2)">Nostalgic Neg. · Classic Chrome · Eterna · Eterna/Cinema · PRO Neg. Hi · PRO Neg. Std</div></div>
+      <div><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:3px">Cool-biased (−0.15)</div><div style="font-size:11px;color:var(--text2)">Eterna Bleach Bypass · Velvia/Vivid</div></div>
+      <div><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:3px">Always neutral</div><div style="font-size:11px;color:var(--text2)">Acros · Monochrome · Sepia</div></div>
+    </div>
+  </div>`
+}
+
+function punchFormulaHTML() {
+  return `<div>
+    <div style="font-weight:600;color:var(--text);margin-bottom:6px">Punch &nbsp;<span class="badge b-punchy">punchy</span> <span class="badge b-neutral">balanced</span> <span class="badge b-flat">flat</span></div>
+    <p style="color:var(--text2);font-size:12px;line-height:1.6;margin:0 0 6px">Derived from the <strong>Color dial</strong>, <strong>Clarity dial</strong>, and <strong>Highlight/Shadow spread</strong>. High color + clarity → punchy. Low color, low clarity, wide tonal roll-off → flat.</p>
+    <p style="color:var(--text2);font-size:12px;line-height:1.6;margin:0"><em>Score = Color×0.5 + Clarity×0.25 − (|HL|+|SH|)×0.1</em><br>Punchy &gt;1.2 · Flat &lt;−0.5 · Balanced otherwise</p>
+  </div>`
+}
+
+function initBadgeFormula() {
+  // Collapsible above the Recipes grid
+  const listPane = $('inner-recipes-list')
+  if (listPane) {
+    const details = document.createElement('details')
+    details.className = 'badge-formula-details'
+    details.innerHTML = `<summary>How badges are scored</summary><div class="bfd-body">${warmthFormulaHTML()}${punchFormulaHTML()}<div style="font-size:11px;color:var(--text3);border-top:1px solid var(--border);padding-top:10px">Computed automatically from camera settings. Override a recipe via <code>RECIPE_META_PATCHES</code> in gear.js.</div></div>`
+    listPane.insertBefore(details, listPane.firstChild)
+  }
+
+  // Sidebar info popovers
+  let activePopover = null
+  function closePopover() { if (activePopover) { activePopover.remove(); activePopover = null } }
+
+  function keywordInfoHTML(type) {
+    if (type === 'mood') return `<h4>Mood Keywords</h4>
+<p>Descriptive adjectives for the <em>emotional tone</em> of the recipe — how the final image feels. Examples: vintage, cinematic, dreamy, punchy, muted, ethereal.</p>
+<p>Assigned by the recipe author based on intended aesthetic. Selecting multiple moods shows recipes that match <em>any</em> of them.</p>`
+    if (type === 'scenario') return `<h4>Scenario Keywords</h4>
+<p>The <em>shooting situations</em> the recipe is built for. Examples: street, portrait, landscape, golden hour, indoor, travel.</p>
+<p>Based on author recommendations and the recipe's tonal characteristics. A recipe can suit multiple scenarios.</p>`
+    if (type === 'era') return `<h4>Era / Film Reference</h4>
+<p>The <em>decade or photographic era</em> the recipe evokes — either explicitly referenced by the author or implied by the film emulated. Examples: 1960s, 1970s, 1990s.</p>
+<p>Also covers the film stock being emulated (e.g. Kodachrome 64, Velvia 50). Blank if no clear era reference exists.</p>`
+    return ''
+  }
+
+  document.querySelectorAll('.sb-info-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation()
+      if (activePopover) { closePopover(); return }
+      const f = btn.dataset.formula
+      const pop = document.createElement('div')
+      pop.className = 'formula-popover'
+      const body = f === 'warmth' ? warmthFormulaHTML()
+                 : f === 'punch'  ? punchFormulaHTML()
+                 : keywordInfoHTML(f)
+      pop.innerHTML = `<button class="formula-popover-close" aria-label="Close">✕</button>${body}`
+      document.body.appendChild(pop)
+      activePopover = pop
+      const rect = btn.getBoundingClientRect()
+      const pw = 320
+      let left = rect.left
+      if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8
+      pop.style.top = (rect.bottom + 6) + 'px'
+      pop.style.left = Math.max(8, left) + 'px'
+      pop.querySelector('.formula-popover-close').addEventListener('click', closePopover)
+    })
+  })
+  document.addEventListener('click', closePopover)
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closePopover() })
+}
+
 function init(){
   if(!RECIPES?.length){document.body.innerHTML='<div style="padding:60px;text-align:center;color:#9a9aaa"><h2>No recipe data</h2></div>';return}
   $('s-total').textContent=RECIPES.length
   $('s-sims').textContent=new Set(RECIPES.map(r=>r.film_simulation).filter(Boolean)).size
   initChips()
   initCollapsibleFilters()
+  initBadgeFormula()
   render()
   renderClouds()
   renderDirections()
