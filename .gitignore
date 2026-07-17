@@ -1,5 +1,5 @@
 # Claude Code local settings — keep off GitHub
-.claude/
+.claude/settings.local.json
 
 # Local planning docs
 PLAN-*.md

@@ -147,10 +147,10 @@ Product photos live in `images/gear/` and are committed to the repo. Naming conv
 
 ## Skills
 
-Skills are stored in `docs/skills/` and shared in the repo. Invoke by typing the skill name.
+Skills live in `.claude/skills/` (invocable by Claude Code) and are mirrored as docs in `docs/skills/`. Both are committed to the repo.
 
-- **`/sync-recipes`** — Fetch fujixweekly.com recipe lists for a chosen X-Trans generation, diff against `RECIPES` in `index.html`, and produce a ready-to-paste JS patch for new or changed recipes. See `docs/skills/sync-recipes.md`.
-- **`/update-harness`** — Audit `index.html`, `gear.js`, and all `docs/` files, then rewrite stale sections of `CLAUDE.md` to reflect the current architecture, functions, CSS conventions, and data shape. See `docs/skills/update-harness.md`.
+- **`/sync-recipes`** — Fetch fujixweekly.com recipe lists for a chosen X-Trans generation, diff against `RECIPES` in `index.html`, and produce a ready-to-paste JS patch for new or changed recipes.
+- **`/update-harness`** — Audit `index.html`, `gear.js`, and all `docs/` files, then rewrite stale sections of `CLAUDE.md` to reflect the current architecture, functions, CSS conventions, and data shape.
 
 ## What NOT to commit
 
