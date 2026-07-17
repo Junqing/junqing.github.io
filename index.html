@@ -14,20 +14,27 @@
   --r:8px; --r2:12px; --r3:18px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{height:100%;overflow:hidden}
-body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.6}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.6}
 a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
 ::-webkit-scrollbar{width:5px;height:5px} ::-webkit-scrollbar-track{background:var(--bg2)}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
 /* ─── Layout ─── */
-.app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
-header{background:var(--surf);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:200}
-header h1{font-size:17px;font-weight:700;color:var(--accent);letter-spacing:-.3px}
+.app{display:flex;flex-direction:column;position:fixed;inset:0;overflow:hidden}
+header{background:var(--surf);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200}
+header h1{font-size:16px;font-weight:700;color:var(--accent);letter-spacing:-.3px;white-space:nowrap}
 header h1 span{color:var(--text2);font-weight:400}
-.stats{display:flex;gap:18px;flex-wrap:wrap}
-.stat .n{font-size:20px;font-weight:700;color:var(--accent2);line-height:1}
-.stat .l{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.header-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.stats-pill{display:flex;align-items:center;gap:6px;padding:4px 10px;background:var(--surf2);border:1px solid var(--border);border-radius:99px;cursor:pointer;user-select:none;transition:border-color .12s}
+.stats-pill:hover{border-color:var(--text3)}
+.stats-pill-text{font-size:11px;color:var(--text2);white-space:nowrap}
+.stats-pill-text strong{color:var(--accent2);font-weight:700}
+.stats-expanded{display:none;position:absolute;top:calc(100% + 6px);right:0;background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);padding:10px 14px;box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:300;min-width:160px}
+.stats-expanded.open{display:block}
+.stat-row{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:3px 0}
+.stat-row .n{font-size:16px;font-weight:700;color:var(--accent2)}
+.stat-row .l{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
 main{display:flex;flex:1;min-height:0}
 
 /* ─── Sidebar ─── */
@@ -59,8 +66,7 @@ main{display:flex;flex:1;min-height:0}
 .content{flex:1;overflow:hidden;display:flex;flex-direction:column}
 .content-sticky{position:sticky;top:0;z-index:100;background:var(--bg);padding:16px 20px 0}
 .content-scroll{flex:1;overflow-y:auto;padding:0 20px 20px}
-.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:0;gap:0;align-items:stretch}
-.tabs-end{margin-left:auto;display:flex;align-items:center;padding:0 12px;border-left:1px solid var(--border)}
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:0;gap:0}
 .tab{padding:9px 16px;cursor:pointer;font-size:13px;color:var(--text2);border-bottom:2px solid transparent;transition:all .15s;user-select:none}
 .tab:hover{color:var(--text)}
 .tab.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
@@ -72,7 +78,7 @@ main{display:flex;flex:1;min-height:0}
 
 /* ─── Grid ─── */
 .view-toggle{display:flex;background:var(--surf2);border:1px solid var(--border);border-radius:6px;overflow:hidden}
-.vtog{padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;background:none;border:none;color:var(--text2);transition:all .15s;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.vtog{padding:5px 7px;font-size:11px;font-weight:600;cursor:pointer;background:none;border:none;color:var(--text2);transition:all .15s;display:flex;align-items:center;-webkit-tap-highlight-color:transparent}
 .vtog+.vtog{border-left:1px solid var(--border)}
 .vtog.on{background:var(--surf3);color:var(--text)}
 .vtog svg{opacity:.6;flex-shrink:0}
@@ -218,7 +224,7 @@ main{display:flex;flex:1;min-height:0}
 
 /* ─── Phone (≤ 680px): sidebar as overlay, single-column layout ─── */
 @media(max-width:680px){
-  .sidebar{position:fixed;left:0;top:53px;height:calc(100dvh - 53px);width:0;z-index:300;border-right:none;box-shadow:4px 0 20px rgba(0,0,0,.45);transition:width .22s ease}
+  .sidebar{position:fixed;left:0;top:0;height:100%;padding-top:49px;width:0;z-index:300;border-right:none;box-shadow:4px 0 20px rgba(0,0,0,.45);transition:width .22s ease}
   .sidebar.open{width:260px}
   .sidebar.open .sb-inner{visibility:visible;pointer-events:auto}
   .sidebar.collapsed{width:0}
@@ -228,9 +234,8 @@ main{display:flex;flex:1;min-height:0}
   .content-scroll{padding:0 10px 20px}
   .inner-subtabs{margin:0 -10px;padding:10px 10px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
   .inner-subtabs::-webkit-scrollbar{display:none}
-  .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-  .tabs::-webkit-scrollbar{display:none}
-  .tab{flex-shrink:0;padding:6px 11px;font-size:12px}
+  .tabs{flex-wrap:wrap}
+  .tab{padding:6px 11px;font-size:12px}
   .hist-wrap{grid-template-columns:1fr}
   .gear-cards,.mr-grid,.sg-cards{grid-template-columns:1fr}
   .cs-single-grid{grid-template-columns:1fr}
@@ -530,10 +535,26 @@ main{display:flex;flex:1;min-height:0}
 
 <header>
   <h1>Fujifilm X-Trans V <span>Recipe Explorer</span></h1>
-  <div class="stats">
-    <div class="stat"><div class="n" id="s-total">—</div><div class="l">Recipes</div></div>
-    <div class="stat"><div class="n" id="s-sims">—</div><div class="l">Film Sims</div></div>
-    <div class="stat"><div class="n" id="s-show">—</div><div class="l">Showing</div></div>
+  <div class="header-right">
+    <div style="position:relative">
+      <div class="stats-pill" id="stats-pill">
+        <span class="stats-pill-text"><strong id="s-show">—</strong> / <span id="s-total">—</span></span>
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--text3);flex-shrink:0"><polyline points="2,3.5 5,6.5 8,3.5"/></svg>
+      </div>
+      <div class="stats-expanded" id="stats-expanded">
+        <div class="stat-row"><span class="l">Total recipes</span><span class="n" id="s-total-x">—</span></div>
+        <div class="stat-row"><span class="l">Film sims</span><span class="n" id="s-sims">—</span></div>
+        <div class="stat-row"><span class="l">Showing</span><span class="n" id="s-show-x">—</span></div>
+      </div>
+    </div>
+    <div class="view-toggle" id="header-view-toggle" style="display:none">
+      <button class="vtog on" id="vtog-visual" aria-pressed="true" title="Visual view">
+        <svg width="14" height="14" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="8" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="8" width="6" height="6" rx="1.5"/><rect x="8" y="8" width="6" height="6" rx="1.5"/></svg>
+      </button>
+      <button class="vtog" id="vtog-cheatsheet" aria-pressed="false" title="Cheatsheet view">
+        <svg width="14" height="14" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="4" x2="13" y2="4"/><line x1="2" y1="7.5" x2="13" y2="7.5"/><line x1="2" y1="11" x2="8" y2="11"/></svg>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -590,18 +611,6 @@ main{display:flex;flex:1;min-height:0}
       <div class="tab" data-tab="insights">Insights</div>
       <div class="tab" data-tab="explore">Explore</div>
       <div class="tab" data-tab="compare">Compare</div>
-      <div class="tabs-end" id="tabs-end-toggle">
-        <div class="view-toggle">
-          <button class="vtog on" id="vtog-visual" aria-pressed="true">
-            <svg width="13" height="13" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="8" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="8" width="6" height="6" rx="1.5"/><rect x="8" y="8" width="6" height="6" rx="1.5"/></svg>
-            Visual
-          </button>
-          <button class="vtog" id="vtog-cheatsheet" aria-pressed="false">
-            <svg width="13" height="13" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="4" x2="13" y2="4"/><line x1="2" y1="7.5" x2="13" y2="7.5"/><line x1="2" y1="11" x2="8" y2="11"/></svg>
-            Cheatsheet
-          </button>
-        </div>
-      </div>
     </div>
   </div>
   <div class="content-scroll">
@@ -1110,6 +1119,7 @@ function makeCard(r) {
 function renderGrid() {
   const fr=filtered()
   $('s-show').textContent=fr.length
+  $('s-show-x').textContent=fr.length
   $('rcount').innerHTML=`Showing <strong>${fr.length}</strong> of <strong>${RECIPES.length}</strong> recipes`
   const grid=$('grid'); grid.innerHTML=''
   $('empty').style.display=fr.length?'none':'block'
@@ -1430,7 +1440,7 @@ function switchInnerTab(innerPaneId) {
 function switchTab(id, innerPaneId) {
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab===id))
   document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.id===`pane-${id}`))
-  const toggleEl = document.getElementById('tabs-end-toggle')
+  const toggleEl = document.getElementById('header-view-toggle')
   if(toggleEl) toggleEl.style.display = id === 'grid' ? 'flex' : 'none'
   if(id==='charts') renderCharts()
   if(id==='my') { switchInnerTab(innerPaneId || 'inner-my-recipes'); renderMyRecipes(); }
@@ -1487,6 +1497,15 @@ document.querySelectorAll('.inner-subtab').forEach(btn => {
   if(overlay){
     overlay.addEventListener('click', closeMobileSidebar)
   }
+})()
+
+// ── Stats pill expand ──
+;(()=>{
+  const pill = document.getElementById('stats-pill')
+  const panel = document.getElementById('stats-expanded')
+  if(!pill||!panel) return
+  pill.addEventListener('click', e => { e.stopPropagation(); panel.classList.toggle('open') })
+  document.addEventListener('click', () => panel.classList.remove('open'))
 })()
 
 // ── View toggle (visual / cheatsheet) ──
@@ -4065,6 +4084,7 @@ function initBadgeFormula() {
 function init(){
   if(!RECIPES?.length){document.body.innerHTML='<div style="padding:60px;text-align:center;color:#9a9aaa"><h2>No recipe data</h2></div>';return}
   $('s-total').textContent=RECIPES.length
+  $('s-total-x').textContent=RECIPES.length
   $('s-sims').textContent=new Set(RECIPES.map(r=>r.film_simulation).filter(Boolean)).size
   initChips()
   initCollapsibleFilters()
