@@ -47,6 +47,23 @@ const MY_CAMERAS = [
     ],
     notes: "The main workhorse. 40MP gives headroom to crop, and the dedicated film-simulation dial makes swapping between recipes tactile and fast."
   },
+  {
+    name: "Olympus PEN-F",
+    subtitle: "Retro-styled M43 body",
+    icon: "📷",
+    image: "images/gear/pen-f.jpg",
+    image_credit: "Photo: 之乎 (Search255) / CC BY-SA 4.0, Wikimedia Commons",
+    specs: [
+      ["Model",      "PEN-F"],
+      ["Sensor",     "20.3MP Live MOS"],
+      ["Processor",  "TruePic VII"],
+      ["Mount",      "Micro Four Thirds"],
+      ["IBIS",       "5-axis"],
+      ["EVF",        "Built-in, 2.36M-dot"],
+      ["Released",   "January 2016"],
+    ],
+    notes: "Retro rangefinder-styled body with a dedicated front Color/Mono Creative dial — brings the same tactile recipe-dialing feel to the M43 side of the kit."
+  },
 ];
 
 
@@ -57,6 +74,7 @@ const MY_LENSES = [
     subtitle: "Pancake wide prime · 35mm equiv.",
     icon: "🔭",
     image: "images/gear/xf23f28.jpg",
+    mount: "X",
     specs: [
       ["Focal length",   "23mm (35mm equiv.)"],
       ["Max aperture",   "f/2.8"],
@@ -72,6 +90,7 @@ const MY_LENSES = [
     subtitle: "Pancake standard prime · 41mm equiv.",
     icon: "🔭",
     image: "images/gear/xf27f28.jpg",
+    mount: "X",
     specs: [
       ["Focal length",   "27mm (41mm equiv.)"],
       ["Max aperture",   "f/2.8"],
@@ -87,6 +106,7 @@ const MY_LENSES = [
     subtitle: "Compact wide prime · 35mm equiv.",
     icon: "🔭",
     image: "images/gear/xf23f2.png",
+    mount: "X",
     specs: [
       ["Focal length",   "23mm (35mm equiv.)"],
       ["Max aperture",   "f/2"],
@@ -102,6 +122,7 @@ const MY_LENSES = [
     subtitle: "Compact standard prime · 53mm equiv.",
     icon: "🔭",
     image: "images/gear/xf35f2.png",
+    mount: "X",
     specs: [
       ["Focal length",   "35mm (53mm equiv.)"],
       ["Max aperture",   "f/2"],
@@ -117,6 +138,7 @@ const MY_LENSES = [
     subtitle: "Classic fast prime · 53mm equiv.",
     icon: "🔭",
     image: "images/gear/xf35f14.webp",
+    mount: "X",
     specs: [
       ["Focal length",   "35mm (53mm equiv.)"],
       ["Max aperture",   "f/1.4"],
@@ -132,6 +154,7 @@ const MY_LENSES = [
     subtitle: "Standard zoom · 24-76mm equiv.",
     icon: "🔭",
     image: "images/gear/xf16-50.jpg",
+    mount: "X",
     specs: [
       ["Focal length",   "16-50mm (24-76mm equiv.)"],
       ["Max aperture",   "f/2.8-4.8"],
@@ -147,6 +170,7 @@ const MY_LENSES = [
     subtitle: "Standard zoom with OIS · 27-84mm equiv.",
     icon: "🔭",
     image: "images/gear/xf18-55.png",
+    mount: "X",
     specs: [
       ["Focal length",   "18-55mm (27-84mm equiv.)"],
       ["Max aperture",   "f/2.8-4"],
@@ -157,6 +181,73 @@ const MY_LENSES = [
       ["Weight",         "310g"],
     ],
     notes: "The tried-and-true X-mount kit zoom. Slightly longer reach than the 16-50, and the OIS helps on the X-M5 which lacks IBIS."
+  },
+  {
+    name: "M.Zuiko Digital ED 14-42mm f/3.5-5.6 EZ",
+    subtitle: "Pancake kit zoom · 28-84mm equiv.",
+    icon: "🔭",
+    image: "images/gear/zuiko14-42.jpg",
+    mount: "M43",
+    specs: [
+      ["Focal length",   "14-42mm (28-84mm equiv.)"],
+      ["Max aperture",   "f/3.5-5.6"],
+      ["Type",           "Zoom — power pancake"],
+      ["Weather sealed", "No"],
+      ["Filter thread",  "37mm"],
+      ["Weight",         "93g"],
+    ],
+    notes: "Motorized power-zoom pancake — collapses flat against the PEN-F for a genuinely pocketable everyday kit."
+  },
+  {
+    name: "Lumix G 20mm f/1.7 ASPH",
+    subtitle: "Fast standard pancake · 40mm equiv.",
+    icon: "🔭",
+    image: "images/gear/lumix20f17.jpg",
+    image_credit: "Photo: Ermell / CC BY-SA 4.0, Wikimedia Commons",
+    mount: "M43",
+    specs: [
+      ["Focal length",   "20mm (40mm equiv.)"],
+      ["Max aperture",   "f/1.7"],
+      ["Type",           "Prime — pancake"],
+      ["Weather sealed", "No"],
+      ["Filter thread",  "46mm"],
+      ["Weight",         "100g"],
+    ],
+    notes: "The original (not the II) — a bit slower to autofocus than newer designs, but the rendering is still a favorite for low-light and everyday shooting."
+  },
+  {
+    name: "M.Zuiko Digital 17mm f/2.8",
+    subtitle: "Wide pancake prime · 34mm equiv.",
+    icon: "🔭",
+    image: "images/gear/zuiko17f28.jpg",
+    image_credit: "Photo: Melv_L / CC BY-SA 2.0, Wikimedia Commons",
+    mount: "M43",
+    specs: [
+      ["Focal length",   "17mm (34mm equiv.)"],
+      ["Max aperture",   "f/2.8"],
+      ["Type",           "Prime — pancake"],
+      ["Weather sealed", "No"],
+      ["Filter thread",  "37mm"],
+      ["Weight",         "71g"],
+    ],
+    notes: "Ultra-thin pancake prime, similar footprint to the XF 27mm on the Fuji side. Simple, fast to focus, easy to always have on the body."
+  },
+  {
+    name: "M.Zuiko Digital 17mm f/1.8",
+    subtitle: "Fast wide prime · 34mm equiv.",
+    icon: "🔭",
+    image: "images/gear/zuiko17f18-ii.jpg",
+    image_credit: "Photo: Sam Trenholme / CC BY 4.0, Wikimedia Commons",
+    mount: "M43",
+    specs: [
+      ["Focal length",   "17mm (34mm equiv.)"],
+      ["Max aperture",   "f/1.8"],
+      ["Type",           "Prime"],
+      ["Weather sealed", "No"],
+      ["Filter thread",  "46mm"],
+      ["Weight",         "120g"],
+    ],
+    notes: "A full stop faster than the f/2.8 pancake with a metal focus-clutch barrel for manual-focus feel. The go-to fast wide prime on the M43 side."
   },
 ];
 

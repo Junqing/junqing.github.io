@@ -305,6 +305,10 @@ main{display:flex;flex:1;min-height:0}
 .gear-body{padding:0 16px 14px}
 .gear-notes{font-size:12px;color:var(--text2);line-height:1.6;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-style:italic}
 .gear-img{width:100%;height:160px;object-fit:cover;object-position:center;display:block;background:var(--surf2)}
+.gear-img-credit{font-size:9.5px;color:var(--text2);opacity:.65;padding:3px 16px 0;text-align:right}
+.gear-mount-tabs{display:flex;gap:6px;margin-bottom:14px}
+.gear-mount-tab{padding:6px 14px;font-size:12px;font-weight:600;border-radius:var(--r);border:1px solid var(--border);background:var(--surf2);color:var(--text2);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .12s,border-color .12s}
+.gear-mount-tab.active{background:var(--accent2);border-color:var(--accent2);color:#000}
 
 /* ─── My Recipes ─── */
 .mr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;padding-bottom:40px}
@@ -566,12 +570,13 @@ main{display:flex;flex:1;min-height:0}
 <header>
   <h1>Fujifilm X-Trans <span>Recipe Explorer</span></h1>
   <div class="header-right">
-    <select id="gen-select" class="gen-select" onchange="switchGen(this.value)" title="X-Trans generation">
+    <select id="gen-select" class="gen-select" onchange="switchGen(this.value)" title="Recipe family">
       <option value="V" selected>X-Trans V</option>
       <option value="IV">X-Trans IV</option>
       <option value="III">X-Trans III</option>
       <option value="II">X-Trans II</option>
       <option value="I">X-Trans I</option>
+      <option value="OM">OM System</option>
     </select>
     <div style="position:relative">
       <div class="stats-pill" id="stats-pill">
@@ -1055,6 +1060,7 @@ $('clear-btn').addEventListener('click',()=>{
 // RECIPE FINGERPRINT SVG
 // ══════════════════════════════════════════
 function wbMiniGrid(r) {
+  if (activeGen === 'OM') return ''
   const rx = pn(r.wb_shift_red)  ?? 0
   const ry = -(pn(r.wb_shift_blue) ?? 0)
   let html = ''
@@ -1078,6 +1084,9 @@ function wbMiniGrid(r) {
   return svg + label
 }
 function fingerprint(r) {
+  if (activeGen === 'OM') {
+    return `<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="38" fill="none" stroke="#3e3e50" stroke-width="1"/><text x="60" y="57" text-anchor="middle" font-size="11" font-weight="700" fill="#7a7a90" font-family="Inter,sans-serif">OM</text><text x="60" y="70" text-anchor="middle" font-size="8" fill="#5a5a6e" font-family="Inter,sans-serif">${r.recipe_type||''}</text></svg>`
+  }
   const ccMap={'Off':0,'Weak':1,'Strong':2}
   const ccLbl=['Off','Weak','Strong']
   const axes=[
@@ -1124,6 +1133,7 @@ function fingerprint(r) {
 // ══════════════════════════════════════════
 function makeCard(r) {
   const div=document.createElement('div'); div.className='card'
+  if (activeGen === 'OM') return makeOmCard(r, div)
   const drBadge = r.dynamic_range && r.dynamic_range !== 'N/A'
     ? `<div class="mr-detail-row"><span class="badge b-dr">${r.dynamic_range}</span></div>` : ''
   const wbMode = r.white_balance
@@ -1193,6 +1203,102 @@ function makeCard(r) {
   cmpBtn.style.cssText = 'margin:4px 12px 8px;display:block'
   cmpBtn.addEventListener('click', e => { e.stopPropagation(); onCompareCardClick(r) })
   div.appendChild(cmpBtn)
+
+  return div
+}
+
+const OM_WHEEL_ABBR = { yellow:'Y', orange:'O', orangeRed:'OR', red:'R', magenta:'M', violet:'V', blue:'B', blueCyan:'BC', cyan:'C', greenCyan:'GC', green:'G', yellowGreen:'YG' }
+const OM_WHEEL_ORDER = ['yellow','orange','orangeRed','red','magenta','violet','blue','blueCyan','cyan','greenCyan','green','yellowGreen']
+const OM_WHEEL_HUE = { yellow:'#e8d44a', orange:'#e8934a', orangeRed:'#e8694a', red:'#e8524a', magenta:'#d84ad0', violet:'#9a4ae8', blue:'#4a72e8', blueCyan:'#4aa0e8', cyan:'#4ae0d8', greenCyan:'#4ae8a0', green:'#4ae85a', yellowGreen:'#a0e84a' }
+
+// OM-only: 12-point color wheel "bloom" — each spoke is a hue channel colored to match,
+// dot position/size encodes the -7..+7 push (middle ring = 0, outer edge = +7, center = -7).
+// Mirrors the real Olympus Color Creator dial layout. Independent of fingerprint() (Fuji-only).
+function omColorWheel(r) {
+  const cw = r.color_wheel
+  if (!cw || r.recipe_type === 'MONO') {
+    return `<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="38" fill="none" stroke="#3e3e50" stroke-width="1"/><circle cx="60" cy="60" r="18" fill="#34343c"/><text x="60" y="57" text-anchor="middle" font-size="10" font-weight="700" fill="#9a9aaa" font-family="Inter,sans-serif">MONO</text><text x="60" y="70" text-anchor="middle" font-size="7.5" fill="#6a6a78" font-family="Inter,sans-serif">${(r.monochrome_color||r.monochrome_profile||'').slice(0,14)}</text></svg>`
+  }
+  const N = OM_WHEEL_ORDER.length, cx = 60, cy = 60, R = 38
+  const pts = OM_WHEEL_ORDER.map((k, i) => {
+    const v = cw[k] ?? 0
+    const ang = (2 * Math.PI * i / N) - Math.PI / 2
+    const ratio = Math.max(0, Math.min(1, (v + 7) / 14))
+    const rad = ratio * R
+    return { x: cx + rad * Math.cos(ang), y: cy + rad * Math.sin(ang), ang, v, k }
+  })
+  const spokes = pts.map(p => `<line x1="${cx}" y1="${cy}" x2="${cx + R * Math.cos(p.ang)}" y2="${cy + R * Math.sin(p.ang)}" stroke="${OM_WHEEL_HUE[p.k]}" stroke-opacity=".22" stroke-width="1"/>`).join('')
+  const rings = [.25, .5, .75, 1].map(t => `<circle cx="${cx}" cy="${cy}" r="${(R * t).toFixed(1)}" fill="none" stroke="${t === .5 ? '#585868' : '#33333c'}" stroke-width="${t === .5 ? '1' : '.6'}"/>`).join('')
+  const poly = pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+  const dots = pts.map(p => {
+    const mag = Math.abs(p.v)
+    const rr = (1.4 + mag * 0.28).toFixed(2)
+    const op = (0.35 + Math.min(mag / 7, 1) * 0.65).toFixed(2)
+    return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${rr}" fill="${OM_WHEEL_HUE[p.k]}" fill-opacity="${op}"/>`
+  }).join('')
+  return `<svg width="120" height="120" viewBox="0 0 120 120">${rings}${spokes}<polygon points="${poly}" fill="#ffffff" fill-opacity=".06" stroke="#ffffff" stroke-opacity=".35" stroke-width="1"/>${dots}</svg>`
+}
+
+function makeOmCard(r, div) {
+  const wbMode = r.white_balance
+    ? `<div class="mr-detail-row"><span class="mr-detail-label">WB</span><span class="mr-detail-val">${r.white_balance}</span></div>` : ''
+  const imgHtml=`<div class="card-img-fp"><div class="card-fp-inner">${omColorWheel(r)}</div><div class="card-drwb">${wbMode}</div></div>`
+
+  function pill(lbl, val) {
+    if (val == null || val === '' || val === 'N/A') return ''
+    return `<span class="cpill"><span class="cpill-lbl">${lbl}</span><span class="cpill-val">${val}</span></span>`
+  }
+  function signedVal(v) { return v == null ? null : (v > 0 ? '+' + v : '' + v) }
+
+  const wheelPills = r.color_wheel
+    ? Object.entries(r.color_wheel).filter(([,v]) => v != null && v !== 0)
+        .map(([k,v]) => pill(OM_WHEEL_ABBR[k]||k, signedVal(v))).join('')
+    : ''
+
+  const pillsHtml = [
+    pill('Contrast', signedVal(r.contrast)),
+    pill('SHP', signedVal(r.sharpness)),
+    pill('HL', signedVal(r.highlights)),
+    pill('SH', signedVal(r.shadows)),
+    pill('MID', signedVal(r.midtones)),
+    r.exposure_compensation ? pill('EV', signedVal(r.exposure_compensation)) : '',
+    wheelPills,
+  ].join('')
+
+  const moodK=(r.mood_keywords||[]).map(k=>`<span class="kw">${k}</span>`).join('')
+  const scenK=(r.scenario_keywords||[]).map(k=>`<span class="kw">${k}</span>`).join('')
+
+  const settings=[
+    ['Type', r.recipe_type], ['Author', r.author],
+    ['White Balance', r.white_balance], ['WB Temp', r.wb_temperature?`${r.wb_temperature}K`:null],
+    ['WB Amber', signedVal(r.wb_amber_offset)], ['WB Green', signedVal(r.wb_green_offset)],
+    ['Contrast', signedVal(r.contrast)], ['Sharpness', signedVal(r.sharpness)],
+    ['Highlights', signedVal(r.highlights)], ['Shadows', signedVal(r.shadows)], ['Midtones', signedVal(r.midtones)],
+    ['Shading Effect', signedVal(r.shading_effect)], ['Exposure', signedVal(r.exposure_compensation)],
+    ['Monochrome Profile', r.monochrome_profile], ['Monochrome Color', r.monochrome_color],
+    ['Color Strength', r.monochrome_color_strength], ['Film Grain', r.film_grain],
+    ['Film Hue', r.film_hue], ['Vignetting', signedVal(r.monochrome_vignetting)],
+  ].filter(([,v])=>v!=null&&v!=='N/A'&&v!=='')
+   .map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('')
+
+  div.innerHTML=`${imgHtml}
+<div class="cbody">
+  <div class="ctitle-row">
+    <span class="ctitle">${r.name}</span>
+    ${r.source_url?`<a href="${r.source_url}" target="_blank" class="src-btn" title="See this recipe on om-recipes.com"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2H2a1 1 0 00-1 1v5a1 1 0 001 1h5a1 1 0 001-1V6"/><polyline points="6.5 1 9 1 9 3.5"/><line x1="5" y1="5" x2="9" y2="1"/></svg>om-recipes</a>`:''}
+  </div>
+  <div class="cnarr">${r.author?'by '+r.author:''}</div>
+  <div class="cbadges">
+    <span class="badge b-sim">${r.recipe_type||'?'}</span>
+    <span class="badge ${warmthClass(r)}">${recipeWarmth(r)}</span>
+    <span class="badge ${punchClass(r)}">${recipePunch(r)}</span>
+  </div>
+</div>
+<div class="cpills">${pillsHtml}</div>
+<div class="cexpand">
+  <table class="stbl"><tbody>${settings}</tbody></table>
+  ${moodK||scenK?`<div class="kwrow">${moodK}${scenK}</div>`:''}
+</div>`
 
   return div
 }
@@ -1403,6 +1509,7 @@ const DIRECTIONS=[
 
 function renderDirections(){
   const grid=$('dir-grid'); grid.innerHTML=''
+  if (activeGen === 'OM') { grid.innerHTML='<div class="empty">Directions analysis is not available for the OM recipe family yet.</div>'; return }
   DIRECTIONS.forEach(d=>{
     const members=activeRecipes().filter(d.match)
     const card=document.createElement('div'); card.className='dir-card'; card.style.borderLeftColor=d.color
@@ -1427,6 +1534,7 @@ const FIELD_COLOR_NEG={highlight:'#5b9af0',shadow:'#5b9af0',color:'#5b9af0',shar
 
 function renderCorrelations(filterQ) {
   const grid=$('corr-grid'); grid.innerHTML=''
+  if (activeGen === 'OM') { grid.innerHTML='<div class="empty">Correlation analysis is not available for the OM recipe family yet.</div>'; return }
   const entries=Object.entries(CORR.correlations)
   const fq=(filterQ||'').toLowerCase()
   const shown=entries.filter(([kw])=>!fq||kw.includes(fq))
@@ -2130,10 +2238,11 @@ function buildSgCard(item) {
 }
 
 function renderSettingsGuide() {
+  const container = $('sg-grid')
+  if (activeGen === 'OM') { container.innerHTML = '<div class="empty">Settings Guide is not available for the OM recipe family yet.</div>'; settingsBuilt = false; return }
   if (settingsBuilt) return
   settingsBuilt = true
 
-  const container = $('sg-grid')
   container.innerHTML = ''
 
   SETTINGS_DATA.forEach(section => {
@@ -2191,6 +2300,12 @@ function renderGear() {
       img.src = item.image
       img.alt = item.name
       card.appendChild(img)
+      if (item.image_credit) {
+        const credit = document.createElement('div')
+        credit.className = 'gear-img-credit'
+        credit.textContent = item.image_credit
+        card.appendChild(credit)
+      }
     }
     const head = document.createElement('div')
     head.className = 'gear-card-head'
@@ -2227,8 +2342,46 @@ function renderGear() {
     return card
   }
 
+  function makeLensSection(items) {
+    const sec = document.createElement('div')
+    const titleEl = document.createElement('div')
+    titleEl.className = 'sg-section-title'
+    titleEl.textContent = 'Lenses'
+    sec.appendChild(titleEl)
+
+    const mounts = [
+      { key: 'X',   label: 'X-mount' },
+      { key: 'M43', label: 'M43' },
+    ].filter(m => items.some(l => l.mount === m.key))
+
+    const tabBar = document.createElement('div')
+    tabBar.className = 'gear-mount-tabs'
+    const cards = document.createElement('div')
+    cards.className = 'gear-cards'
+
+    function showMount(key) {
+      tabBar.querySelectorAll('.gear-mount-tab').forEach(t => t.classList.toggle('active', t.dataset.mount === key))
+      cards.innerHTML = ''
+      items.filter(l => l.mount === key).forEach(item => cards.appendChild(makeGearCard(item, '🔭')))
+    }
+
+    mounts.forEach(m => {
+      const tab = document.createElement('button')
+      tab.className = 'gear-mount-tab'
+      tab.dataset.mount = m.key
+      tab.textContent = m.label
+      tab.addEventListener('click', () => showMount(m.key))
+      tabBar.appendChild(tab)
+    })
+
+    sec.appendChild(tabBar)
+    sec.appendChild(cards)
+    if (mounts.length) showMount(mounts[0].key)
+    return sec
+  }
+
   if (cameras.length) container.appendChild(makeSection('Cameras', cameras, '📷', makeGearCard))
-  if (lenses.length)  container.appendChild(makeSection('Lenses',  lenses,  '🔭', makeGearCard))
+  if (lenses.length)  container.appendChild(makeLensSection(lenses))
 }
 
 // ══════════════════════════════════════════
@@ -2857,6 +3010,12 @@ function onCompareCardClick(r) {
 }
 
 function initCompare() {
+  if (activeGen === 'OM') {
+    const shell = document.getElementById('cmp-shell')
+    if (shell) shell.innerHTML = '<div class="cmp-empty">Compare is not available for the OM recipe family yet.</div>'
+    compareBuilt = false
+    return
+  }
   if (compareBuilt) { syncCmpSelects(); renderCompare(); return }
   compareBuilt = true
 
@@ -2966,6 +3125,10 @@ function renderCompare() {
   const content = document.getElementById('cmp-content')
   if (!content) return
   content.innerHTML = ''
+  if (activeGen === 'OM') {
+    content.innerHTML = '<div class="cmp-empty">Compare is not available for the OM recipe family yet.</div>'
+    return
+  }
   if (!C.a || !C.b) {
     content.innerHTML = '<div class="cmp-empty">Select two recipes above to compare them.</div>'
     return
@@ -4062,6 +4225,12 @@ function syncCompactDiffs() {
 }
 
 function initExplore() {
+  if (activeGen === 'OM') {
+    const pane = $('pane-explore')
+    if (pane) pane.innerHTML = '<div class="sec-title">Explore</div><div class="empty">Explore is not available for the OM recipe family yet.</div>'
+    exploreBuilt = false
+    return
+  }
   if (exploreBuilt) return
 
   // Seed picker
