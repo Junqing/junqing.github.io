@@ -84,7 +84,7 @@ Top-level tabs live in `.tabs` (`data-tab` on each `.tab` div); most contain **i
 
 | Top-level tab | `data-tab` | Inner subtabs (`data-inner`) | Render function(s) |
 |---|---|---|---|
-| My | `my` | My Recipes (`inner-my-recipes`), My Gear (`inner-my-gear`), Scenario Cases (`inner-my-scenarios`) | `renderMyRecipes()` + `renderCustomSlots()`, `renderGear()`, `renderScenarios()` |
+| My | `my` | My Custom Setup (`inner-my-setup`), My Gear (`inner-my-gear`), Scenario Cases (`inner-my-scenarios`) | `renderMyCustomSetup()` (dispatches to `renderCustomSlots()` for X-T50, or renders PEN-F modes/profiles via `buildOmVisual()`, or an empty state for X-M5), `renderGear()`, `renderScenarios()` |
 | Recipes | `grid` | Recipes (`inner-recipes-list`), Keywords (`inner-recipes-keywords`) | `renderGrid()`, `renderClouds()` |
 | Insights | `insights` | Settings Guide (`inner-insights-settings`), Directions (`inner-insights-directions`), Correlation (`inner-insights-correlations`) | `renderSettingsGuide()`, `renderDirections()`, `renderCorrelations()` |
 | Explore | `explore` | — (`pane-no-subtabs`) | `initExplore()`; see `docs/explore.md` |
@@ -102,7 +102,7 @@ Charts tab and `renderCharts()` / `renderSaveSlots()` still exist in the codebas
 - `makeOmCard(r, div)` — OM-specific card renderer: pill row from `contrast/sharpness/highlights/shadows/midtones/exposure_compensation` plus any non-zero `color_wheel` channels, settings table from the full OM field set (including monochrome fields when present), badges `[recipe_type] [warmth] [punch]`. No Compare button (Compare is Fuji-only for now).
 - `openRecipeModal(name)` — looks up recipe by exact `name` in `activeRecipes()`, calls `makeCard(r)`, shows it in the `#recipe-modal` overlay. Called from custom slot sim items and single-slot "View recipe details" buttons.
 - `goRecipe(name)` — switches to Recipes tab and filters by exact recipe name.
-- `fingerprint(r)` — generates inline SVG radar visual for a recipe's numeric settings. Early-returns a simplified neutral SVG (just "OM" + `recipe_type` text) when `activeGen === 'OM'`, since the 5-axis Fuji radar axes (`highlight/shadow/color/color_chrome_effect/color_chrome_fx_blue`) don't exist on OM recipes.
+- `fingerprint(r)` — generates inline SVG radar visual for a recipe's numeric settings (5-axis Fuji radar: `highlight/shadow/color/color_chrome_effect/color_chrome_fx_blue`). Fuji-only — never called when `activeGen === 'OM'`, since `makeCard()` delegates to `makeOmCard()` before reaching it.
 - `wbMiniGrid(r)` — Fuji WB-shift diamond grid (reads `wb_shift_red/blue`); returns `''` when `activeGen === 'OM'`.
 - `renderCustomSlots()` — renders `MY_CUSTOM_SLOTS` with a C1–C7 sub-tab bar; one pane visible at a time.
 - `renderGear()` — reads `MY_CAMERAS` / `MY_LENSES`; prepends `<img class="gear-img">` when `item.image` is set.
@@ -146,6 +146,15 @@ Each slot in `MY_CUSTOM_SLOTS` is either `type: "multi"` or `type: "single"`:
 ```
 
 `recipe_name` must **exactly** match a `name` field in the active generation's recipe array. Browse the Recipes tab to find exact names.
+
+## MY_CUSTOM_SETUPS structure
+
+`MY_CUSTOM_SETUPS` (`gear.js`) is an object keyed by exact `MY_CAMERAS[].name` strings (e.g. `"Fujifilm X-T50"`, `"Olympus PEN-F"`, `"Fujifilm X-M5"`). Each entry has a `type`:
+- `"fuji-slots"` — delegates to the unchanged `renderCustomSlots()` (X-T50, uses `MY_CUSTOM_SLOTS`)
+- `"om-dial"` — PEN-F: `modes`/`colorProfiles`/`monoProfiles` rendered by `renderMyCustomSetup()`/`renderSetupCameraPane()` (`index.html`); each color/mono profile card is built via `buildOmVisual()`
+- `"empty"` — placeholder (X-M5, no custom setup yet)
+
+`buildOmVisual(obj)` (`index.html`) is the shared OM display standard — 12-point color wheel + WB box + tone rows — used both by real `RECIPES_OM` cards (`makeOmCard()`) and by hand-authored PEN-F profile objects in `MY_CUSTOM_SETUPS`.
 
 ## Gear images
 
@@ -198,7 +207,7 @@ The **Visual / Cheatsheet** toggle (`#tabs-end-toggle`) lives in the right end o
 - All DOM queries use `const $ = id => document.getElementById(id)`.
 - Filter logic lives entirely in `matches(r)`.
 - `filtered()` is `() => activeRecipes().filter(matches)` — called fresh on every render.
-- Build-once flags (`gearBuilt`, `myRecipesBuilt`) prevent re-rendering personal tabs on every switch.
+- Build-once flags (`gearBuilt`, `mySetupBuilt`) prevent re-rendering personal tabs on every switch.
 - **User data lives in `gear.js`**, not in `index.html`.
 - Adding a new tab: HTML pane div + tab entry in `.tabs` + `renderXxx()` function + case in `switchTab()`. If the tab has no inner-subtabs, add class `pane-no-subtabs` for correct top padding. If the tab has inner-subtabs, wire them through `switchInnerTab()` instead (see current tabs for the pattern).
 - Adding a new filter facet: chip container in sidebar + key in `S` + `buildChips()` call in `initChips()` + condition in `matches()`.
