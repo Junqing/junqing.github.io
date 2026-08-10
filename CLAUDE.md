@@ -102,7 +102,7 @@ Charts tab and `renderCharts()` / `renderSaveSlots()` still exist in the codebas
 - `makeOmCard(r, div)` — OM-specific card renderer: pill row from `contrast/sharpness/highlights/shadows/midtones/exposure_compensation` plus any non-zero `color_wheel` channels, settings table from the full OM field set (including monochrome fields when present), badges `[recipe_type] [warmth] [punch]`. No Compare button (Compare is Fuji-only for now).
 - `openRecipeModal(name)` — looks up recipe by exact `name` in `activeRecipes()`, calls `makeCard(r)`, shows it in the `#recipe-modal` overlay. Called from custom slot sim items and single-slot "View recipe details" buttons.
 - `goRecipe(name)` — switches to Recipes tab and filters by exact recipe name.
-- `fingerprint(r)` — generates inline SVG radar visual for a recipe's numeric settings. Early-returns a simplified neutral SVG (just "OM" + `recipe_type` text) when `activeGen === 'OM'`, since the 5-axis Fuji radar axes (`highlight/shadow/color/color_chrome_effect/color_chrome_fx_blue`) don't exist on OM recipes.
+- `fingerprint(r)` — generates inline SVG radar visual for a recipe's numeric settings (5-axis Fuji radar: `highlight/shadow/color/color_chrome_effect/color_chrome_fx_blue`). Fuji-only — never called when `activeGen === 'OM'`, since `makeCard()` delegates to `makeOmCard()` before reaching it.
 - `wbMiniGrid(r)` — Fuji WB-shift diamond grid (reads `wb_shift_red/blue`); returns `''` when `activeGen === 'OM'`.
 - `renderCustomSlots()` — renders `MY_CUSTOM_SLOTS` with a C1–C7 sub-tab bar; one pane visible at a time.
 - `renderGear()` — reads `MY_CAMERAS` / `MY_LENSES`; prepends `<img class="gear-img">` when `item.image` is set.

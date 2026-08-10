@@ -1229,7 +1229,6 @@ function makeCard(r) {
 
 const OM_WHEEL_ABBR = { yellow:'Y', orange:'O', orangeRed:'OR', red:'R', magenta:'M', violet:'V', blue:'B', blueCyan:'BC', cyan:'C', greenCyan:'GC', green:'G', yellowGreen:'YG' }
 const OM_WHEEL_ORDER = ['yellow','orange','orangeRed','red','magenta','violet','blue','blueCyan','cyan','greenCyan','green','yellowGreen']
-const OM_WHEEL_HUE = { yellow:'#e8d44a', orange:'#e8934a', orangeRed:'#e8694a', red:'#e8524a', magenta:'#d84ad0', violet:'#9a4ae8', blue:'#4a72e8', blueCyan:'#4aa0e8', cyan:'#4ae0d8', greenCyan:'#4ae8a0', green:'#4ae85a', yellowGreen:'#a0e84a' }
 
 // OM-only: 12-point color wheel "bloom" — each spoke is a hue channel colored to match,
 // dot position/size encodes the -7..+7 push (middle ring = 0, outer edge = +7, center = -7).
@@ -2819,6 +2818,7 @@ function renderSetupCameraPane(camName) {
         <div class="pfm-head"><span class="pfm-slot">${p.id}</span><span class="pfm-name">${p.name}</span></div>
         <div class="pfm-role">${p.role}</div>
         ${buildOmVisual(p)}
+        <ul class="pfm-list">${p.best_for.map(b=>`<li>${b}</li>`).join('')}</ul>
         <ul class="pfm-list">${p.character.map(c=>`<li>${c}</li>`).join('')}</ul>
         <ul class="pfm-list">${p.good_combos.map(c=>`<li>${c}</li>`).join('')}</ul>
         <div class="pfm-shortcut">${p.shortcut}</div>`
@@ -2832,6 +2832,7 @@ function renderSetupCameraPane(camName) {
         <div class="pfm-head"><span class="pfm-slot">${p.id}</span><span class="pfm-name">${p.name}</span></div>
         <div class="pfm-role">${p.role}</div>
         ${buildOmVisual(p)}
+        <ul class="pfm-list">${p.best_for.map(b=>`<li>${b}</li>`).join('')}</ul>
         <ul class="pfm-list">${p.character.map(c=>`<li>${c}</li>`).join('')}</ul>
         <ul class="pfm-list">${p.good_combos.map(c=>`<li>${c}</li>`).join('')}</ul>
         <div class="pfm-shortcut">${p.shortcut}</div>`
