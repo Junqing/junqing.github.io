@@ -207,7 +207,7 @@ The **Visual / Cheatsheet** toggle (`#tabs-end-toggle`) lives in the right end o
 - All DOM queries use `const $ = id => document.getElementById(id)`.
 - Filter logic lives entirely in `matches(r)`.
 - `filtered()` is `() => activeRecipes().filter(matches)` — called fresh on every render.
-- Build-once flags (`gearBuilt`, `myRecipesBuilt`) prevent re-rendering personal tabs on every switch.
+- Build-once flags (`gearBuilt`, `mySetupBuilt`) prevent re-rendering personal tabs on every switch.
 - **User data lives in `gear.js`**, not in `index.html`.
 - Adding a new tab: HTML pane div + tab entry in `.tabs` + `renderXxx()` function + case in `switchTab()`. If the tab has no inner-subtabs, add class `pane-no-subtabs` for correct top padding. If the tab has inner-subtabs, wire them through `switchInnerTab()` instead (see current tabs for the pattern).
 - Adding a new filter facet: chip container in sidebar + key in `S` + `buildChips()` call in `initChips()` + condition in `matches()`.
