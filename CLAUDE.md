@@ -84,7 +84,7 @@ Top-level tabs live in `.tabs` (`data-tab` on each `.tab` div); most contain **i
 
 | Top-level tab | `data-tab` | Inner subtabs (`data-inner`) | Render function(s) |
 |---|---|---|---|
-| My | `my` | My Recipes (`inner-my-recipes`), My Gear (`inner-my-gear`), Scenario Cases (`inner-my-scenarios`) | `renderMyRecipes()` + `renderCustomSlots()`, `renderGear()`, `renderScenarios()` |
+| My | `my` | My Custom Setup (`inner-my-setup`), My Gear (`inner-my-gear`), Scenario Cases (`inner-my-scenarios`) | `renderMyCustomSetup()` (dispatches to `renderCustomSlots()` for X-T50, or renders PEN-F modes/profiles via `buildOmVisual()`, or an empty state for X-M5), `renderGear()`, `renderScenarios()` |
 | Recipes | `grid` | Recipes (`inner-recipes-list`), Keywords (`inner-recipes-keywords`) | `renderGrid()`, `renderClouds()` |
 | Insights | `insights` | Settings Guide (`inner-insights-settings`), Directions (`inner-insights-directions`), Correlation (`inner-insights-correlations`) | `renderSettingsGuide()`, `renderDirections()`, `renderCorrelations()` |
 | Explore | `explore` | — (`pane-no-subtabs`) | `initExplore()`; see `docs/explore.md` |
@@ -146,6 +146,15 @@ Each slot in `MY_CUSTOM_SLOTS` is either `type: "multi"` or `type: "single"`:
 ```
 
 `recipe_name` must **exactly** match a `name` field in the active generation's recipe array. Browse the Recipes tab to find exact names.
+
+## MY_CUSTOM_SETUPS structure
+
+`MY_CUSTOM_SETUPS` (`gear.js`) is an object keyed by exact `MY_CAMERAS[].name` strings (e.g. `"Fujifilm X-T50"`, `"Olympus PEN-F"`, `"Fujifilm X-M5"`). Each entry has a `type`:
+- `"fuji-slots"` — delegates to the unchanged `renderCustomSlots()` (X-T50, uses `MY_CUSTOM_SLOTS`)
+- `"om-dial"` — PEN-F: `modes`/`colorProfiles`/`monoProfiles` rendered by `renderMyCustomSetup()`/`renderSetupCameraPane()` (`index.html`); each color/mono profile card is built via `buildOmVisual()`
+- `"empty"` — placeholder (X-M5, no custom setup yet)
+
+`buildOmVisual(obj)` (`index.html`) is the shared OM display standard — 12-point color wheel + WB box + tone rows — used both by real `RECIPES_OM` cards (`makeOmCard()`) and by hand-authored PEN-F profile objects in `MY_CUSTOM_SETUPS`.
 
 ## Gear images
 
