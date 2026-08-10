@@ -81,7 +81,9 @@ warmthOm(r):
   else             'neutral'
 ```
 
-Thresholds are the 68th/32nd percentile of the actual OM pool. Result: **warm 20 / neutral 27 / cool 19**, 61% agreement with declared moods, 2 inversions (predicted warm where declared cool, or vice versa).
+Thresholds are the 68th/32nd percentile of the actual OM pool. Result: **warm 21 / neutral 25 / cool 20**, 61% agreement with declared moods, 2 inversions (predicted warm where declared cool, or vice versa).
+
+The thresholds were derived on the COLOR-only pool but are applied to all 66 recipes, and 13 recipes sit within 0.02 of a cut — several (`Default - 1`, `Default - 3`, `Velvia 50`) score exactly 0.0000. Small changes to the weights will therefore move a handful of recipes across a boundary; the ranking is stable, the exact bucket counts are not.
 
 WB preset → kelvin mapping, OM-specific (do not reuse Fuji's `wbKelvin()`):
 
@@ -299,7 +301,12 @@ No changes to `recipes-om.js`, `gear.js`, or any Fuji recipe file.
 
 No test framework exists in this repo. Manual browser testing via `python3 -m http.server 8000`:
 
-- [ ] Switch to OM: badges show a real spread (20 warm / 27 neutral / 19 cool; 23 punchy / 25 balanced / 18 flat), not all-neutral
+- [x] Switch to OM: badges show a real spread (21 warm / 25 neutral / 20 cool; 23 punchy / 25 balanced / 18 flat), not all-neutral
+- [x] Fuji badge distribution byte-identical to `main` (verified: warm 43 / neutral 63 / cool 7; balanced 66 / flat 35 / punchy 12 on X-Trans V)
+- [x] All 7 OM_DIRECTIONS families non-empty (20 / 15 / 7 / 8 / 6 / 21 / 3)
+- [x] 33 correlation keywords survive the n≥3 filter
+- [x] Seeding Explore from a recipe ranks that recipe as its own top match; mono excluded once a wheel channel is active
+- [x] `om-analysis.js` executes standalone (no parse-time dependency on index.html globals)
 - [ ] Switch back to a Fuji generation: badge distribution is byte-identical to `main` (regression check on the dispatch)
 - [ ] Insights → all three subtabs render OM content; Correlation cards show `n` and exclude keywords with n<3
 - [ ] Explore → all 12 wheel handles drag and snap to integers; WB dot drags; steppers work; results update live; ghost polygon tracks the top match

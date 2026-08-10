@@ -69,7 +69,7 @@ Note the deliberate field-name divergence even where a concept overlaps: OM uses
 - Helper maps: `WARMTH_CLASS`, `PUNCH_CLASS`, `warmthClass(r)`, `punchClass(r)`
 - B&W sims always return `'neutral'` warmth (WB irrelevant on monochrome)
 
-**State** — a single `S` object holds active filter state (search query + chip selections). Filter sets: `S.f.sim`, `S.f.warmth`, `S.f.punch`, `S.f.mood`, `S.f.scene`, `S.f.era` — note `S.f.dir` no longer exists (replaced by warmth + punch).
+**State** — a single `S` object holds active filter state (search query + chip selections). Filter sets: `S.f.sim`, `S.f.warmth`, `S.f.punch`, `S.f.mood`, `S.f.scene`, `S.f.era`, plus the OM-only `S.f.type` and `S.f.hue` — note `S.f.dir` no longer exists (replaced by warmth + punch).
 
 `activeGen` (string, default `"V"`) tracks the currently selected recipe family/generation — one of `V`, `IV`, `III`, `II`, `I`, `OM`. `activeRecipes()` returns `RECIPE_POOLS[activeGen] || []`. A `<select id="gen-select">` dropdown in the header (labeled "Recipe family") lets the user switch; switching calls `switchGen(gen)` which lazy-loads the file if needed, resets `S` state, clears `exploreBuilt`, and re-renders.
 
@@ -92,14 +92,50 @@ Top-level tabs live in `.tabs` (`data-tab` on each `.tab` div); most contain **i
 
 Tab switching goes through `switchTab(id, innerPaneId)` (`index.html`), which toggles `.on` classes on `.tab`/`.pane` and dispatches to the relevant render/init call; `switchInnerTab(innerPaneId)` does the same for inner panes within the active tab.
 
-**OM recipe family scope**: when `activeGen === 'OM'`, only the Recipes grid (with OM-appropriate cards/badges) and My Gear are fully functional. Settings Guide, Directions, Correlation, Explore, and Compare all detect `activeGen === 'OM'` early in their render/init functions and show a `.empty` "not available for the OM recipe family yet" state instead of attempting to render Fuji-shaped analysis against OM data. Each of these guards resets its own build-once flag (`settingsBuilt`, `exploreBuilt`, `compareBuilt`) so switching back to a Fuji generation rebuilds normally rather than staying stuck on the empty state.
+**OM recipe family scope**: every tab now has an OM implementation. Settings Guide, Directions, Correlation, Explore, and Compare each detect `activeGen === 'OM'` early in their render/init function and delegate to the matching `renderOmX()` / `initOmX()` in **`om-analysis.js`**, falling back to the old `.empty` "not available" state only if that file failed to load (each dispatch is wrapped in `typeof fn === 'function'`). Each guard resets its own build-once flag (`settingsBuilt`, `exploreBuilt`, `compareBuilt`) so switching families rebuilds rather than staying stuck.
+
+## om-analysis.js
+
+All OM-specific analysis lives in `om-analysis.js`, loaded **before** `gear.js` and before the inline script. `index.html` keeps only thin dispatch lines. The two recipe families stay architecturally separate — no Fuji code path reaches this file.
+
+```html
+<script src="om-analysis.js"></script>
+<script src="gear.js"></script>
+```
+
+**Load-order rule:** `om-analysis.js` parses before `index.html`'s inline script, so nothing in it may touch an index.html global at parse time — only inside function bodies. `OM_WHEEL_ORDER` / `OM_WHEEL_ABBR` are therefore *defined here and consumed by index.html* (which keeps `typeof`-guarded fallback copies), not the reverse.
+
+Exports: `recipeWarmthOm`, `recipePunchOm`, `omHueEmphasis`, `omKelvin`, `OM_DIRECTIONS` / `renderOmDirections()`, `OM_SETTINGS_DATA` / `renderOmSettingsGuide()`, `computeOmCorrelations()` / `renderOmCorrelations(q)`, `TOM` / `initOmExplore()`, `OMC` / `initOmCompare()` / `renderOmCompare()`, and the `resetOmInsightsBuilt` / `resetOmExploreBuilt` / `resetOmCompareBuilt` flag-resetters called from `switchGen()`.
+
+### OM badge formulas
+
+`recipeWarmth(r)` / `recipePunch(r)` in `index.html` dispatch to the OM versions **after** the `RECIPE_META_PATCHES` override check, so overrides keep working for both families. The badge vocabulary is shared by design; only the computation diverges.
+
+- **Warmth** — colour-wheel tilt (warm channels − cool channels), WB amber offset, and WB kelvin *only when known*. `wb_temperature` is null on 47 of 66 recipes; the kelvin term is dropped from the weighted average rather than defaulted to 5200K (defaulting collapsed 59 of 66 into "neutral"). MONO always returns `neutral`. Result: 21 warm / 25 neutral / 20 cool.
+- **Punch** — mean absolute wheel push, contrast, and **signed** tonal separation `(highlights − shadows)/2`. The sign matters: on OM, highlights-up/shadows-down is an S-curve that *raises* contrast, the opposite of Fuji's absolute-spread reading. Result: 23 punchy / 25 balanced / 18 flat.
+
+Thresholds are pool percentiles and 13 recipes sit within 0.02 of a cut, so weight changes shift a few recipes across boundaries — the ranking is stable, exact counts are not.
+
+**`shading_effect` is 0 on all 66 OM recipes** — excluded from both formulas and from Explore's similarity metric, still shown in settings tables.
+
+### OM sidebar facets
+
+`initChips()` branches on `activeGen === 'OM'`: it hides Film Simulation and Era (no OM equivalent, would render blank) and shows **Recipe Type** (COLOR/MONO) and **Hue Emphasis** instead. `S.f` gains `type` and `hue` sets; `matches()` gains two OM-guarded conditions.
+
+**Hue Emphasis is deliberately not called "Color Cast."** In OM's Color Creator a positive channel boosts *that hue's saturation* rather than tinting the image, so a recipe can read `warm` on Warmth and `cool` here without contradiction (`"OMTC Warm"`: amber +4, but blue +4 / cyan +5). The sidebar info popover spells this out.
+
+### OM Explore & Compare
+
+Explore (`initOmExplore`) makes the 12-point wheel the primary draggable control — 12 handles, each −7..+7, sharing `buildOmWheelSvg()`'s geometry (viewBox `0 0 260 260`, centre 130,130, `radius = 49.23 + 6.15*v`; `omRadiusToVal()` is the inverse used by the drag handler). State is `TOM`, kept strictly separate from Fuji's `T`. Both the Fuji and OM builds write into `#pane-explore`, so `initExplore()` snapshots the Fuji markup into `fujiExploreHTML` on first use and restores it when switching back.
+
+Compare (`initOmCompare`) has the same three views against OM data. `C.a`/`C.b`/`compareSlots` are **shared** with the Fuji implementation, so `switchGen()` clears them — a Fuji recipe must never end up compared against an OM one.
 
 Charts tab and `renderCharts()` / `renderSaveSlots()` still exist in the codebase but are not in the tab bar. Do not remove the code — just leave it unused.
 
 ## Key functions
 
 - `makeCard(r)` — creates a full expandable recipe card. Delegates to `makeOmCard(r, div)` immediately when `activeGen === 'OM'`; otherwise renders the Fuji-shaped card with fingerprint SVG, settings table, keyword chips, source link, and a badge row `[Film Sim] [DR] [warmth] [punch]` using `warmthClass`/`punchClass`. Card shows expanded when it has class `.open`.
-- `makeOmCard(r, div)` — OM-specific card renderer: pill row from `contrast/sharpness/highlights/shadows/midtones/exposure_compensation` plus any non-zero `color_wheel` channels, settings table from the full OM field set (including monochrome fields when present), badges `[recipe_type] [warmth] [punch]`. No Compare button (Compare is Fuji-only for now).
+- `makeOmCard(r, div)` — OM-specific card renderer: pill row from `contrast/sharpness/highlights/shadows/midtones/exposure_compensation` plus any non-zero `color_wheel` channels, settings table from the full OM field set (including monochrome fields when present), badges `[recipe_type] [warmth] [punch]`, and a Compare button wired to the shared `onCompareCardClick()`.
 - `openRecipeModal(name)` — looks up recipe by exact `name` in `activeRecipes()`, calls `makeCard(r)`, shows it in the `#recipe-modal` overlay. Called from custom slot sim items and single-slot "View recipe details" buttons.
 - `goRecipe(name)` — switches to Recipes tab and filters by exact recipe name.
 - `fingerprint(r)` — generates inline SVG radar visual for a recipe's numeric settings (5-axis Fuji radar: `highlight/shadow/color/color_chrome_effect/color_chrome_fx_blue`). Fuji-only — never called when `activeGen === 'OM'`, since `makeCard()` delegates to `makeOmCard()` before reaching it.
@@ -227,7 +263,7 @@ Skills live in `.claude/skills/` (invocable by Claude Code) and are mirrored as 
 - `.claude/` — Claude Code local settings (may contain personal permissions)
 - `PLAN-*.md` — local planning documents
 
-Note: `recipes-v.js`, `recipes-iv.js`, `recipes-iii.js`, `recipes-ii.js`, `recipes-i.js`, and `recipes-om.js` are **committed** to the repo — they are not gitignored. Do not add them to `.gitignore`.
+Note: `recipes-v.js`, `recipes-iv.js`, `recipes-iii.js`, `recipes-ii.js`, `recipes-i.js`, `recipes-om.js`, and `om-analysis.js` are **committed** to the repo — they are not gitignored. Do not add them to `.gitignore`.
 
 ## Git / PR workflow
 
