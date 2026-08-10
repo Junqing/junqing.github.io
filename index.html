@@ -461,6 +461,17 @@ main{display:flex;flex:1;min-height:0}
 .omv-tone-row strong{flex-shrink:0;width:28px;text-align:right;color:var(--text)}
 .omv-tone-row input[type=range]{flex:1;pointer-events:none;accent-color:var(--accent2)}
 
+.pfm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-bottom:20px}
+.pfm-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px}
+.pfm-head{display:flex;align-items:baseline;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.pfm-slot{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:rgba(212,168,67,.18);color:var(--accent2)}
+.pfm-name{font-size:13px;font-weight:700;color:var(--text)}
+.pfm-role{font-size:11px;color:var(--text2);margin-bottom:8px;font-style:italic}
+.pfm-shortcut{font-size:11px;font-weight:700;color:var(--accent2);margin-top:8px}
+.pfm-list{margin:0 0 8px;padding-left:14px;list-style:disc}
+.pfm-list li{font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:2px}
+.pfm-consistency{background:rgba(212,168,67,.09);border:1px solid rgba(212,168,67,.28);border-left:3px solid var(--accent2);border-radius:var(--r);padding:9px 12px;font-size:12px;color:var(--text);line-height:1.6;margin-bottom:16px}
+
 /* ─── Explore Tab ─── */
 .exp-layout{display:flex;flex-direction:column;gap:16px}
 .exp-header{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
@@ -2734,140 +2745,100 @@ function renderCustomSlots() {
 // ══════════════════════════════════════════
 // MY RECIPES
 // ══════════════════════════════════════════
-let myRecipesBuilt = false
-function renderMyRecipes() {
-  if (myRecipesBuilt) return
-  myRecipesBuilt = true
-  renderCustomSlots()
-  const container = $('myrecipes-body')
-  container.innerHTML = ''
+let mySetupBuilt = false
+let activeSetupCamera = 'Fujifilm X-T50'
 
-  const myList = (typeof MY_RECIPES !== 'undefined') ? MY_RECIPES : []
-  if (!myList.length) return
+function renderMyCustomSetup() {
+  const wrap = $('custom-setup-body')
+  if (!wrap) return
+  const cams = (typeof MY_CUSTOM_SETUPS !== 'undefined') ? MY_CUSTOM_SETUPS : {}
+  const camNames = Object.keys(cams)
+  if (!camNames.includes(activeSetupCamera)) activeSetupCamera = camNames[0]
 
-  // Build lookup from dataset
-  const byName = Object.fromEntries(activeRecipes().map(r => [r.name, r]))
+  if (!mySetupBuilt) {
+    mySetupBuilt = true
+    wrap.innerHTML = `<div class="cs-subtabs" id="setup-cam-tabs"></div><div id="setup-cam-pane"></div>`
+    const tabBar = $('setup-cam-tabs')
+    camNames.forEach(name => {
+      const tab = document.createElement('button')
+      tab.className = 'cs-subtab' + (name === activeSetupCamera ? ' active' : '')
+      tab.innerHTML = `<span class="cs-subtab-name">${name}</span>`
+      tab.addEventListener('click', () => {
+        activeSetupCamera = name
+        tabBar.querySelectorAll('.cs-subtab').forEach(t => t.classList.remove('active'))
+        tab.classList.add('active')
+        renderSetupCameraPane(name)
+      })
+      tabBar.appendChild(tab)
+    })
+  }
+  renderSetupCameraPane(activeSetupCamera)
+}
 
-  myList.forEach(entry => {
-    const r = byName[entry.recipe_name]
-    const card = document.createElement('div')
-    card.className = 'mr-card'
-
-    if (!r) {
-      // Recipe name not found in dataset
+function renderSetupCameraPane(camName) {
+  const pane = $('setup-cam-pane')
+  if (!pane) return
+  const setup = MY_CUSTOM_SETUPS[camName]
+  pane.innerHTML = ''
+  if (!setup || setup.type === 'empty') {
+    pane.innerHTML = '<div class="empty"><div class="big">📷</div><p>No custom setup yet for this camera. Edit <strong>gear.js</strong> on GitHub to add one.</p></div>'
+    return
+  }
+  if (setup.type === 'fuji-slots') {
+    pane.innerHTML = '<div id="custom-slots-body"></div>'
+    renderCustomSlots()
+    return
+  }
+  if (setup.type === 'om-dial') {
+    pane.innerHTML = `
+      <div class="pfm-consistency"><strong>Global Consistency:</strong> Use Auto WB as the default. Keep Warm Color: Off. Avoid storing radically different WB shifts inside individual C modes unless intentional. Shoot RAW+JPEG while refining profiles. The goal is that COLOR 1 always looks like COLOR 1 regardless of whether you are currently using C1, C2, C3 or C4.</div>
+      <div class="sec-title">Shooting Modes</div>
+      <div class="pfm-grid" id="setup-modes-grid"></div>
+      <div class="sec-title">Color Profiles</div>
+      <div class="pfm-grid" id="setup-color-grid"></div>
+      <div class="sec-title">Mono Profiles</div>
+      <div class="pfm-grid" id="setup-mono-grid"></div>`
+    const modesGrid = $('setup-modes-grid')
+    setup.modes.forEach(m => {
+      const settingsRows = m.settings.map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')
+      const card = document.createElement('div')
+      card.className = 'pfm-card'
       card.innerHTML = `
-        <div class="mr-not-found">
-          <strong style="color:var(--text2)">${entry.recipe_name || '(unnamed)'}</strong><br>
-          Recipe not found in dataset — check spelling in <code>gear.js</code>.
-        </div>`
-      container.appendChild(card)
-      return
-    }
-
-    // Fingerprint hero
-    const heroFp = document.createElement('div')
-    heroFp.className = 'mr-hero-fp'
-    heroFp.innerHTML = fingerprint(r)
-    card.appendChild(heroFp)
-
-    // Body
-    const body = document.createElement('div')
-    body.className = 'mr-body'
-
-    // Title + slot + camera
-    const titleRow = document.createElement('div')
-    titleRow.style.marginBottom = '6px'
-    titleRow.innerHTML = `<span class="mr-title">${r.name}</span>`
-    if (entry.slot) titleRow.innerHTML += ` <span class="mr-slot">${entry.slot}</span>`
-    if (entry.camera) titleRow.innerHTML += `<span class="mr-cam">${entry.camera}</span>`
-    body.appendChild(titleRow)
-
-    // Film sim badge
-    const badges = document.createElement('div')
-    badges.className = 'cbadges'
-    badges.innerHTML = `<span class="badge b-sim">${r.film_simulation||''}</span><span class="badge ${warmthClass(r)}">${recipeWarmth(r)}</span><span class="badge ${punchClass(r)}">${recipePunch(r)}</span>`
-    body.appendChild(badges)
-
-    // Usage guideline (personal)
-    if (entry.usage) {
-      const usage = document.createElement('div')
-      usage.className = 'mr-usage'
-      usage.textContent = entry.usage
-      body.appendChild(usage)
-    }
-
-    // Personal notes
-    if (entry.personal_notes) {
-      const notes = document.createElement('div')
-      notes.className = 'mr-notes'
-      notes.textContent = entry.personal_notes
-      body.appendChild(notes)
-    }
-
-    // Radar + DR/WB details row
-    const vizRow = document.createElement('div')
-    vizRow.className = 'mr-viz-row'
-
-    const fp = document.createElement('div')
-    fp.className = 'mr-fp'
-    fp.innerHTML = fingerprint(r)
-    vizRow.appendChild(fp)
-
-    const detailCol = document.createElement('div')
-    detailCol.className = 'mr-detail-col'
-
-    // WB mode
-    if (r.white_balance) {
-      const wbModeRow = document.createElement('div')
-      wbModeRow.className = 'mr-detail-row'
-      wbModeRow.innerHTML = `<span class="mr-detail-label">WB</span><span class="mr-detail-val">${r.white_balance}</span>`
-      detailCol.appendChild(wbModeRow)
-    }
-    // WB shift grid
-    const wbWrap = document.createElement('div')
-    wbWrap.innerHTML = wbMiniGrid(r)
-    detailCol.appendChild(wbWrap)
-    // DR badge — below grid so grid aligns with radar height
-    if (r.dynamic_range && r.dynamic_range !== 'N/A') {
-      const drRow = document.createElement('div')
-      drRow.className = 'mr-detail-row'
-      drRow.innerHTML = `<span class="badge b-dr">${r.dynamic_range}</span>`
-      detailCol.appendChild(drRow)
-    }
-
-    vizRow.appendChild(detailCol)
-    body.appendChild(vizRow)
-
-    // Narrative (clipped)
-    if (r.narrative) {
-      const narr = document.createElement('div')
-      narr.className = 'mr-narr'
-      narr.textContent = r.narrative
-      body.appendChild(narr)
-    }
-
-    // Keyword chips
-    const kws = [...(r.mood_keywords||[]), ...(r.scenario_keywords||[])]
-    if (kws.length) {
-      const kwWrap = document.createElement('div')
-      kwWrap.className = 'kwrow'
-      kws.forEach(k => { const s = document.createElement('span'); s.className='kw'; s.textContent=k; kwWrap.appendChild(s) })
-      body.appendChild(kwWrap)
-    }
-
-    // Source link
-    if (r.source_url) {
-      const link = document.createElement('a')
-      link.className = 'drawer-link'
-      link.href = r.source_url
-      link.target = '_blank'
-      link.textContent = 'View on fujixweekly.com ↗'
-      body.appendChild(link)
-    }
-
-    card.appendChild(body)
-    container.appendChild(card)
-  })
+        <div class="pfm-head"><span class="pfm-slot">${m.slot}</span><span class="pfm-name">${m.name}</span></div>
+        <ul class="pfm-list">${m.purpose.map(p=>`<li>${p}</li>`).join('')}</ul>
+        <table class="stbl"><tbody>${settingsRows}</tbody></table>
+        <ul class="pfm-list">${m.why.map(w=>`<li>${w}</li>`).join('')}</ul>
+        <div class="pfm-shortcut">${m.shortcut}</div>`
+      modesGrid.appendChild(card)
+    })
+    const colorGrid = $('setup-color-grid')
+    setup.colorProfiles.forEach(p => {
+      const card = document.createElement('div')
+      card.className = 'pfm-card'
+      card.innerHTML = `
+        <div class="pfm-head"><span class="pfm-slot">${p.id}</span><span class="pfm-name">${p.name}</span></div>
+        <div class="pfm-role">${p.role}</div>
+        ${buildOmVisual(p)}
+        <ul class="pfm-list">${p.character.map(c=>`<li>${c}</li>`).join('')}</ul>
+        <ul class="pfm-list">${p.good_combos.map(c=>`<li>${c}</li>`).join('')}</ul>
+        <div class="pfm-shortcut">${p.shortcut}</div>`
+      colorGrid.appendChild(card)
+    })
+    const monoGrid = $('setup-mono-grid')
+    setup.monoProfiles.forEach(p => {
+      const card = document.createElement('div')
+      card.className = 'pfm-card'
+      card.innerHTML = `
+        <div class="pfm-head"><span class="pfm-slot">${p.id}</span><span class="pfm-name">${p.name}</span></div>
+        <div class="pfm-role">${p.role}</div>
+        ${buildOmVisual(p)}
+        <ul class="pfm-list">${p.character.map(c=>`<li>${c}</li>`).join('')}</ul>
+        <ul class="pfm-list">${p.good_combos.map(c=>`<li>${c}</li>`).join('')}</ul>
+        <div class="pfm-shortcut">${p.shortcut}</div>`
+      monoGrid.appendChild(card)
+    })
+    return
+  }
 }
 
 let scenariosBuilt = false
