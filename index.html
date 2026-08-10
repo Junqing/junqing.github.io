@@ -1097,9 +1097,6 @@ function wbMiniGrid(r) {
   return svg + label
 }
 function fingerprint(r) {
-  if (activeGen === 'OM') {
-    return `<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="38" fill="none" stroke="#3e3e50" stroke-width="1"/><text x="60" y="57" text-anchor="middle" font-size="11" font-weight="700" fill="#7a7a90" font-family="Inter,sans-serif">OM</text><text x="60" y="70" text-anchor="middle" font-size="8" fill="#5a5a6e" font-family="Inter,sans-serif">${r.recipe_type||''}</text></svg>`
-  }
   const ccMap={'Off':0,'Weak':1,'Strong':2}
   const ccLbl=['Off','Weak','Strong']
   const axes=[
@@ -1304,9 +1301,7 @@ function buildOmWbBox(obj) {
 }
 
 function makeOmCard(r, div) {
-  const wbMode = r.white_balance
-    ? `<div class="mr-detail-row"><span class="mr-detail-label">WB</span><span class="mr-detail-val">${r.white_balance}</span></div>` : ''
-  const imgHtml=`<div class="card-img-fp"><div class="card-fp-inner">${omColorWheel(r)}</div><div class="card-drwb">${wbMode}</div></div>`
+  const imgHtml=`<div class="card-img-fp" style="height:auto;flex-direction:column">${buildOmVisual(r)}</div>`
 
   function pill(lbl, val) {
     if (val == null || val === '' || val === 'N/A') return ''
