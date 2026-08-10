@@ -735,18 +735,17 @@ main{display:flex;flex:1;min-height:0}
     </div>
   </div>
 
-  <!-- MY (merged My Recipes + My Gear) -->
+  <!-- MY (merged My Custom Setup + My Gear) -->
   <div class="pane" id="pane-my">
     <div class="inner-subtabs">
-      <button class="inner-subtab on" data-inner="inner-my-recipes">My Recipes</button>
+      <button class="inner-subtab on" data-inner="inner-my-setup">My Custom Setup</button>
       <button class="inner-subtab" data-inner="inner-my-gear">My Gear</button>
       <button class="inner-subtab" data-inner="inner-my-scenarios">Scenario Cases</button>
     </div>
-    <div class="inner-pane on" id="inner-my-recipes">
-      <div class="sec-title">My Custom Slots</div>
-      <div class="sec-desc">C1–C7 settings saved on your cameras — single recipes and multi-simulation sets with full settings, usage notes, and a filter guide for C7.</div>
-      <div id="custom-slots-body"></div>
-      <div class="mr-grid" id="myrecipes-body"></div>
+    <div class="inner-pane on" id="inner-my-setup">
+      <div class="sec-title">My Custom Setup</div>
+      <div class="sec-desc">Your personal camera setups — custom slots, shooting modes, and creative profiles. Pick a camera below.</div>
+      <div id="custom-setup-body"></div>
     </div>
     <div class="inner-pane" id="inner-my-scenarios">
       <div class="sec-title">Scenario Cases</div>
@@ -1694,7 +1693,7 @@ function switchTab(id, innerPaneId) {
   const toggleEl = document.getElementById('header-view-toggle')
   if(toggleEl) toggleEl.style.display = id === 'grid' ? 'flex' : 'none'
   if(id==='charts') renderCharts()
-  if(id==='my') { switchInnerTab(innerPaneId || 'inner-my-recipes'); renderMyRecipes(); }
+  if(id==='my') { switchInnerTab(innerPaneId || 'inner-my-setup'); renderMyCustomSetup(); }
   if(id==='explore') initExplore()
   if(id==='compare') initCompare()
   if(id==='grid') renderGrid()
