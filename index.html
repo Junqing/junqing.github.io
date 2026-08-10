@@ -448,6 +448,19 @@ main{display:flex;flex:1;min-height:0}
 .cs-pc-list li:last-child{margin-bottom:0}
 @media(max-width:520px){.cs-pc-wrap{grid-template-columns:1fr}}
 
+/* ─── OM Display Standard ─── */
+.omv{display:flex;flex-direction:column;gap:10px;align-items:center;padding:10px;background:var(--surf2);border-radius:var(--r);width:100%;box-sizing:border-box}
+.omv-shmidhi{display:flex;justify-content:space-between;width:100%;max-width:220px;font-size:10px;color:var(--text2);font-weight:600}
+.omv-shmidhi span strong{color:var(--text);font-weight:700}
+.omv-wheel-wrap{display:flex;justify-content:center}
+.omv-wb-wrap{display:flex;flex-direction:column;align-items:center;gap:4px}
+.omv-wb-label{font-size:10px;color:var(--text2);text-align:center}
+.omv-tones{display:flex;flex-direction:column;gap:5px;width:100%;max-width:220px}
+.omv-tone-row{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text2)}
+.omv-tone-row span{flex-shrink:0;width:74px}
+.omv-tone-row strong{flex-shrink:0;width:28px;text-align:right;color:var(--text)}
+.omv-tone-row input[type=range]{flex:1;pointer-events:none;accent-color:var(--accent2)}
+
 /* ─── Explore Tab ─── */
 .exp-layout{display:flex;flex-direction:column;gap:16px}
 .exp-header{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
@@ -1214,29 +1227,80 @@ const OM_WHEEL_HUE = { yellow:'#e8d44a', orange:'#e8934a', orangeRed:'#e8694a', 
 // OM-only: 12-point color wheel "bloom" — each spoke is a hue channel colored to match,
 // dot position/size encodes the -7..+7 push (middle ring = 0, outer edge = +7, center = -7).
 // Mirrors the real Olympus Color Creator dial layout. Independent of fingerprint() (Fuji-only).
-function omColorWheel(r) {
-  const cw = r.color_wheel
-  if (!cw || r.recipe_type === 'MONO') {
-    return `<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="38" fill="none" stroke="#3e3e50" stroke-width="1"/><circle cx="60" cy="60" r="18" fill="#34343c"/><text x="60" y="57" text-anchor="middle" font-size="10" font-weight="700" fill="#9a9aaa" font-family="Inter,sans-serif">MONO</text><text x="60" y="70" text-anchor="middle" font-size="7.5" fill="#6a6a78" font-family="Inter,sans-serif">${(r.monochrome_color||r.monochrome_profile||'').slice(0,14)}</text></svg>`
-  }
-  const N = OM_WHEEL_ORDER.length, cx = 60, cy = 60, R = 38
-  const pts = OM_WHEEL_ORDER.map((k, i) => {
+function buildOmVisual(obj) {
+  const cw = obj.color_wheel
+  const isMono = !cw || obj.recipe_type === 'MONO'
+  const wheelHtml = isMono
+    ? `<svg width="140" height="140" viewBox="0 0 140 140"><circle cx="70" cy="70" r="44" fill="none" stroke="#3e3e50" stroke-width="1"/><circle cx="70" cy="70" r="22" fill="#34343c"/><text x="70" y="67" text-anchor="middle" font-size="11" font-weight="700" fill="#9a9aaa" font-family="Inter,sans-serif">MONO</text><text x="70" y="81" text-anchor="middle" font-size="8" fill="#6a6a78" font-family="Inter,sans-serif">${(obj.monochrome_color||obj.monochrome_profile||'').slice(0,14)}</text></svg>`
+    : buildOmWheelSvg(cw)
+  const wbHtml = buildOmWbBox(obj)
+  const toneRows = [
+    ['Shading Effect', obj.shading_effect],
+    ['Sharpness', obj.sharpness],
+    ['Contrast', obj.contrast],
+    ['Exposure Comp', obj.exposure_compensation],
+  ].map(([label, v]) => {
+    const val = v == null ? 0 : v
+    const disp = val > 0 ? '+' + val : '' + val
+    return `<div class="omv-tone-row"><span>${label}</span><input type="range" min="-6" max="6" value="${clamp(val,-6,6)}" disabled><strong>${disp}</strong></div>`
+  }).join('')
+  const sh = obj.shadows ?? 0, mid = obj.midtones ?? 0, hi = obj.highlights ?? 0
+  const fmt = v => v > 0 ? '+' + v : '' + v
+  return `<div class="omv">
+    <div class="omv-shmidhi"><span>Sh: <strong>${fmt(sh)}</strong></span><span>Mid: <strong>${fmt(mid)}</strong></span><span>Hi: <strong>${fmt(hi)}</strong></span></div>
+    <div class="omv-wheel-wrap">${wheelHtml}</div>
+    <div class="omv-wb-wrap">${wbHtml}</div>
+    <div class="omv-tones">${toneRows}</div>
+  </div>`
+}
+
+function buildOmWheelSvg(cw) {
+  const N = OM_WHEEL_ORDER.length, cx = 130, cy = 130
+  const OM_WHEEL_REF_HUE = { yellow:'#FCF750', orange:'#DBA12A', orangeRed:'#CC1210', red:'#CD076B', magenta:'#970AA0', violet:'#7710E8', blue:'#3054E0', blueCyan:'#5392EB', cyan:'#83E7EB', greenCyan:'#87EE77', green:'#9DEE3A', yellowGreen:'#CBEE3A' }
+  const radiusFor = v => clamp(49.23 + 6.15 * (v ?? 0), 8, 130)
+  const ringPts = OM_WHEEL_ORDER.map((k, i) => {
+    const ang = (2 * Math.PI * i / N) - Math.PI / 2
+    return { x: cx + 118 * Math.cos(ang), y: cy + 118 * Math.sin(ang), k, ang }
+  })
+  const outerSegs = ringPts.map((p, i) => {
+    const next = ringPts[(i + 1) % N]
+    return `<line x1="${p.x.toFixed(1)}" y1="${p.y.toFixed(1)}" x2="${next.x.toFixed(1)}" y2="${next.y.toFixed(1)}" stroke="${OM_WHEEL_REF_HUE[p.k]}" stroke-width="4"/>`
+  }).join('')
+  const dataPts = OM_WHEEL_ORDER.map((k, i) => {
     const v = cw[k] ?? 0
     const ang = (2 * Math.PI * i / N) - Math.PI / 2
-    const ratio = Math.max(0, Math.min(1, (v + 7) / 14))
-    const rad = ratio * R
-    return { x: cx + rad * Math.cos(ang), y: cy + rad * Math.sin(ang), ang, v, k }
+    const r = radiusFor(v)
+    return { x: cx + r * Math.cos(ang), y: cy + r * Math.sin(ang), v, k, ang }
   })
-  const spokes = pts.map(p => `<line x1="${cx}" y1="${cy}" x2="${cx + R * Math.cos(p.ang)}" y2="${cy + R * Math.sin(p.ang)}" stroke="${OM_WHEEL_HUE[p.k]}" stroke-opacity=".22" stroke-width="1"/>`).join('')
-  const rings = [.25, .5, .75, 1].map(t => `<circle cx="${cx}" cy="${cy}" r="${(R * t).toFixed(1)}" fill="none" stroke="${t === .5 ? '#585868' : '#33333c'}" stroke-width="${t === .5 ? '1' : '.6'}"/>`).join('')
-  const poly = pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
-  const dots = pts.map(p => {
-    const mag = Math.abs(p.v)
-    const rr = (1.4 + mag * 0.28).toFixed(2)
-    const op = (0.35 + Math.min(mag / 7, 1) * 0.65).toFixed(2)
-    return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${rr}" fill="${OM_WHEEL_HUE[p.k]}" fill-opacity="${op}"/>`
+  const poly = dataPts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+  const labels = dataPts.map(p => {
+    const lx = cx + (radiusFor(p.v) + 12) * Math.cos(p.ang)
+    const ly = cy + (radiusFor(p.v) + 12) * Math.sin(p.ang)
+    const disp = p.v > 0 ? '+' + p.v : '' + p.v
+    return `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#b8b8d0" font-family="Inter,sans-serif">${disp}</text>`
   }).join('')
-  return `<svg width="120" height="120" viewBox="0 0 120 120">${rings}${spokes}<polygon points="${poly}" fill="#ffffff" fill-opacity=".06" stroke="#ffffff" stroke-opacity=".35" stroke-width="1"/>${dots}</svg>`
+  const guideRing = `<circle cx="${cx}" cy="${cy}" r="49.23" fill="none" stroke="#3e3e50" stroke-width="1"/>`
+  return `<svg width="140" height="140" viewBox="0 0 260 260">${outerSegs}${guideRing}<polygon points="${poly}" fill="#ffffff" fill-opacity=".08" stroke="#ffffff" stroke-opacity=".4" stroke-width="1.5"/>${labels}</svg>`
+}
+
+function buildOmWbBox(obj) {
+  const amber = clamp(obj.wb_amber_offset ?? 0, -7, 7)
+  const green = clamp(obj.wb_green_offset ?? 0, -7, 7)
+  const dotX = 75 + amber * 7
+  const dotY = 75 - green * 7
+  const svg = `<svg width="90" height="90" viewBox="0 0 150 150">
+    <rect x="4" y="4" width="142" height="142" rx="10" fill="#131318" stroke="#2e2e34" stroke-width="1"/>
+    <rect x="4" y="4" width="142" height="4" fill="#4caf81"/>
+    <rect x="4" y="142" width="142" height="4" fill="#d84ad0"/>
+    <rect x="142" y="4" width="4" height="142" fill="#e8934a"/>
+    <rect x="4" y="4" width="4" height="142" fill="#3054E0"/>
+    <line x1="${(dotX-10).toFixed(1)}" y1="${dotY.toFixed(1)}" x2="${(dotX+10).toFixed(1)}" y2="${dotY.toFixed(1)}" stroke="#585868" stroke-width="1"/>
+    <line x1="${dotX.toFixed(1)}" y1="${(dotY-10).toFixed(1)}" x2="${dotX.toFixed(1)}" y2="${(dotY+10).toFixed(1)}" stroke="#585868" stroke-width="1"/>
+    <circle cx="${dotX.toFixed(1)}" cy="${dotY.toFixed(1)}" r="5" fill="#e8c05a" stroke="#0d0d0f" stroke-width="1"/>
+  </svg>`
+  const ampStr = amber >= 0 ? 'A.' + amber : 'A' + amber
+  const grnStr = green >= 0 ? 'G.' + green : 'G' + green
+  return `${svg}<div class="omv-wb-label">${obj.white_balance || 'Auto'} &nbsp; ${ampStr} &nbsp; ${grnStr}</div>`
 }
 
 function makeOmCard(r, div) {
