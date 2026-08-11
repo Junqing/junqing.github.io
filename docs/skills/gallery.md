@@ -56,14 +56,18 @@ that the fix is to enable "Show Metadata" in Lightroom's share settings.
 space ID from a URL of the form
 `https://lightroom.adobe.com/shares/<SPACE_ID>`.
 
-Verify it is public **before** changing any file:
+Verify it is public **before** changing any file. Adobe prefixes the response
+with an XSSI guard (`while (1) {}\n`, 13 bytes) that must be stripped before
+the JSON will parse:
 
 ```bash
-curl -sS "https://lightroom.adobe.com/v2c/spaces/<SPACE_ID>" | tail -c +12
+curl -sS "https://lightroom.adobe.com/v2c/spaces/<SPACE_ID>" | tail -c +14 | \
+  python3 -c "import json,sys; print('private:', json.load(sys.stdin)['payload']['private'])"
 ```
 
-Check the JSON has `"private": false`. If it is private or the request fails,
-refuse and tell the user to make the share public first. Do not edit anything.
+This prints `private: False` for a public share. If it prints `private: True`,
+the request fails, or the JSON fails to parse, refuse and tell the user to
+make the share public first. Do not edit anything.
 
 Report what was found (photo count, date range, whether metadata is on), then
 ask for a display label. Add the entry to `ALBUMS` in
