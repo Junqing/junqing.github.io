@@ -260,8 +260,11 @@ Skills live in `.claude/skills/` (invocable by Claude Code) and are mirrored as 
 ## What NOT to commit
 
 `.gitignore` blocks these — do not force-add them:
-- `.claude/` — Claude Code local settings (may contain personal permissions)
+- `.claude/settings.local.json` — machine-local Claude Code settings (may contain personal permissions)
 - `PLAN-*.md` — local planning documents
+
+Note: `.claude/settings.json` (shared plugin config) and `.claude/skills/` **are** committed — only
+`settings.local.json` is ignored.
 
 Note: `recipes-v.js`, `recipes-iv.js`, `recipes-iii.js`, `recipes-ii.js`, `recipes-i.js`, `recipes-om.js`, and `om-analysis.js` are **committed** to the repo — they are not gitignored. Do not add them to `.gitignore`.
 
@@ -269,6 +272,6 @@ Note: `recipes-v.js`, `recipes-iv.js`, `recipes-iii.js`, `recipes-ii.js`, `recip
 
 - Remote: `github.com:Junqing/junqing.github.io`
 - Git identity: set in local git config (not committed)
-- PRs created with `gh pr create`; always include a test plan checklist in the body
+- **Do not use the `gh` CLI on this machine** — it is authenticated to a different GitHub account. Push branches with plain `git` and let Jin open the PR.
 - Main branch deploys automatically to GitHub Pages
 - `feature/keyword-tags-revision` — PR open: two computed badge system (warmth/punch), collapsible sidebar filters, Settings Guide formula section
