@@ -956,6 +956,7 @@ function switchGen(gen) {
     if (typeof resetOmCompareBuilt === 'function') resetOmCompareBuilt()
     if (document.getElementById('q')) document.getElementById('q').value = ''
     initChips()
+    syncSidebarFacets()
     render()
     $('s-total').textContent=activeRecipes().length
     $('s-total-x').textContent=activeRecipes().length
@@ -1074,16 +1075,29 @@ function buildChips(containerId, values, filterKey) {
   })
 }
 
+// Single source of truth for sidebar facet visibility — reads the active tab
+// and activeGen, owns every .sb-section's display. initChips() only builds
+// chip contents; it must not also decide visibility (that duplication is what
+// let the Gallery-only sidebar reappear stacked with Fuji/OM facets after a
+// gen switch — see switchGen()/switchTab()).
+function syncSidebarFacets() {
+  const isGal = document.querySelector('.tab.on')?.dataset.tab === 'gallery'
+  const isOm  = activeGen === 'OM'
+  const show = (id, on) => { const el=$(id); if(el) el.style.display = on ? '' : 'none' }
+  show('sb-sec-album', isGal)
+  show('sb-sec-sim',  !isGal && !isOm)
+  show('sb-sec-era',  !isGal && !isOm)
+  show('sb-sec-type', !isGal &&  isOm)
+  show('sb-sec-hue',  !isGal &&  isOm)
+  const OWNED = new Set(['sb-sec-album','sb-sec-sim','sb-sec-era','sb-sec-type','sb-sec-hue'])
+  document.querySelectorAll('.sidebar .sb-section').forEach(sec => {
+    if (OWNED.has(sec.id)) return
+    sec.style.display = isGal ? 'none' : ''
+  })
+}
+
 function initChips() {
   const isOm = activeGen === 'OM'
-
-  // Film Simulation and Era have no OM equivalent and would render blank —
-  // hide them and swap in the OM-only facets instead.
-  const show = (id, on) => { const el=$(id); if(el) el.style.display = on ? '' : 'none' }
-  show('sb-sec-sim',  !isOm)
-  show('sb-sec-era',  !isOm)
-  show('sb-sec-type',  isOm)
-  show('sb-sec-hue',   isOm)
 
   if (isOm) {
     buildChips('f-type', [...new Set(activeRecipes().map(r=>r.recipe_type||'COLOR'))].sort(), 'type')
@@ -1800,16 +1814,8 @@ function switchTab(id, innerPaneId) {
   if(toggleEl) toggleEl.style.display = id === 'grid' ? 'flex' : 'none'
   // Recipe facets are meaningless for photos; the album facet is Gallery-only.
   const isGal = id === 'gallery'
-  ;['sb-sec-sim','sb-sec-era','sb-sec-type','sb-sec-hue'].forEach(sid => {
-    const el = document.getElementById(sid); if (el && isGal) el.style.display = 'none'
-  })
-  document.querySelectorAll('.sidebar .sb-section').forEach(sec => {
-    if (sec.id === 'sb-sec-album') return
-    sec.style.display = isGal ? 'none' : ''
-  })
-  const albSec = document.getElementById('sb-sec-album')
-  if (albSec) albSec.style.display = isGal ? '' : 'none'
   if (!isGal) initChips()
+  syncSidebarFacets()
   if(id==='charts') renderCharts()
   if(id==='my') { switchInnerTab(innerPaneId || 'inner-my-setup'); renderMyCustomSetup(); }
   if(id==='explore') initExplore()
@@ -4682,6 +4688,7 @@ function init(){
   $('s-total-x').textContent=activeRecipes().length
   $('s-sims').textContent=new Set(activeRecipes().map(r=>r.film_simulation).filter(Boolean)).size
   initChips()
+  syncSidebarFacets()
   initCollapsibleFilters()
   initBadgeFormula()
   render()
