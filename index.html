@@ -202,6 +202,17 @@ main{display:flex;flex:1;min-height:0}
 /* ─── Misc ─── */
 .empty{text-align:center;padding:50px 20px;color:var(--text3)}
 .empty .big{font-size:36px;margin-bottom:10px}
+.gal-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));padding:4px 0}
+.gal-item{position:relative;border-radius:var(--r2);overflow:hidden;background:var(--surf2);cursor:zoom-in;border:1px solid var(--border)}
+.gal-item img{display:block;width:100%;height:100%;object-fit:cover;transition:opacity .25s;opacity:0}
+.gal-item img.loaded{opacity:1}
+.gal-item.dead{display:flex;align-items:center;justify-content:center;min-height:140px;color:var(--text3);font-size:11px;cursor:default}
+.gal-item.dead img{display:none}
+.gal-credit{text-align:center;color:var(--text3);font-size:11px;padding:18px 0 8px}
+.gal-count{color:var(--text3);font-size:12px;padding:0 0 10px}
+#rmodal-body .gal-photo{display:block;width:100%;height:auto;background:var(--surf2)}
+#rmodal-body .gal-meta{padding:10px 14px;color:var(--text2);font-size:12px;text-align:center;line-height:1.7}
+@media(max-width:680px){.gal-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}}
 .corr-search{width:100%;background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:7px 10px;color:var(--text);font-size:12px;outline:none;margin-bottom:14px}
 .corr-search:focus{border-color:var(--accent)}
 .corr-search::placeholder{color:var(--text3)}
@@ -663,6 +674,10 @@ main{display:flex;flex:1;min-height:0}
       <div class="sb-label">Era<button class="sb-info-btn" data-formula="era" aria-label="How era references are assigned">i</button></div>
       <div class="chips" id="f-era"></div>
     </div>
+    <div class="sb-section" id="sb-sec-album" style="display:none">
+      <div class="sb-label">Album</div>
+      <div class="chips" id="f-album"></div>
+    </div>
     <button class="clear-btn" id="clear-btn">Clear all filters</button>
   </div>
   <button class="sb-collapse-btn" id="sb-collapse-btn" aria-label="Collapse sidebar">
@@ -685,6 +700,7 @@ main{display:flex;flex:1;min-height:0}
       <div class="tab" data-tab="insights">Insights</div>
       <div class="tab" data-tab="explore">Explore</div>
       <div class="tab" data-tab="compare">Compare</div>
+      <div class="tab" data-tab="gallery">Gallery</div>
     </div>
   </div>
   <div class="content-scroll">
@@ -863,6 +879,11 @@ main{display:flex;flex:1;min-height:0}
     <div id="cmp-shell"></div>
   </div>
 
+  <!-- GALLERY -->
+  <div class="pane pane-no-subtabs" id="pane-gallery">
+    <div id="gallery-body"></div>
+  </div>
+
   </div><!-- .content-scroll -->
 </section>
 </main>
@@ -876,6 +897,7 @@ main{display:flex;flex:1;min-height:0}
 </div>
 
 <script src="om-analysis.js"></script>
+<script src="gallery.js"></script>
 <script src="gear.js"></script>
 <script>
 // ══════════════════════════════════════════
@@ -1770,11 +1792,24 @@ function switchTab(id, innerPaneId) {
   document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.id===`pane-${id}`))
   const toggleEl = document.getElementById('header-view-toggle')
   if(toggleEl) toggleEl.style.display = id === 'grid' ? 'flex' : 'none'
+  // Recipe facets are meaningless for photos; the album facet is Gallery-only.
+  const isGal = id === 'gallery'
+  ;['sb-sec-sim','sb-sec-era','sb-sec-type','sb-sec-hue'].forEach(sid => {
+    const el = document.getElementById(sid); if (el && isGal) el.style.display = 'none'
+  })
+  document.querySelectorAll('.sidebar .sb-section').forEach(sec => {
+    if (sec.id === 'sb-sec-album') return
+    sec.style.display = isGal ? 'none' : ''
+  })
+  const albSec = document.getElementById('sb-sec-album')
+  if (albSec) albSec.style.display = isGal ? '' : 'none'
+  if (!isGal) initChips()
   if(id==='charts') renderCharts()
   if(id==='my') { switchInnerTab(innerPaneId || 'inner-my-setup'); renderMyCustomSetup(); }
   if(id==='explore') initExplore()
   if(id==='compare') initCompare()
   if(id==='grid') renderGrid()
+  if(id==='gallery') renderGallery()
   if(id==='insights') switchInnerTab(innerPaneId || 'inner-insights-settings')
   if(innerPaneId) switchInnerTab(innerPaneId)
 }
@@ -2397,6 +2432,115 @@ function renderSettingsGuide() {
     container.appendChild(secDiv)
   })
 
+}
+
+// ══════════════════════════════════════════
+// GALLERY
+// ══════════════════════════════════════════
+let galleryBuilt = false
+let galleryAlbumFilter = new Set()
+
+function galleryPhotos() {
+  const all = (typeof GALLERY_PHOTOS !== 'undefined') ? GALLERY_PHOTOS : []
+  if (!galleryAlbumFilter.size) return all
+  return all.filter(p => galleryAlbumFilter.has(p.album))
+}
+
+function photoCaption(p) {
+  return [p.camera, p.lens, p.aperture, p.shutter, p.iso && ('ISO ' + p.iso)]
+    .filter(Boolean).join(' · ')
+}
+
+// Photos cannot go through openRecipeModal() — that looks up a recipe by name
+// and builds a recipe card. This reuses the same modal shell only.
+function openPhotoModal(p) {
+  const modal = $('recipe-modal')
+  const body  = $('rmodal-body')
+  body.innerHTML = ''
+  const img = document.createElement('img')
+  img.className = 'gal-photo'
+  img.src = p.src
+  img.alt = photoCaption(p) || 'Photograph'
+  if (p.w && p.h) img.style.aspectRatio = p.w + ' / ' + p.h
+  const meta = document.createElement('div')
+  meta.className = 'gal-meta'
+  meta.textContent = photoCaption(p) || ''
+  body.appendChild(img)
+  body.appendChild(meta)
+  modal.classList.add('open')
+  modal.scrollTop = 0
+}
+
+function renderGalleryGrid() {
+  const grid = $('gal-grid')
+  if (!grid) return
+  grid.innerHTML = ''
+  const photos = galleryPhotos()
+  const countEl = $('gal-count')
+  if (countEl) countEl.textContent = photos.length + ' photo' + (photos.length === 1 ? '' : 's')
+
+  photos.forEach(p => {
+    const cell = document.createElement('div')
+    cell.className = 'gal-item'
+    if (p.w && p.h) cell.style.aspectRatio = p.w + ' / ' + p.h
+    const img = document.createElement('img')
+    img.loading = 'lazy'
+    img.alt = photoCaption(p) || 'Photograph'
+    img.src = p.thumb
+    img.addEventListener('load', () => img.classList.add('loaded'))
+    img.addEventListener('error', () => {
+      cell.classList.add('dead')
+      cell.textContent = 'unavailable'
+      cell.style.aspectRatio = ''
+    })
+    cell.appendChild(img)
+    cell.addEventListener('click', () => {
+      if (!cell.classList.contains('dead')) openPhotoModal(p)
+    })
+    grid.appendChild(cell)
+  })
+}
+
+function renderGallery() {
+  if (galleryBuilt) return
+  galleryBuilt = true
+  const container = $('gallery-body')
+  container.innerHTML = ''
+
+  const photos = (typeof GALLERY_PHOTOS !== 'undefined') ? GALLERY_PHOTOS : []
+  if (!photos.length) {
+    container.innerHTML = '<div class="empty"><div class="big">🖼️</div>' +
+      '<p>No gallery data yet. Run <strong>python3 tools/build_gallery.py</strong> ' +
+      'or use the <strong>/gallery</strong> skill to add a Lightroom album.</p></div>'
+    return
+  }
+
+  const wrap = document.createElement('div')
+  wrap.innerHTML = '<div class="gal-count" id="gal-count"></div>' +
+                   '<div class="gal-grid" id="gal-grid"></div>' +
+                   '<div class="gal-credit">© Jin Qian</div>'
+  container.appendChild(wrap)
+  renderGalleryGrid()
+  buildAlbumChips()
+}
+
+function buildAlbumChips() {
+  const el = $('f-album')
+  if (!el) return
+  el.innerHTML = ''
+  const albums = (typeof GALLERY_ALBUMS !== 'undefined') ? GALLERY_ALBUMS : []
+  albums.forEach(a => {
+    const c = document.createElement('div')
+    c.className = 'chip'
+    c.textContent = a.label + ' (' + a.count + ')'
+    c.addEventListener('click', () => {
+      galleryAlbumFilter.has(a.id) ? galleryAlbumFilter.delete(a.id)
+                                   : galleryAlbumFilter.add(a.id)
+      c.classList.toggle('on')
+      renderGalleryGrid()
+    })
+    el.appendChild(c)
+  })
 }
 
 // ══════════════════════════════════════════
