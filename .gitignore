@@ -3,3 +3,6 @@
 
 # Local planning docs
 PLAN-*.md
+
+# Superpowers scratch (SDD ledgers, briefs, review packages)
+.superpowers/
