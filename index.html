@@ -1121,7 +1121,13 @@ $('clear-btn').addEventListener('click',()=>{
   S.q=''; $('q').value=''; S.chartFilter=null
   Object.values(S.f).forEach(s=>s.clear())
   document.querySelectorAll('.chip.on').forEach(c=>c.classList.remove('on'))
-  render()
+  // #clear-btn sits outside the .sb-section elements switchTab() hides, so it
+  // stays visible (and clickable) on the Gallery tab. Its filters live in a
+  // separate Set, not S.f, so clear that too and repaint the grid directly —
+  // render() only repaints the Fuji/OM recipe grid, never the gallery.
+  const onGallery = document.querySelector('.tab.on')?.dataset.tab === 'gallery'
+  if (onGallery) { galleryAlbumFilter.clear(); renderGalleryGrid() }
+  else render()
 })
 
 // ══════════════════════════════════════════
