@@ -1,4 +1,8 @@
+import os
+import tempfile
 import unittest
+from unittest import mock
+
 import build_gallery as bg
 
 
@@ -96,6 +100,32 @@ class TestPhotoFromAsset(unittest.TestCase):
         self.assertIsNone(p['lens'])
         self.assertEqual(p['camera'], 'Fujifilm X-M5')
         self.assertTrue(p['thumb'])
+
+
+class TestMainTimeoutHandling(unittest.TestCase):
+    """A stalled network call raises TimeoutError (a socket.timeout /
+    OSError subclass, NOT a urllib.error.URLError subclass). main() must
+    catch it, print the clean abort message, return 1, and must not write
+    a partial gallery.js."""
+
+    def setUp(self):
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.out_path = os.path.join(self.tmpdir.name, 'gallery.js')
+        self._orig_albums = bg.ALBUMS
+        self._orig_out = bg.OUT
+        bg.ALBUMS = [{"space": "SPACE", "label": "Test Album"}]
+        bg.OUT = self.out_path
+
+    def tearDown(self):
+        bg.ALBUMS = self._orig_albums
+        bg.OUT = self._orig_out
+        self.tmpdir.cleanup()
+
+    def test_timeout_error_is_caught_and_aborts_without_writing(self):
+        with mock.patch.object(bg, 'fetch', side_effect=TimeoutError('timed out')):
+            result = bg.main()
+        self.assertEqual(result, 1)
+        self.assertFalse(os.path.exists(self.out_path))
 
 
 if __name__ == '__main__':

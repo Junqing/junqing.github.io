@@ -11,7 +11,6 @@ later cannot leak into the published site by oversight.
 import json
 import re
 import sys
-import urllib.error
 import urllib.request
 
 # ── Album declarations — the source of truth. Edit this list, then re-run. ──
@@ -150,8 +149,7 @@ def main():
         print("Fetching {} ...".format(label))
         try:
             alb, pics = load_album(entry["space"], label)
-        except (urllib.error.URLError, urllib.error.HTTPError,
-                RuntimeError, KeyError, ValueError) as exc:
+        except (OSError, RuntimeError, KeyError, ValueError) as exc:
             # Abort without writing. A partial manifest would silently delete
             # photos from the live site.
             print("\nERROR: {} failed: {}".format(label, exc), file=sys.stderr)
