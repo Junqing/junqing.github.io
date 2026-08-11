@@ -89,7 +89,7 @@ lives in a plain-global JS file consumed by `index.html` (as `recipes-om.js`
 and `gear.js` already do).
 
 ```
-tools/build-gallery.py   Author-time script. Not served. Run by hand.
+tools/build_gallery.py   Author-time script. Not served. Run by hand.
 gallery.js               Generated data. Committed. Plain globals.
 index.html               Gallery tab + renderGallery().
 ```
@@ -100,7 +100,7 @@ index.html               Gallery tab + renderGallery().
 Lightroom album (public share)
         │  server-side HTTPS GET (no CORS restriction)
         ▼
-tools/build-gallery.py   — allowlist fields, convert rationals, tidy lens names
+tools/build_gallery.py   — allowlist fields, convert rationals, tidy lens names
         │
         ▼
 gallery.js               — GALLERY_ALBUMS[], GALLERY_PHOTOS[]
@@ -126,7 +126,7 @@ This was raised explicitly during design and accepted.
 
 ### Album list
 
-The set of albums is declared at the top of `tools/build-gallery.py`:
+The set of albums is declared at the top of `tools/build_gallery.py`:
 
 ```python
 ALBUMS = [
@@ -286,7 +286,7 @@ Operations:
 - **Review** — health-check each album and spot-check that image URLs still
   resolve. Early warning that a share has gone private.
 
-The skill drives `tools/build-gallery.py` rather than reimplementing its logic,
+The skill drives `tools/build_gallery.py` rather than reimplementing its logic,
 so there is a single code path whether the script is run directly or through
 conversation.
 
