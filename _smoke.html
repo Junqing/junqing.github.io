@@ -10,6 +10,8 @@
 <script src="corr-data.js"></script>
 <script src="om-analysis.js"></script>
 <script src="gallery.js"></script>
+<script src="recipes-ui.js"></script>
+<script src="personal-ui.js"></script>
 <script src="gear.js"></script>
 <script>
 // Top-level `const`/`let` from a classic <script> create script-scoped
@@ -35,6 +37,14 @@ EXPECT.forEach(([name, count]) => {
   if (!ok) fail++
   lines.push(`${ok ? 'OK  ' : 'FAIL'} ${n} defined`)
 })
+;['renderGrid','renderClouds','renderSettingsGuide','initExplore','initCompare',
+  'renderGallery','renderGear','renderMyCustomSetup','renderScenarios',
+  'activeRecipes','matches','switchGen','layoutGallery'].forEach(n => {
+  const ok = typeof window[n] === 'function'
+  if (!ok) fail++
+  lines.push(`${ok ? 'OK  ' : 'FAIL'} ${n}() callable`)
+})
+
 lines.push('', fail ? `${fail} FAILURES` : 'ALL PASS')
 document.getElementById('out').textContent = lines.join('\n')
 </script>
