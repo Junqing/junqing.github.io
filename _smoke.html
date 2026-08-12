@@ -9,9 +9,15 @@
 <script src="recipes-i.js"></script>
 <script src="corr-data.js"></script>
 <script src="om-analysis.js"></script>
-<script src="gear.js"></script>
 <script src="gallery.js"></script>
+<script src="gear.js"></script>
 <script>
+// Top-level `const`/`let` from a classic <script> create script-scoped
+// bindings, not properties of `window` — so window[name] misses CORR,
+// MY_CAMERAS, etc. Top-level eval sees script-scope, so it works for both
+// `var` and `const`/`let` declarations.
+const defined = n => { try { return typeof eval(n) !== 'undefined' } catch (e) { return false } }
+
 const EXPECT = [
   ['RECIPES_V', 113], ['RECIPES_IV', 202], ['RECIPES_III', 47],
   ['RECIPES_II', 32], ['RECIPES_I', 13],
@@ -19,13 +25,13 @@ const EXPECT = [
 const lines = []
 let fail = 0
 EXPECT.forEach(([name, count]) => {
-  const v = window[name]
+  const v = defined(name) ? eval(name) : undefined
   const ok = Array.isArray(v) && v.length === count
   if (!ok) fail++
   lines.push(`${ok ? 'OK  ' : 'FAIL'} ${name} = ${Array.isArray(v) ? v.length : typeof v} (want ${count})`)
 })
-;['CORR', 'MY_CAMERAS', 'MY_LENSES', 'GALLERY_PHOTOS', 'GALLERY_ALBUMS'].forEach(n => {
-  const ok = typeof window[n] !== 'undefined'
+;['CORR', 'MY_CAMERAS', 'MY_LENSES', 'MY_CUSTOM_SETUPS', 'MY_SCENARIOS', 'GALLERY_PHOTOS', 'GALLERY_ALBUMS'].forEach(n => {
+  const ok = defined(n)
   if (!ok) fail++
   lines.push(`${ok ? 'OK  ' : 'FAIL'} ${n} defined`)
 })
