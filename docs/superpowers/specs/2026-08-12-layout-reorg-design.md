@@ -175,8 +175,15 @@ Hash-based, because GitHub Pages serves static files with no rewrite rules —
 #/camera/insights         Camera Settings ▸ Insights
 #/camera/explore          Camera Settings ▸ Explore
 #/camera/compare          Camera Settings ▸ Compare
-#/camera/recipes/OM       …scoped to a named family
+#/camera/recipes/keywords  Recipes ▸ Keywords (inner subtab)
+#/camera/insights/directions
+#/camera/recipes/f=OM      …scoped to a named family
 ```
+
+Recipes and Insights keep their inner subtab bars (Recipes/Keywords and
+Settings Guide/Directions/Correlation), so a view may carry a subview. The
+family is tagged `f=` rather than positional because both the subview and the
+family are optional — `#/camera/recipes/OM` would otherwise be ambiguous.
 
 - `navigate(section, view, family)` is the single entry point; it updates `NAV`,
   renders, and writes the hash.
