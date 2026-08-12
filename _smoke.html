@@ -1,0 +1,35 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>smoke</title></head>
+<body>
+<pre id="out">running…</pre>
+<script src="recipes-v.js"></script>
+<script src="recipes-iv.js"></script>
+<script src="recipes-iii.js"></script>
+<script src="recipes-ii.js"></script>
+<script src="recipes-i.js"></script>
+<script src="corr-data.js"></script>
+<script src="om-analysis.js"></script>
+<script src="gear.js"></script>
+<script src="gallery.js"></script>
+<script>
+const EXPECT = [
+  ['RECIPES_V', 113], ['RECIPES_IV', 202], ['RECIPES_III', 47],
+  ['RECIPES_II', 32], ['RECIPES_I', 13],
+]
+const lines = []
+let fail = 0
+EXPECT.forEach(([name, count]) => {
+  const v = window[name]
+  const ok = Array.isArray(v) && v.length === count
+  if (!ok) fail++
+  lines.push(`${ok ? 'OK  ' : 'FAIL'} ${name} = ${Array.isArray(v) ? v.length : typeof v} (want ${count})`)
+})
+;['CORR', 'MY_CAMERAS', 'MY_LENSES', 'GALLERY_PHOTOS', 'GALLERY_ALBUMS'].forEach(n => {
+  const ok = typeof window[n] !== 'undefined'
+  if (!ok) fail++
+  lines.push(`${ok ? 'OK  ' : 'FAIL'} ${n} defined`)
+})
+lines.push('', fail ? `${fail} FAILURES` : 'ALL PASS')
+document.getElementById('out').textContent = lines.join('\n')
+</script>
+</body></html>
