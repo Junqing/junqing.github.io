@@ -15,7 +15,7 @@ import urllib.request
 
 # ── Album declarations — the source of truth. Edit this list, then re-run. ──
 ALBUMS = [
-    {"space": "4679d64af9bd4c5f834bb13ca74aef75", "label": "Kat × Art"},
+    {"space": "c99b8d9979be492e907c387c63346ad9", "label": "Jin's Gallery"},
 ]
 
 API = "https://lightroom.adobe.com/v2c/spaces/{space}/"
