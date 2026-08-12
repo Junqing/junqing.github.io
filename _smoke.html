@@ -13,6 +13,7 @@
 <script src="recipes-ui.js"></script>
 <script src="personal-ui.js"></script>
 <script src="gear.js"></script>
+<script src="nav.js"></script>
 <script>
 // Top-level `const`/`let` from a classic <script> create script-scoped
 // bindings, not properties of `window` — so window[name] misses CORR,
@@ -40,6 +41,17 @@ EXPECT.forEach(([name, count]) => {
 ;['renderGrid','renderClouds','renderSettingsGuide','initExplore','initCompare',
   'renderGallery','renderGear','renderMyCustomSetup','renderScenarios',
   'activeRecipes','matches','switchGen','layoutGallery'].forEach(n => {
+  const ok = defined(n) && typeof eval(n) === 'function'
+  if (!ok) fail++
+  lines.push(`${ok ? 'OK  ' : 'FAIL'} ${n}() callable`)
+})
+
+;(() => {
+  const ok = defined('NAV') && typeof NAV === 'object' && NAV !== null
+  if (!ok) fail++
+  lines.push(`${ok ? 'OK  ' : 'FAIL'} NAV defined`)
+})()
+;['navigate', 'renderCurrentView'].forEach(n => {
   const ok = defined(n) && typeof eval(n) === 'function'
   if (!ok) fail++
   lines.push(`${ok ? 'OK  ' : 'FAIL'} ${n}() callable`)

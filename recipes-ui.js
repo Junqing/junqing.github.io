@@ -173,7 +173,12 @@ function buildChips(containerId, values, filterKey) {
 // let the Gallery-only sidebar reappear stacked with Fuji/OM facets after a
 // gen switch — see switchGen()/switchTab()).
 function syncSidebarFacets() {
-  const isGal = document.querySelector('.tab.on')?.dataset.tab === 'gallery'
+  // NAV.section === 'photography' is not narrow enough: the 'my' tab also
+  // maps to photography/setup (see index.html's OUTER_TO_VIEW/INNER_TO_VIEW),
+  // and its sidebar must keep showing normal recipe facets, not collapse to
+  // the Gallery-only album facet. NAV.view === 'gallery' matches the old
+  // dataset.tab === 'gallery' check exactly.
+  const isGal = NAV.view === 'gallery'
   const isOm  = activeGen === 'OM'
   const show = (id, on) => { const el=$(id); if(el) el.style.display = on ? '' : 'none' }
   show('sb-sec-album', isGal)

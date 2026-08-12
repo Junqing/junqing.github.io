@@ -915,6 +915,7 @@ const $  = id => document.getElementById(id)
 <script src="recipes-ui.js"></script>
 <script src="personal-ui.js"></script>
 <script src="gear.js"></script>
+<script src="nav.js"></script>
 
 <script>
 if (typeof RECIPE_META_PATCHES !== 'undefined') activeRecipes().forEach(r => Object.assign(r, RECIPE_META_PATCHES[r.name] || {}));
@@ -928,7 +929,7 @@ $('clear-btn').addEventListener('click',()=>{
   // stays visible (and clickable) on the Gallery tab. Its filters live in a
   // separate Set, not S.f, so clear that too and repaint the grid directly —
   // render() only repaints the Fuji/OM recipe grid, never the gallery.
-  const onGallery = document.querySelector('.tab.on')?.dataset.tab === 'gallery'
+  const onGallery = NAV.view === 'gallery'
   if (onGallery) { galleryAlbumFilter.clear(); renderGalleryGrid() }
   else render()
 })
@@ -970,40 +971,87 @@ $('corr-q').addEventListener('input',e=>renderCorrelations(e.target.value.trim()
 // ══════════════════════════════════════════
 // TABS
 // ══════════════════════════════════════════
+// The six flat tabs/inner-subtabs predate the three-section IA that NAV
+// models (home/photography/camera). These tables are the bridge: old DOM ids
+// in, NAV's (section, view, subview) out. Task 4 replaces this markup and
+// this bridge goes away; until then, rendering is delegated entirely to
+// navigate() -> NAV_RENDER, while class-toggling stays keyed on the old ids
+// since applyNav()'s generic [data-view]/pane-id matching doesn't know them.
+//
+// 'my' and 'insights' always reset to their first inner pane on a bare
+// top-tab click (old switchTab did too, unconditionally). 'grid' does not —
+// old switchTab never called switchInnerTab for it, so whichever inner-recipes
+// pane was last explicitly opened stays open across unrelated tab switches.
+// lastInner tracks that per-tab memory so navigate()'s single subview slot
+// (which resets whenever you leave the 'recipes' view) doesn't lose it.
+const OUTER_RESETS_INNER = { my: 'inner-my-setup', insights: 'inner-insights-settings' }
+const lastInner = { grid: 'inner-recipes-list' }
+const OUTER_TO_VIEW = { gallery: ['photography', 'gallery'], explore: ['camera', 'explore'], compare: ['camera', 'compare'] }
+const INNER_TO_OUTER = {
+  'inner-my-setup': 'my', 'inner-my-gear': 'my', 'inner-my-scenarios': 'my',
+  'inner-recipes-list': 'grid', 'inner-recipes-keywords': 'grid',
+  'inner-insights-settings': 'insights', 'inner-insights-directions': 'insights', 'inner-insights-correlations': 'insights',
+}
+const INNER_TO_VIEW = {
+  'inner-my-setup': ['photography', 'setup'],
+  'inner-my-gear': ['photography', 'gear'],
+  'inner-my-scenarios': ['photography', 'notes'],
+  'inner-recipes-list': ['camera', 'recipes', 'list'],
+  'inner-recipes-keywords': ['camera', 'recipes', 'keywords'],
+  'inner-insights-settings': ['camera', 'insights', 'settings'],
+  'inner-insights-directions': ['camera', 'insights', 'directions'],
+  'inner-insights-correlations': ['camera', 'insights', 'correlations'],
+}
+
 function switchInnerTab(innerPaneId) {
   const inner = document.getElementById(innerPaneId)
   if (!inner) return
-  // Find the parent pane and toggle siblings
+  const outerId = INNER_TO_OUTER[innerPaneId]
+  if (outerId) lastInner[outerId] = innerPaneId
+  // navigate() -> applyNav() does its own class toggling keyed to the NEW
+  // id scheme (inner-<view>-<subview>). For inner-recipes-*/inner-insights-*
+  // those ids already coincide with the old ones, so it's a correct (if
+  // redundant) toggle; for inner-my-* they don't coincide, so applyNav()
+  // clears '.on' everywhere under that scheme and leaves the pane looking
+  // empty. Call navigate() first, then reassert the old-id toggle last so
+  // it always wins, whether or not this round-trip was a no-op.
+  const mapped = INNER_TO_VIEW[innerPaneId]
+  if (mapped) navigate(mapped[0], mapped[1], mapped[2])
   const parent = inner.closest('.pane')
   parent.querySelectorAll('.inner-pane').forEach(p => p.classList.toggle('on', p === inner))
   parent.querySelectorAll('.inner-subtab').forEach(b => b.classList.toggle('on', b.dataset.inner === innerPaneId))
-  // Trigger render for the newly-visible panel
-  if (innerPaneId === 'inner-insights-settings') renderSettingsGuide()
-  if (innerPaneId === 'inner-insights-directions') renderDirections()
-  if (innerPaneId === 'inner-insights-correlations') renderCorrelations($('corr-q').value)
-  if (innerPaneId === 'inner-recipes-keywords') renderClouds()
-  if (innerPaneId === 'inner-my-gear') renderGear()
 }
 
 function switchTab(id, innerPaneId) {
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab===id))
-  document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.id===`pane-${id}`))
   const toggleEl = document.getElementById('header-view-toggle')
   if(toggleEl) toggleEl.style.display = id === 'grid' ? 'flex' : 'none'
   // Recipe facets are meaningless for photos; the album facet is Gallery-only.
   const isGal = id === 'gallery'
   if (!isGal) initChips()
+
+  if (OUTER_RESETS_INNER[id]) {
+    switchInnerTab(innerPaneId || OUTER_RESETS_INNER[id])
+  } else if (id === 'grid') {
+    switchInnerTab(innerPaneId || lastInner.grid)
+    // Old switchTab always refreshed the (possibly hidden) list pane here,
+    // regardless of which inner-recipes pane ended up visible.
+    renderGrid()
+  } else {
+    const mapped = OUTER_TO_VIEW[id]
+    if (mapped) navigate(mapped[0], mapped[1])
+    if (innerPaneId) switchInnerTab(innerPaneId)
+  }
+  // Same reassertion as switchInnerTab above: pane-grid/pane-my don't match
+  // applyNav()'s pane-<view> naming (pane-recipes/pane-setup don't exist),
+  // so it clears their '.on' class along with everything else. Reassert
+  // the old-id toggle last so the six visible panes stay correct regardless.
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab===id))
+  document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.id===`pane-${id}`))
   syncSidebarFacets()
   if(id==='charts') renderCharts()
-  if(id==='my') { switchInnerTab(innerPaneId || 'inner-my-setup'); renderMyCustomSetup(); }
-  if(id==='explore') initExplore()
-  if(id==='compare') initCompare()
-  if(id==='grid') renderGrid()
   // renderGallery() is build-once; the layout pass must still run on every
   // entry because the pane has zero width while hidden.
-  if(id==='gallery') { renderGallery(); layoutGallery() }
-  if(id==='insights') switchInnerTab(innerPaneId || 'inner-insights-settings')
-  if(innerPaneId) switchInnerTab(innerPaneId)
+  if(id==='gallery') layoutGallery()
 }
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   switchTab(t.dataset.tab)
@@ -1013,7 +1061,6 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
 document.querySelectorAll('.inner-subtab').forEach(btn => {
   btn.addEventListener('click', () => {
     switchInnerTab(btn.dataset.inner)
-    if (btn.dataset.inner === 'inner-my-scenarios') renderScenarios()
   })
 })
 // Sidebar collapse (desktop) and overlay (mobile)
