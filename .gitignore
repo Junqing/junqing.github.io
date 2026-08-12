@@ -6,3 +6,6 @@ PLAN-*.md
 
 # Superpowers scratch (SDD ledgers, briefs, review packages)
 .superpowers/
+
+# Python bytecode from tools/
+__pycache__/

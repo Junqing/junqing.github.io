@@ -202,17 +202,20 @@ main{display:flex;flex:1;min-height:0}
 /* ─── Misc ─── */
 .empty{text-align:center;padding:50px 20px;color:var(--text3)}
 .empty .big{font-size:36px;margin-bottom:10px}
-.gal-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));padding:4px 0}
+/* Justified rows: layoutGallery() sets each .gal-item's px width/height so every
+   row fills the container exactly. Flex-wrap (not grid) — grid would force a
+   uniform column width and reintroduce the ragged gaps this replaced. */
+.gal-grid{display:flex;flex-wrap:wrap;gap:10px;padding:4px 0}
 .gal-item{position:relative;border-radius:var(--r2);overflow:hidden;background:var(--surf2);cursor:zoom-in;border:1px solid var(--border)}
 .gal-item img{display:block;width:100%;height:100%;object-fit:cover;transition:opacity .25s;opacity:0}
 .gal-item img.loaded{opacity:1}
-.gal-item.dead{display:flex;align-items:center;justify-content:center;min-height:140px;color:var(--text3);font-size:11px;cursor:default}
+.gal-item.dead{display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:11px;cursor:default}
 .gal-item.dead img{display:none}
 .gal-credit{text-align:center;color:var(--text3);font-size:11px;padding:18px 0 8px}
 .gal-count{color:var(--text3);font-size:12px;padding:0 0 10px}
 #rmodal-body .gal-photo{display:block;width:100%;height:auto;background:var(--surf2)}
 #rmodal-body .gal-meta{padding:10px 14px;color:var(--text2);font-size:12px;text-align:center;line-height:1.7}
-@media(max-width:680px){.gal-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}}
+/* Mobile is one photo per row — see GAL_PHONE_BP in layoutGallery(). */
 .corr-search{width:100%;background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:7px 10px;color:var(--text);font-size:12px;outline:none;margin-bottom:14px}
 .corr-search:focus{border-color:var(--accent)}
 .corr-search::placeholder{color:var(--text3)}
@@ -1821,7 +1824,9 @@ function switchTab(id, innerPaneId) {
   if(id==='explore') initExplore()
   if(id==='compare') initCompare()
   if(id==='grid') renderGrid()
-  if(id==='gallery') renderGallery()
+  // renderGallery() is build-once; the layout pass must still run on every
+  // entry because the pane has zero width while hidden.
+  if(id==='gallery') { renderGallery(); layoutGallery() }
   if(id==='insights') switchInnerTab(innerPaneId || 'inner-insights-settings')
   if(innerPaneId) switchInnerTab(innerPaneId)
 }
@@ -1862,6 +1867,14 @@ document.querySelectorAll('.inner-subtab').forEach(btn => {
     colBtn.addEventListener('click', ()=>{
       const now = sb.classList.toggle('collapsed')
       setCollapseIcon(now)
+      // Collapsing changes the content width without firing a resize event, so
+      // the justified rows would keep their stale widths. Wait for the .22s
+      // width transition to finish, or we'd measure the pre-collapse width.
+      sb.addEventListener('transitionend', function onEnd(e) {
+        if (e.propertyName !== 'width') return
+        sb.removeEventListener('transitionend', onEnd)
+        if (typeof layoutGallery === 'function') layoutGallery()
+      })
     })
   }
 
@@ -2494,16 +2507,17 @@ function renderGalleryGrid() {
   photos.forEach(p => {
     const cell = document.createElement('div')
     cell.className = 'gal-item'
-    if (p.w && p.h) cell.style.aspectRatio = p.w + ' / ' + p.h
+    cell.dataset.ar = (p.w && p.h) ? (p.w / p.h) : 1.5
     const img = document.createElement('img')
     img.loading = 'lazy'
     img.alt = photoCaption(p) || 'Photograph'
     img.src = p.thumb
     img.addEventListener('load', () => img.classList.add('loaded'))
     img.addEventListener('error', () => {
+      // Keep the cell's computed size — clearing it would collapse the row and
+      // reflow every neighbour. Just show the placeholder in place.
       cell.classList.add('dead')
       cell.textContent = 'unavailable'
-      cell.style.aspectRatio = ''
     })
     cell.appendChild(img)
     cell.addEventListener('click', () => {
@@ -2511,7 +2525,73 @@ function renderGalleryGrid() {
     })
     grid.appendChild(cell)
   })
+  layoutGallery()
 }
+
+const GAL_GAP = 10
+const GAL_TARGET_H = 200   // desktop row height before justification
+const GAL_PHONE_BP = 680   // below this, one photo per row
+
+// Justified rows, Flickr-style: each row is scaled so its widths sum to exactly
+// the container width. The final short row keeps the target height instead of
+// stretching — 1-2 leftover photos blown up full width look absurd.
+//
+// On phones every photo gets its own full-width row. Scaling by a target
+// height instead would pack 2-3 portraits side by side (they are narrow), and
+// a 118px-wide photo is not worth looking at.
+function layoutGallery() {
+  const grid = $('gal-grid')
+  if (!grid) return
+  const cells = [...grid.children]
+  if (!cells.length) return
+
+  const containerW = grid.clientWidth
+  // A hidden pane has zero width; laying out now would size every cell to 0.
+  // switchTab() calls us again on entry, so bail rather than poison the DOM.
+  if (containerW <= 0) return
+
+  // Widths are floored to whole pixels, so a justified row hands the remainder
+  // to its final cell — otherwise rows land a few px short and the right edge
+  // goes ragged. `justify` is false for the trailing short row, which keeps its
+  // natural widths and stops early instead of stretching to fill.
+  const apply = (row, h, justify) => {
+    h = Math.floor(h)
+    let used = 0
+    row.forEach((c, i) => {
+      const last = i === row.length - 1
+      const w = (justify && last) ? containerW - used - GAL_GAP * (row.length - 1)
+                                  : Math.floor(parseFloat(c.dataset.ar) * h)
+      used += w
+      c.style.width  = w + 'px'
+      c.style.height = h + 'px'
+    })
+  }
+
+  if (window.innerWidth <= GAL_PHONE_BP) {
+    cells.forEach(c => {
+      c.style.width  = containerW + 'px'
+      c.style.height = Math.round(containerW / parseFloat(c.dataset.ar)) + 'px'
+    })
+    return
+  }
+
+  let row = [], sumAr = 0
+  cells.forEach(cell => {
+    row.push(cell)
+    sumAr += parseFloat(cell.dataset.ar)
+    if (sumAr * GAL_TARGET_H + GAL_GAP * (row.length - 1) >= containerW) {
+      apply(row, (containerW - GAL_GAP * (row.length - 1)) / sumAr, true)
+      row = []; sumAr = 0
+    }
+  })
+  if (row.length) apply(row, GAL_TARGET_H, false)
+}
+
+let galResizeT = null
+window.addEventListener('resize', () => {
+  clearTimeout(galResizeT)
+  galResizeT = setTimeout(layoutGallery, 120)
+})
 
 function renderGallery() {
   if (galleryBuilt) return
