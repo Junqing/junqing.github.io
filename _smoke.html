@@ -40,7 +40,7 @@ EXPECT.forEach(([name, count]) => {
 ;['renderGrid','renderClouds','renderSettingsGuide','initExplore','initCompare',
   'renderGallery','renderGear','renderMyCustomSetup','renderScenarios',
   'activeRecipes','matches','switchGen','layoutGallery'].forEach(n => {
-  const ok = typeof window[n] === 'function'
+  const ok = defined(n) && typeof eval(n) === 'function'
   if (!ok) fail++
   lines.push(`${ok ? 'OK  ' : 'FAIL'} ${n}() callable`)
 })
