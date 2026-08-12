@@ -3,6 +3,11 @@
 //
 // Loads last: it calls into recipes-ui.js and personal-ui.js.
 
+// family is not yet wired to switchGen() — nothing calls navigate(..., family)
+// on a generation switch, so this stays at its initial value regardless of
+// which recipe family is active. Nothing reads NAV.family yet either, so
+// it's currently dead, but a future task must not assume it tracks reality
+// until switchGen() is taught to update it.
 const NAV = { section: 'home', view: null, subview: null, family: 'V' }
 
 // section -> its views, first is the default
@@ -33,7 +38,13 @@ const NAV_RENDER = {
   recipes:  () => NAV.subview === 'keywords' ? renderClouds() : renderGrid(),
   insights: () => {
     if (NAV.subview === 'directions')   return renderDirections()
-    if (NAV.subview === 'correlations') return renderCorrelations()
+    if (NAV.subview === 'correlations') {
+      // Old switchInnerTab passed $('corr-q').value so a typed filter
+      // survived a tab-away-and-back; a bare call defaults to unfiltered,
+      // matching renderCorrelations()'s own (filterQ||'') fallback.
+      const q = document.getElementById('corr-q')
+      return renderCorrelations(q ? q.value : undefined)
+    }
     return renderSettingsGuide()
   },
 }

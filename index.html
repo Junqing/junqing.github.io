@@ -1032,7 +1032,18 @@ function switchTab(id, innerPaneId) {
   if (OUTER_RESETS_INNER[id]) {
     switchInnerTab(innerPaneId || OUTER_RESETS_INNER[id])
   } else if (id === 'grid') {
-    switchInnerTab(innerPaneId || lastInner.grid)
+    if (innerPaneId) {
+      switchInnerTab(innerPaneId)
+    } else {
+      // Old switchTab never called switchInnerTab for a bare 'grid' click —
+      // whichever inner-recipes pane (List/Keywords) was last shown stays
+      // shown, untouched and unrendered (in particular, Keywords' cloud does
+      // NOT re-render just because you left and came back to the Recipes
+      // tab). Keep NAV in sync with that reality without invoking
+      // NAV_RENDER's render call for it.
+      const mapped = INNER_TO_VIEW[lastInner.grid]
+      if (mapped) { NAV.section = mapped[0]; NAV.view = mapped[1]; NAV.subview = mapped[2] }
+    }
     // Old switchTab always refreshed the (possibly hidden) list pane here,
     // regardless of which inner-recipes pane ended up visible.
     renderGrid()
