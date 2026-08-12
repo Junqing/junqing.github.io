@@ -277,11 +277,43 @@ buildCompactControls, syncCompactDiffs, fujiExploreHTML, initExplore,
 warmthFormulaHTML, punchFormulaHTML, initBadgeFormula
 ```
 
-**Stays in `index.html`** for now (moves in Task 3):
+**Stays in `index.html`** for now (some moves in Task 3):
 ```
 switchTab, switchInnerTab, init, the recipe-modal IIFE, the sidebar-collapse
 IIFE, the other two IIFEs, and the $ helper
 ```
+
+### Modules contain declarations only — no parse-time execution
+
+**This rule is absolute and was decided before implementation began.** A module
+file may contain `function`/`const`/`let` declarations and nothing else. Every
+statement that *runs* at load — event binding, data mutation, `init()` — stays
+in `index.html`'s inline script, which is the entry point and runs last.
+
+Concretely, these top-level statements stay in `index.html` even though they sit
+among functions being moved:
+
+| Line (pre-move) | Statement | Why it stays |
+|---|---|---|
+| 922 | `if (typeof RECIPE_META_PATCHES !== 'undefined') activeRecipes().forEach(...)` | Executes immediately; mutates recipe data |
+| 1136 | `$('q').addEventListener('input', ...)` | Binds to a DOM element |
+| 1137–1151 | `$('clear-btn').addEventListener('click', ...)` | Binds to a DOM element |
+| 1793 | `$('corr-q').addEventListener('input', ...)` | Binds to a DOM element |
+| 2591 | `window.addEventListener('resize', ...)` (gallery) | Registers a listener |
+| 4780 | `init()` | The entry point |
+| 4781 | `window.addEventListener('resize', ...)` (charts) | Registers a listener |
+
+The functions those statements *call* still move to their modules. Only the
+calling statements stay behind.
+
+This keeps modules importable as pure libraries later, gives the app one
+obvious entry point, and avoids depending on `<script src>` tag position
+relative to the markup.
+
+**Load-bearing detail:** the `<script src>` tags currently sit at
+`index.html:902`, *after* all markup (which ends at line 900). New module tags
+must go in that same block. Moving them earlier would break `$('q')` and every
+other element lookup.
 
 **`const $ = id => document.getElementById(id)` must be defined in index.html
 BEFORE the module script tags**, because every moved function uses it. Move it
