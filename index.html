@@ -1003,6 +1003,26 @@ const INNER_TO_VIEW = {
   'inner-insights-correlations': ['camera', 'insights', 'correlations'],
 }
 
+// Toggles '.on' on the inner-pane itself and its subtab button, by old id.
+// Pulled out of switchInnerTab so the bare-grid branch of switchTab can
+// reassert this DOM state without going through navigate()/NAV_RENDER (that
+// would re-trigger a render, which is exactly what the bare-grid branch
+// must not do — see its comment below). Every caller of applyNav() clears
+// '.on' from every '.inner-pane' whose id doesn't match its NEW naming
+// scheme (inner-<view>-<subview>); for inner-my-* and, from any non-'recipes'
+// view, inner-recipes-*/inner-insights-* too, that means '.on' gets wiped
+// the moment you visit an unrelated tab. Nothing but this function (or
+// applyNav() itself, when the ids happen to coincide) ever puts it back, so
+// every code path that lands on a given inner pane — including a bare
+// top-tab click that doesn't call switchInnerTab — must call this last.
+function applyInnerPaneClasses(innerPaneId) {
+  const inner = document.getElementById(innerPaneId)
+  if (!inner) return
+  const parent = inner.closest('.pane')
+  parent.querySelectorAll('.inner-pane').forEach(p => p.classList.toggle('on', p === inner))
+  parent.querySelectorAll('.inner-subtab').forEach(b => b.classList.toggle('on', b.dataset.inner === innerPaneId))
+}
+
 function switchInnerTab(innerPaneId) {
   const inner = document.getElementById(innerPaneId)
   if (!inner) return
@@ -1017,9 +1037,7 @@ function switchInnerTab(innerPaneId) {
   // it always wins, whether or not this round-trip was a no-op.
   const mapped = INNER_TO_VIEW[innerPaneId]
   if (mapped) navigate(mapped[0], mapped[1], mapped[2])
-  const parent = inner.closest('.pane')
-  parent.querySelectorAll('.inner-pane').forEach(p => p.classList.toggle('on', p === inner))
-  parent.querySelectorAll('.inner-subtab').forEach(b => b.classList.toggle('on', b.dataset.inner === innerPaneId))
+  applyInnerPaneClasses(innerPaneId)
 }
 
 function switchTab(id, innerPaneId) {
@@ -1040,9 +1058,17 @@ function switchTab(id, innerPaneId) {
       // shown, untouched and unrendered (in particular, Keywords' cloud does
       // NOT re-render just because you left and came back to the Recipes
       // tab). Keep NAV in sync with that reality without invoking
-      // NAV_RENDER's render call for it.
+      // NAV_RENDER's render call for it — but DO reassert the '.on' classes:
+      // any tab visited in between ran applyNav() for a non-'recipes' view,
+      // which clears '.on' from every '.inner-pane' (inner-recipes-list's id
+      // doesn't match that other view's inner-<view>-<subview> naming), and
+      // switchInnerTab is the only other place that puts it back. Skipping
+      // this reassertion is exactly what caused round-1's regression: the
+      // Recipes tab rendered its 113 cards into a pane with no '.on' class,
+      // so CSS kept it display:none and the tab looked blank.
       const mapped = INNER_TO_VIEW[lastInner.grid]
       if (mapped) { NAV.section = mapped[0]; NAV.view = mapped[1]; NAV.subview = mapped[2] }
+      applyInnerPaneClasses(lastInner.grid)
     }
     // Old switchTab always refreshed the (possibly hidden) list pane here,
     // regardless of which inner-recipes pane ended up visible.
