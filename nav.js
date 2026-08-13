@@ -3,11 +3,13 @@
 //
 // Loads last: it calls into recipes-ui.js and personal-ui.js.
 
-// family is not yet wired to switchGen() — nothing calls navigate(..., family)
-// on a generation switch, so this stays at its initial value regardless of
-// which recipe family is active. Nothing reads NAV.family yet either, so
-// it's currently dead, but a future task must not assume it tracks reality
-// until switchGen() is taught to update it.
+// family is wired one-way: navigate() drives switchGen(), never the reverse.
+// switchGen() itself does not call navigate() or touch location.hash — if it
+// did, a gen-select change would loop switchGen -> navigate -> hash write ->
+// hashchange -> navigate -> switchGen forever. Because the wiring is
+// one-directional, NAV.family is trustworthy immediately after any
+// navigate() call, even though the underlying loadGen()/activeGen switch
+// (recipes-ui.js) may still be resolving asynchronously behind it.
 const NAV = { section: 'home', view: null, subview: null, family: 'V' }
 
 // Declared totals for the Home door stat — deliberately NOT derived from
@@ -136,10 +138,60 @@ function navigate(section, view, subview, family) {
   NAV.section = section
   NAV.view = view
   NAV.subview = subview
-  if (family && typeof RECIPE_POOLS === 'object' && RECIPE_POOLS.hasOwnProperty(family)) {
+  // Validate against RECIPE_FAMILIES (the declared, always-complete id list),
+  // not RECIPE_POOLS — RECIPE_POOLS only gains an 'OM' key once loadGen('OM')
+  // has actually resolved, so checking it here would reject a fresh #/f=OM
+  // deep link before switchGen() ever gets the chance to load it. An
+  // unrecognized family (e.g. f=ZZ) is silently ignored, leaving NAV.family
+  // at whatever it already was.
+  if (family && RECIPE_FAMILIES.some(f => f.id === family)) {
     NAV.family = family
   }
   applyNav()
+
+  // One-way wiring, decided here to avoid the switchGen -> navigate -> hash
+  // write -> hashchange -> navigate -> switchGen loop the brief warns about:
+  // navigate() drives switchGen(), and switchGen() itself never calls
+  // navigate() or touches location.hash. Only fires on an actual family
+  // change, and only in the camera section, so switching between Recipes/
+  // Insights/Explore/Compare (which re-navigate on every click) never
+  // re-triggers switchGen()'s filter/search reset when the family hasn't
+  // changed.
+  if (NAV.section === 'camera' && typeof activeGen !== 'undefined' &&
+      NAV.family !== activeGen && typeof switchGen === 'function') {
+    switchGen(NAV.family)
+  }
+
+  // Hash write, guarded against the hashchange it triggers: assigning
+  // location.hash fires hashchange asynchronously, which re-parses via
+  // applyHash() and calls navigate() again — but by then navToHash() already
+  // matches location.hash, so that second pass is a single harmless no-op,
+  // not a loop.
+  const newHash = navToHash()
+  if (location.hash !== newHash) location.hash = newHash
+}
+
+// Hash routing, not pushState: GitHub Pages serves static files with no
+// rewrite rules, so a real path like /camera/explore would 404 on refresh or
+// deep link. Hash fragments never reach the server, so #/camera/explore
+// always serves index.html and the client routes from there.
+function navToHash() {
+  const parts = ['#', NAV.section]
+  if (NAV.view) parts.push(NAV.view)
+  if (NAV.subview) parts.push(NAV.subview)
+  if (NAV.section === 'camera' && NAV.family !== 'V') parts.push('f=' + NAV.family)
+  return parts.join('/').replace('#/home', '#/')
+}
+
+// Family is tagged `f=` rather than positional: without it, #/camera/recipes/OM
+// is ambiguous — OM could be a subview or a family, and both are optional.
+function applyHash() {
+  const raw = location.hash.replace(/^#\/?/, '')
+  const segs = raw.split('/').filter(Boolean)
+  const fam = segs.find(s => s.startsWith('f='))
+  const rest = segs.filter(s => !s.startsWith('f='))
+  const [section, view, subview] = rest
+  navigate(section || 'home', view, subview, fam && fam.slice(2))
 }
 
 // Toggles DOM classes to match NAV. Reads NAV; never the reverse.

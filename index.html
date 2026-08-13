@@ -722,7 +722,7 @@ main{display:flex;flex:1;min-height:0}
       <div class="tab" data-view="notes">Notes</div>
     </div>
     <div class="view-tabs" data-section="camera">
-      <select id="gen-select" class="gen-select" onchange="switchGen(this.value)" title="Recipe family">
+      <select id="gen-select" class="gen-select" onchange="navigate(NAV.section, NAV.view, NAV.subview, this.value)" title="Recipe family">
         <option value="V" selected>X-Trans V</option>
         <option value="IV">X-Trans IV</option>
         <option value="III">X-Trans III</option>
@@ -1124,7 +1124,8 @@ function init(){
   // blank the first time a view tab is clicked, but nothing here has told the
   // DOM which pane is actually active — NAV defaults to 'home' but no .on
   // class exists yet without a navigate() call to apply it.
-  navigate(NAV.section, NAV.view, NAV.subview)
+  window.addEventListener('hashchange', applyHash)
+  if (location.hash) applyHash(); else navigate(NAV.section, NAV.view, NAV.subview)
 }
 
 init()
