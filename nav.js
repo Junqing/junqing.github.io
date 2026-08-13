@@ -50,8 +50,63 @@ const NAV_RENDER = {
 }
 
 function renderCurrentView() {
+  if (NAV.section === 'home') {
+    if (typeof renderHome === 'function') renderHome()
+    return
+  }
   const fn = NAV_RENDER[NAV.view]
   if (fn) fn()
+}
+
+// Landing page. Rebuilds #pane-home's full content on every entry — cheap,
+// and keeps the recent-photos strip and door-card stats current even if
+// GALLERY_PHOTOS or a lazily-loaded recipe family changed since last visit.
+// Guards every external data reference so a missing gallery.js/gear.js/
+// recipes-*.js degrades to a smaller home page, never a blank one.
+function renderHome() {
+  const pane = document.getElementById('pane-home')
+  if (!pane) return
+
+  const photos = typeof GALLERY_PHOTOS !== 'undefined' ? GALLERY_PHOTOS : []
+  const recent = [...photos].sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 6)
+
+  const photoCount = photos.length
+  const recipeCount = (typeof RECIPE_POOLS === 'object' && RECIPE_POOLS)
+    ? Object.values(RECIPE_POOLS).reduce((sum, pool) => sum + (pool ? pool.length : 0), 0)
+    : 0
+  const familyCount = (typeof RECIPE_POOLS === 'object' && RECIPE_POOLS) ? Object.keys(RECIPE_POOLS).length : 0
+
+  const photoStripHtml = recent.length
+    ? `<div class="home-section-label">Recent photos</div>
+       <div class="home-photo-strip" id="home-photo-strip">${
+         recent.map(p => `<img src="${p.thumb}" alt="${p.camera || ''}">`).join('')
+       }</div>`
+    : ''
+
+  pane.innerHTML = `
+    <div class="home-hero">
+      <h2 class="home-name">Jin</h2>
+      <p class="home-bio">Techie by day, hobby photographer and guitarist.</p>
+    </div>
+    ${photoStripHtml}
+    <div class="home-doors">
+      <div class="home-door" id="home-door-photography">
+        <h3>Photography</h3>
+        <p>gear + my setup</p>
+        <div class="home-door-stat">${photoCount} photo${photoCount === 1 ? '' : 's'}</div>
+      </div>
+      <div class="home-door" id="home-door-camera">
+        <h3>Camera Settings</h3>
+        <div class="home-door-stat">${recipeCount} recipes · ${familyCount} families</div>
+      </div>
+    </div>`
+
+  const strip = document.getElementById('home-photo-strip')
+  if (strip) strip.addEventListener('click', () => navigate('photography', 'gallery'))
+  const doorPhotography = document.getElementById('home-door-photography')
+  if (doorPhotography) doorPhotography.addEventListener('click', () => navigate('photography'))
+  const doorCamera = document.getElementById('home-door-camera')
+  if (doorCamera) doorCamera.addEventListener('click', () => navigate('camera'))
 }
 
 function navigate(section, view, subview, family) {
@@ -82,5 +137,30 @@ function applyNav() {
     p.classList.toggle('on', p.id === 'pane-' + (NAV.view || NAV.section)))
   document.querySelectorAll('.inner-pane').forEach(p =>
     p.classList.toggle('on', p.id === 'inner-' + NAV.view + '-' + NAV.subview))
+
+  // Recipe/OM sidebar facets only mean anything in Camera Settings; the
+  // Gallery view keeps its own album-only facet. Both are handled inside
+  // syncSidebarFacets() (recipes-ui.js), keyed off NAV.view/activeGen — this
+  // just decides whether the sidebar aisle is present at all. Gear/Setup/
+  // Notes/Home have no facets, so the sidebar (and its mobile toggle) is
+  // hidden outright rather than showing stale recipe chips next to gear specs.
+  const sidebarRelevant = NAV.section === 'camera' || NAV.view === 'gallery'
+  const sidebar = document.getElementById('sidebar')
+  if (sidebar) sidebar.style.display = sidebarRelevant ? '' : 'none'
+  const mobFilterBtn = document.getElementById('mob-filter-btn')
+  if (mobFilterBtn) mobFilterBtn.style.display = sidebarRelevant ? '' : 'none'
+  if (typeof syncSidebarFacets === 'function') syncSidebarFacets()
+  if (NAV.section === 'camera' && typeof initChips === 'function') initChips()
+
+  // Visual/Cheatsheet toggle only applies to the recipe grid.
+  const viewToggle = document.getElementById('header-view-toggle')
+  if (viewToggle) viewToggle.style.display = NAV.view === 'recipes' ? 'flex' : 'none'
+
+  // renderGallery()/layoutGallery() are idempotent past the first build, but
+  // the justified-row layout pass must re-run on every entry — the pane has
+  // zero width while its .pane lacked '.on', so any layout computed while
+  // hidden is wrong.
+  if (NAV.view === 'gallery' && typeof layoutGallery === 'function') layoutGallery()
+
   renderCurrentView()
 }

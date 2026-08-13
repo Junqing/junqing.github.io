@@ -171,13 +171,12 @@ function buildChips(containerId, values, filterKey) {
 // and activeGen, owns every .sb-section's display. initChips() only builds
 // chip contents; it must not also decide visibility (that duplication is what
 // let the Gallery-only sidebar reappear stacked with Fuji/OM facets after a
-// gen switch — see switchGen()/switchTab()).
+// gen switch — see switchGen()/applyNav()).
 function syncSidebarFacets() {
-  // NAV.section === 'photography' is not narrow enough: the 'my' tab also
-  // maps to photography/setup (see index.html's OUTER_TO_VIEW/INNER_TO_VIEW),
-  // and its sidebar must keep showing normal recipe facets, not collapse to
-  // the Gallery-only album facet. NAV.view === 'gallery' matches the old
-  // dataset.tab === 'gallery' check exactly.
+  // applyNav() (nav.js) already hides the whole sidebar for Photography's
+  // Gear/Setup/Notes views and for Home — this function only runs (and only
+  // needs to distinguish) Camera Settings' recipe facets from Gallery's
+  // album-only facet.
   const isGal = NAV.view === 'gallery'
   const isOm  = activeGen === 'OM'
   const show = (id, on) => { const el=$(id); if(el) el.style.display = on ? '' : 'none' }
@@ -626,7 +625,7 @@ function buildHistCard(container, field, vals) {
         S.chartFilter={field:f,value:v}
       }
       render()
-      switchTab('grid')
+      navigate('camera', 'recipes')
     })
   })
 
@@ -749,7 +748,7 @@ function renderDirections(){
     })
   })
 }
-function goRecipe(name){switchTab('grid');$('q').value=name;S.q=name;render()}
+function goRecipe(name){navigate('camera', 'recipes');$('q').value=name;S.q=name;render()}
 
 // ══════════════════════════════════════════
 // CORRELATIONS
@@ -815,8 +814,8 @@ function renderCorrelations(filterQ) {
       <div class="dr-pills">${drPills}</div>`
 
     card.addEventListener('click',()=>{
-      switchTab('grid')
-      switchInnerTab('inner-recipes-keywords')
+      navigate('camera', 'recipes')
+      navigate('camera', 'recipes', 'keywords')
     })
     grid.appendChild(card)
   })
@@ -1519,7 +1518,7 @@ function onCompareCardClick(r) {
   C.a = compareSlots[0]; C.b = compareSlots[1]
   compareSlots = [null, null]
   updateCompareCardButtons()
-  switchTab('compare')
+  navigate('camera', 'compare')
 }
 
 function initCompare() {
