@@ -12,9 +12,9 @@
 // run later. OM_WHEEL_ORDER / OM_WHEEL_ABBR are therefore defined here and
 // consumed by index.html rather than the other way round.
 //
-// Depends on these globals from index.html (all call-time only):
+// Depends on these globals from index.html/nav.js (all call-time only):
 //   buildOmVisual, buildOmWheelSvg, buildOmWbBox, clamp, openRecipeModal,
-//   activeRecipes, goRecipe, buildSgCard, switchTab, switchInnerTab,
+//   activeRecipes, goRecipe, buildSgCard, navigate,
 //   activeGen, C, compareSlots, updateCompareCardButtons,
 //   WARMTH_CLASS, PUNCH_CLASS
 // ══════════════════════════════════════════════════════════════════════════
@@ -313,8 +313,7 @@ function renderOmCorrelations(filterQ) {
       <div class="dr-pills">${typePills}</div>`
 
     card.addEventListener('click', () => {
-      switchTab('grid')
-      switchInnerTab('inner-recipes-keywords')
+      navigate('camera', 'recipes', 'keywords')
     })
     grid.appendChild(card)
   })

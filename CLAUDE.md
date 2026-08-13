@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a GitHub Pages site hosting a recipe explorer for two distinct camera recipe families — **Fujifilm X-Trans** (film simulation recipes) and **OM System/Olympus** (color-wheel recipes from om-recipes.com) — as a single-file SPA with no build process. The main application lives in `index.html` (served at the site root by GitHub Pages), with recipe data in per-generation/family files (`recipes-v.js`, `recipes-om.js`, etc.) and personal gear data in `gear.js`.
+This is **Jin's personal homepage**, a GitHub Pages site with no build process. It has three top-level sections: **Home** (a landing page introducing the author), **Photography** (Jin's own gallery, gear, custom camera setup, and shooting notes), and **Camera Settings** (a recipe explorer for two distinct camera recipe families — **Fujifilm X-Trans** film simulation recipes and **OM System/Olympus** color-wheel recipes from om-recipes.com). Photography and the recipe explorer are two facets of one site, not two products bolted together — see `docs/superpowers/specs/2026-08-12-layout-reorg-design.md` for the rationale.
+
+The shell lives in `index.html` (served at the site root by GitHub Pages), which loads four hand-written JS modules (`nav.js`, `recipes-ui.js`, `personal-ui.js`, `om-analysis.js`) plus data files: recipe data in per-generation/family files (`recipes-v.js`, `recipes-om.js`, etc.), personal gear/setup data in `gear.js`, and gallery data in `gallery.js`.
 
 **The two recipe families are architecturally separate and must stay that way.** Fuji recipes (`RECIPES_V/IV/III/II/I`) use a film-simulation-based schema; OM recipes (`RECIPES_OM`) use a 12-point color-wheel schema. They share zero field names by design. Do not merge, cross-reference, or generalize the two schemas — when adding recipe-family-aware code, branch explicitly on `activeGen === 'OM'` rather than trying to unify field access.
 
@@ -21,12 +23,33 @@ No package.json, no npm, no bundler.
 
 ## Architecture
 
-`index.html` contains inline CSS (`<style>`), inline HTML structure, and inline `<script>` — one file for the core app. It loads external files in this order:
+`index.html` contains inline CSS (`<style>`), inline HTML structure (the shell, header, nav, and empty pane containers), and one small inline `<script>` block — the app's actual entry point. Everything else is split into four modules, each loaded via `<script src>`:
+
+- **`nav.js`** — owns navigation state (`NAV`) and routing. The only place that knows "where am I". Loaded last because it calls into both realms below.
+- **`recipes-ui.js`** — the Camera Settings realm: recipe grid, keywords, insights, explore, compare, sidebar facets, and the `S`/`T`/`C` filter-and-tool state.
+- **`personal-ui.js`** — the Photography realm: gallery, gear, custom setup, and scenario-notes rendering.
+- **`om-analysis.js`** — OM-specific analysis (unchanged by the layout reorg; see its own section below).
+
+Current script load order in `index.html`:
 
 ```html
-<script src="recipes-v.js"></script>  <!-- active generation loaded first; others lazy-loaded -->
-<script src="gear.js"></script>       <!-- loaded before the main inline script -->
+<script src="recipes-v.js"></script>    <!-- recipe data -->
+<script src="recipes-iv.js"></script>
+<script src="recipes-iii.js"></script>
+<script src="recipes-ii.js"></script>
+<script src="recipes-i.js"></script>
+<script src="corr-data.js"></script>
+<script src="om-analysis.js"></script>
+<script src="gallery.js"></script>
+<script>const $ = id => document.getElementById(id)</script>
+<script src="recipes-ui.js"></script>   <!-- realm renderers -->
+<script src="personal-ui.js"></script>
+<script src="gear.js"></script>
+<script src="nav.js"></script>          <!-- router, loaded last -->
+<script> … init(), event wiring … </script>
 ```
+
+**Load-order rule:** every module (and the small `const $` block) is *declarations only* — nothing in a module may touch another module's or another script's globals at parse time, only inside function bodies. Anything that actually needs to run at load time (event listeners, `init()`, the initial `applyHash()` call) lives in `index.html`'s trailing inline `<script>`, which runs after all four modules have parsed. This is what keeps each module usable as a pure, importable library regardless of `<script>` tag order, and is why `nav.js` — which calls into `recipes-ui.js` and `personal-ui.js` — can safely load after them without those two ever needing to call back into `nav.js` at parse time.
 
 **`gear.js`** defines five plain globals:
 - `MY_CAMERAS` — camera bodies with specs and `image` field pointing to `images/gear/`. Includes both Fuji bodies and the Olympus PEN-F.
@@ -45,7 +68,9 @@ This file is intentionally human-readable and editable directly on GitHub. If it
 - `recipes-i.js` — defines `RECIPES_I` (X-Trans I, ~13 recipes)
 - `recipes-om.js` — defines `RECIPES_OM` (OM System/Olympus, 66 recipes sourced from om-recipes.com); uses a completely distinct schema, see below
 
-Generation files II–IV and OM are lazy-loaded on first switch via `loadGen(gen)` (fetches `recipes-<gen.toLowerCase()>.js`, e.g. `recipes-om.js` for `gen === 'OM'`). The active pool is always accessed via `activeRecipes()`, which returns `RECIPE_POOLS[activeGen] || []` (`RECIPE_POOLS` is populated eagerly for V and lazily for everything else).
+All five Fuji generations (`recipes-v.js` through `recipes-i.js`) load eagerly via `<script src>` in `index.html` and are eagerly pooled: `recipes-ui.js` builds `const RECIPE_POOLS = { V: RECIPES_V, IV: RECIPES_IV, III: RECIPES_III, II: RECIPES_II, I: RECIPES_I }` at parse time. Only **OM** is lazy-loaded, via `loadGen(gen)` (fetches `recipes-<gen.toLowerCase()>.js` and assigns `RECIPE_POOLS[gen] = window['RECIPES_' + gen]` on load), called from `switchGen(gen)` when the user first switches to OM. The active pool is always accessed via `activeRecipes()`, which returns `RECIPE_POOLS[activeGen] || []`.
+
+This was not always true: before the `redesign/layout-reorg` branch, `RECIPES_V` (and every other Fuji generation) was inlined as a `var RECIPES_V = [...]` literal directly in `index.html`'s trailing script block — not loaded via `<script src>` at all — even though `recipes-v.js` existed as an identical standalone file. `recipes-v.js` etc. are the only copies now; the inline duplicates were deleted when the data was extracted into its own `<script src>` tags.
 
 Each **Fuji** recipe object has:
 - Camera settings: `film_simulation`, `grain_effect`, `color_chrome_effect`, `color_chrome_fx_blue`, `white_balance`, `wb_shift_red/blue`, `dynamic_range`, `highlight`, `shadow`, `color`, `sharpness`, `clarity`, `iso_max`, `exposure_compensation`
@@ -71,40 +96,84 @@ Note the deliberate field-name divergence even where a concept overlaps: OM uses
 
 **State** — a single `S` object holds active filter state (search query + chip selections). Filter sets: `S.f.sim`, `S.f.warmth`, `S.f.punch`, `S.f.mood`, `S.f.scene`, `S.f.era`, plus the OM-only `S.f.type` and `S.f.hue` — note `S.f.dir` no longer exists (replaced by warmth + punch).
 
-`activeGen` (string, default `"V"`) tracks the currently selected recipe family/generation — one of `V`, `IV`, `III`, `II`, `I`, `OM`. `activeRecipes()` returns `RECIPE_POOLS[activeGen] || []`. A `<select id="gen-select">` dropdown in the header (labeled "Recipe family") lets the user switch; switching calls `switchGen(gen)` which lazy-loads the file if needed, resets `S` state, clears `exploreBuilt`, and re-renders.
+`activeGen` (string, default `"V"`) tracks the currently selected recipe family/generation — one of `V`, `IV`, `III`, `II`, `I`, `OM`. `activeRecipes()` returns `RECIPE_POOLS[activeGen] || []`.
+
+A `<select id="gen-select">` dropdown lets the user switch. It lives **inside the Camera Settings `.view-tabs` bar**, not in the global header — it is meaningless in Home and Photography, and having it globally visible previously caused a real bug (changing family while on the Gallery tab re-showed recipe filter sections over a gallery-only sidebar). Its `onchange` calls `navigate(NAV.section, NAV.view, NAV.subview, this.value)` rather than `switchGen()` directly, so the family becomes part of the URL; `navigate()` then calls `switchGen(gen)` only when the family actually changed.
+
+`switchGen(gen)` lazy-loads the file if needed, resets `S` state, clears `exploreBuilt`/`compareBuilt`, and re-renders. It carries a `genRequestSeq` guard so a slow load resolving after a newer switch is discarded, and on failure it resets `NAV.family` back to `activeGen` (otherwise `navigate()`'s change-detection stays permanently true and retries the failed load on every subsequent click).
 
 **Rendering pipeline**:
-1. `init()` bootstraps chip filters and tab listeners, calls `render()`
-2. `render()` calls `filtered()` (applies `S` to `activeRecipes()`), delegates to active tab's render function
-3. Each tab has its own render function (see tab list below)
+1. `index.html`'s trailing inline `<script>` wires the section/view/subview tab click listeners (they all call `navigate(...)`) and calls `init()`.
+2. `init()` (`index.html`) bootstraps chip filters, sidebar facets, and pre-warms several Camera Settings panes, registers the `hashchange` listener, then calls `applyHash()` to route to whatever the URL says (or Home, on a fresh load).
+3. `applyHash()` / `navigate()` (`nav.js`) update `NAV` and call `applyNav()`, which toggles the DOM's `.on` classes and ends by calling `renderCurrentView()`.
+4. `renderCurrentView()` (`nav.js`) dispatches on `NAV.view` through the `NAV_RENDER` table (falling back to `renderHome()` when `NAV.section === 'home'`) — see Routing below.
+5. Within Camera Settings, each view's render function calls `filtered()` (`() => activeRecipes().filter(matches)`, applying `S`) to get its recipe set.
 
-## Tabs (current structure)
+## Sections and views (current structure)
 
-Top-level tabs live in `.tabs` (`data-tab` on each `.tab` div); most contain **inner-subtabs** (pill buttons, `.inner-subtab`/`.inner-pane`, wired via `switchInnerTab(innerPaneId)`) rather than being flat single-pane tabs.
+Top-level navigation is driven entirely by `NAV` (`nav.js`), not by DOM inspection — see Routing below for the full scheme. There is no flat tab bar and no `data-tab` attribute; elements instead carry `data-section`, `data-view`, or `data-subview`, and `applyNav()` toggles `.on` by comparing each element's attribute to the matching `NAV` field.
 
-| Top-level tab | `data-tab` | Inner subtabs (`data-inner`) | Render function(s) |
-|---|---|---|---|
-| My | `my` | My Custom Setup (`inner-my-setup`), My Gear (`inner-my-gear`), Scenario Cases (`inner-my-scenarios`) | `renderMyCustomSetup()` (dispatches to `renderCustomSlots()` for X-T50, or renders PEN-F modes/profiles via `buildOmVisual()`, or an empty state for X-M5), `renderGear()`, `renderScenarios()` |
-| Recipes | `grid` | Recipes (`inner-recipes-list`), Keywords (`inner-recipes-keywords`) | `renderGrid()`, `renderClouds()` |
-| Insights | `insights` | Settings Guide (`inner-insights-settings`), Directions (`inner-insights-directions`), Correlation (`inner-insights-correlations`) | `renderSettingsGuide()`, `renderDirections()`, `renderCorrelations()` |
-| Explore | `explore` | — (`pane-no-subtabs`) | `initExplore()`; see `docs/explore.md` |
-| Compare | `compare` | — (`pane-no-subtabs`) | `initCompare()` / `renderCompare()` |
-| Gallery | `gallery` | — (`pane-no-subtabs`) | `renderGallery()` |
+| Section | `data-section` | Views (`data-view`) | Subviews (`data-subview`) | Render function(s) |
+|---|---|---|---|---|
+| Home | `home` | — (landing only) | — | `renderHome()` (`nav.js`) |
+| Photography | `photography` | Gallery (`gallery`), Gear (`gear`), My Setup (`setup`), Notes (`notes`) | — | `renderGallery()`, `renderGear()`, `renderMyCustomSetup()`, `renderScenarios()` (all `personal-ui.js`, except `renderMyCustomSetup`'s OM delegate `buildOmVisual()` which is in `recipes-ui.js`) |
+| Camera Settings | `camera` | Recipes (`recipes`), Insights (`insights`), Explore (`explore`), Compare (`compare`) | Recipes: list (default)/keywords; Insights: settings (default)/directions/correlations | `renderGrid()`/`renderClouds()`, `renderSettingsGuide()`/`renderDirections()`/`renderCorrelations()`, `initExplore()`, `initCompare()`/`renderCompare()` (all `recipes-ui.js`) |
 
-Tab switching goes through `switchTab(id, innerPaneId)` (`index.html`), which toggles `.on` classes on `.tab`/`.pane` and dispatches to the relevant render/init call; `switchInnerTab(innerPaneId)` does the same for inner panes within the active tab.
+The family picker (`<select id="gen-select">`) lives inside Camera Settings' view-tabs bar only — it has no meaning in Photography or Home, so it is scoped there rather than shown globally.
 
-**OM recipe family scope**: every tab now has an OM implementation. Settings Guide, Directions, Correlation, Explore, and Compare each detect `activeGen === 'OM'` early in their render/init function and delegate to the matching `renderOmX()` / `initOmX()` in **`om-analysis.js`**, falling back to the old `.empty` "not available" state only if that file failed to load (each dispatch is wrapped in `typeof fn === 'function'`). Each guard resets its own build-once flag (`settingsBuilt`, `exploreBuilt`, `compareBuilt`) so switching families rebuilds rather than staying stuck.
+Tab clicks call `navigate(section, view, subview, family)` directly (`personal-ui.js` wires the listeners); there is no `switchTab()`/`switchInnerTab()` — those functions were removed by the layout reorg. See **Routing** below for the full navigation model.
+
+**OM recipe family scope**: every Camera Settings view now has an OM implementation. Settings Guide, Directions, Correlation, Explore, and Compare each detect `activeGen === 'OM'` early in their render/init function and delegate to the matching `renderOmX()` / `initOmX()` in **`om-analysis.js`**, falling back to the old `.empty` "not available" state only if that file failed to load (each dispatch is wrapped in `typeof fn === 'function'`). Each guard resets its own build-once flag (`settingsBuilt`, `exploreBuilt`, `compareBuilt`) so switching families rebuilds rather than staying stuck.
+
+## Routing
+
+Navigation is hash-based, owned entirely by `nav.js`. There is no `pushState`-based routing: GitHub Pages serves static files with no server-side rewrite rules, so a real path like `/camera/explore` would 404 on refresh or on a pasted deep link. Hash fragments never reach the server, so `#/camera/explore` always serves `index.html` and the client routes from there once it loads.
+
+**Hash scheme** (built/parsed by `navToHash()` / `applyHash()` in `nav.js`):
+
+```
+#/                          Home
+#/photography               Photography (defaults to Gallery)
+#/photography/gallery       Photography ▸ Gallery
+#/photography/gear          Photography ▸ Gear
+#/photography/setup         Photography ▸ My Setup
+#/photography/notes         Photography ▸ Notes
+#/camera                    Camera Settings (defaults to Recipes, current family)
+#/camera/recipes            Camera Settings ▸ Recipes
+#/camera/insights           Camera Settings ▸ Insights
+#/camera/explore            Camera Settings ▸ Explore
+#/camera/compare            Camera Settings ▸ Compare
+#/camera/recipes/keywords   Recipes ▸ Keywords (inner subtab)
+#/camera/insights/directions
+#/camera/recipes/f=OM       …scoped to a named family
+```
+
+Recipes and Insights keep their inner-subtab bars (Recipes has list/keywords; Insights has settings/directions/correlations), so a hash may carry a `view` segment and, optionally, a `subview` segment. The family is tagged with an `f=` prefix rather than encoded positionally, because both the subview and the family segment are optional — a bare `#/camera/recipes/OM` would be ambiguous between "Recipes, family OM" and some future third subview named `OM`. `applyHash()` filters segments starting with `f=` out before positionally destructuring the rest into `[section, view, subview]`.
+
+- `navigate(section, view, subview, family)` (`nav.js`) is the single entry point for all navigation, called both by click handlers (`personal-ui.js`) and by `applyHash()`. It validates each argument against `NAV_VIEWS`/`NAV_SUBVIEWS`/`RECIPE_FAMILIES`, falling back to a default rather than erroring — an unrecognized section falls back to Home, an unrecognized view falls back to its section's first view, and an unrecognized family segment (e.g. `f=ZZ`) is silently ignored, leaving `NAV.family` at whatever it already was.
+- A `hashchange` listener (registered once, in `init()`) calls `applyHash()` on every hash change, so browser Back/Forward work.
+- **Canonicalising vs. user navigation** (`navCanonicalising` flag in `nav.js`): `navigate()` always writes the resulting hash if it differs from `location.hash`, but *how* it writes matters for the Back button. A plain `location.hash = ...` assignment always **pushes** a new history entry. That's correct when the user actually clicked something. But `applyHash()` also calls `navigate()` to reconcile whatever hash the browser handed it — on first load with no hash, or when correcting an invalid hash like `#/nonsense` back to `#/` — and if that correction pushed a history entry too, the visitor's first Back press (the one meant to leave the site) would instead land on the bad/absent hash and re-correct forward, making Back appear broken. `applyHash()` sets `navCanonicalising = true` before calling `navigate()`; `navigate()` checks that flag and uses `history.replaceState()` instead of a hash assignment when it's set, so canonicalisation never leaves a spurious entry, while genuine user-driven navigation still pushes normally.
+- `RECIPE_FAMILIES` (`nav.js`) is the source of truth for valid family ids in routing/validation — see the note under Key functions below.
+
+## GitHub Pages constraints
+
+The site is a static, buildless GitHub Pages deployment with no CNAME (served from `junqing.github.io`, not a custom domain) and no server. That imposes hard constraints on how code and assets may reference each other:
+
+- **Relative paths only.** Every `<script src>`, `loadGen()` fetch path, and image `src` must be relative (e.g. `gallery.js`, `images/gear/x-m5.jpg`), never absolute (`/gallery.js`). An absolute path resolves against the domain root and 404s the moment the site is anything other than the domain's sole top-level app — which it already isn't, once other paths exist on `junqing.github.io`.
+- **Case-sensitive filenames.** GitHub Pages serves from a case-sensitive filesystem; macOS (the usual dev machine) is not, by default. A `<script src>` value that differs from the real filename only in case works locally and 404s once deployed. Always match `<script src>`/`loadGen()` paths to the actual on-disk filename exactly.
+- **`.nojekyll` is present at the repo root** — required because GitHub Pages runs Jekyll by default, and Jekyll silently skips (does not serve, does not error) any file or directory whose name starts with `_` or `.`. There's no current directory like that in this repo, but `.nojekyll` is cheap insurance against a future one vanishing with no error.
+- **No server-side rewrite rules**, which is why routing is hash-based rather than `pushState`-based — see Routing above. `location.hash` never reaches the server, so a hard refresh or a pasted deep link like `#/camera/explore` always resolves to `index.html` first and lets the client route from there; a real path segment would 404 outright.
 
 ## om-analysis.js
 
-All OM-specific analysis lives in `om-analysis.js`, loaded **before** `gear.js` and before the inline script. `index.html` keeps only thin dispatch lines. The two recipe families stay architecturally separate — no Fuji code path reaches this file.
+All OM-specific analysis lives in `om-analysis.js`, loaded early — before `recipes-ui.js`, `personal-ui.js`, `gear.js`, `nav.js`, and `index.html`'s trailing inline `<script>`. `index.html` keeps only thin dispatch lines. The two recipe families stay architecturally separate — no Fuji code path reaches this file.
 
 ```html
 <script src="om-analysis.js"></script>
-<script src="gear.js"></script>
+<!-- … gallery.js, recipes-ui.js, personal-ui.js, gear.js, nav.js … -->
 ```
 
-**Load-order rule:** `om-analysis.js` parses before `index.html`'s inline script, so nothing in it may touch an index.html global at parse time — only inside function bodies. `OM_WHEEL_ORDER` / `OM_WHEEL_ABBR` are therefore *defined here and consumed by index.html* (which keeps `typeof`-guarded fallback copies), not the reverse.
+**Load-order rule:** `om-analysis.js` parses before every other module and before `index.html`'s trailing inline script, so nothing in it may touch another module's or index.html's globals at parse time — only inside function bodies. `OM_WHEEL_ORDER` / `OM_WHEEL_ABBR` are therefore *defined here and consumed elsewhere* (`recipes-ui.js` reads them directly; `index.html`'s trailing script keeps a `typeof`-guarded fallback copy in case `om-analysis.js` failed to load), not the reverse.
 
 Exports: `recipeWarmthOm`, `recipePunchOm`, `omHueEmphasis`, `omKelvin`, `OM_DIRECTIONS` / `renderOmDirections()`, `OM_SETTINGS_DATA` / `renderOmSettingsGuide()`, `computeOmCorrelations()` / `renderOmCorrelations(q)`, `TOM` / `initOmExplore()`, `OMC` / `initOmCompare()` / `renderOmCompare()`, and the `resetOmInsightsBuilt` / `resetOmExploreBuilt` / `resetOmCompareBuilt` flag-resetters called from `switchGen()`.
 
@@ -131,7 +200,10 @@ Explore (`initOmExplore`) makes the 12-point wheel the primary draggable control
 
 Compare (`initOmCompare`) has the same three views against OM data. `C.a`/`C.b`/`compareSlots` are **shared** with the Fuji implementation, so `switchGen()` clears them — a Fuji recipe must never end up compared against an OM one.
 
-Charts tab and `renderCharts()` / `renderSaveSlots()` still exist in the codebase but are not in the tab bar. Do not remove the code — just leave it unused.
+`renderCharts()` and the `#pane-charts` div still exist in the codebase but are
+not reachable from any section or view. Leave them unused rather than removing
+them. (`renderSaveSlots()` was named here previously — it no longer exists
+anywhere in the code, and was removed before this file was written.)
 
 ## Gallery
 
@@ -168,17 +240,33 @@ recipe card.
 
 ## Key functions
 
-- `makeCard(r)` — creates a full expandable recipe card. Delegates to `makeOmCard(r, div)` immediately when `activeGen === 'OM'`; otherwise renders the Fuji-shaped card with fingerprint SVG, settings table, keyword chips, source link, and a badge row `[Film Sim] [DR] [warmth] [punch]` using `warmthClass`/`punchClass`. Card shows expanded when it has class `.open`.
-- `makeOmCard(r, div)` — OM-specific card renderer: pill row from `contrast/sharpness/highlights/shadows/midtones/exposure_compensation` plus any non-zero `color_wheel` channels, settings table from the full OM field set (including monochrome fields when present), badges `[recipe_type] [warmth] [punch]`, and a Compare button wired to the shared `onCompareCardClick()`.
-- `openRecipeModal(name)` — looks up recipe by exact `name` in `activeRecipes()`, calls `makeCard(r)`, shows it in the `#recipe-modal` overlay. Called from custom slot sim items and single-slot "View recipe details" buttons.
-- `goRecipe(name)` — switches to Recipes tab and filters by exact recipe name.
-- `fingerprint(r)` — generates inline SVG radar visual for a recipe's numeric settings (5-axis Fuji radar: `highlight/shadow/color/color_chrome_effect/color_chrome_fx_blue`). Fuji-only — never called when `activeGen === 'OM'`, since `makeCard()` delegates to `makeOmCard()` before reaching it.
-- `wbMiniGrid(r)` — Fuji WB-shift diamond grid (reads `wb_shift_red/blue`); returns `''` when `activeGen === 'OM'`.
+### Navigation (`nav.js`)
+
+- `NAV` — `{ section, view, subview, family }`, the single source of truth for location. Nothing else may ask the DOM where it is.
+- `RECIPE_FAMILIES` — array of `{ id, label, count }` for all six families, used by `navigate()` for family validation and by `renderHome()` for the Home door stat. **Deliberately not derived from `RECIPE_POOLS`**: `RECIPE_POOLS` only contains whatever families have actually loaded (all five Fuji generations eagerly, OM only after a first visit via `loadGen()`), so a cold load before ever visiting Camera Settings would read a smaller, wrong total. `RECIPE_FAMILIES`'s counts are fixed data — the recipe files are static and committed — so hardcoding them is correct, not a shortcut. **If a `recipes-*.js` file gains or loses entries, update this list.** Verified against the actual files at the time of writing: V 113, IV 202, III 47, II 32, I 13, OM 66 — all six match `RECIPE_FAMILIES` exactly.
+- `navigate(section, view, subview, family)` — the single entry point for all navigation. Validates and normalizes each argument, updates `NAV`, calls `applyNav()`, drives `switchGen()` on a family change within Camera Settings, and writes the URL hash (push or replace — see Routing above).
+- `applyHash()` — parses `location.hash` and calls `navigate()` with the parsed segments, setting the `navCanonicalising` flag so the resulting hash write replaces rather than pushes.
+- `navToHash()` — builds the canonical hash string for the current `NAV` state (the inverse of `applyHash()`'s parsing).
+- `applyNav()` — toggles `.on` classes on every `[data-section]`/`[data-view]`/`[data-subview]`/`.pane`/`.inner-pane` element to match `NAV`, shows/hides the sidebar and family picker, and finishes by calling `renderCurrentView()`.
+- `renderCurrentView()` — dispatches to `renderHome()` when `NAV.section === 'home'`, otherwise looks up and calls the matching entry in `NAV_RENDER[NAV.view]`.
+- `renderHome()` — rebuilds the Home landing page (`#pane-home`) on every visit: bio, a recent-photos strip from `GALLERY_PHOTOS`, and two door cards (Photography photo count, Camera Settings recipe/family count from `RECIPE_FAMILIES`). Degrades gracefully if `gallery.js`/`gear.js`/a recipe file didn't load.
+
+### Recipe cards and modal
+
+- `makeCard(r)` (`recipes-ui.js`) — creates a full expandable recipe card. Delegates to `makeOmCard(r, div)` immediately when `activeGen === 'OM'`; otherwise renders the Fuji-shaped card with fingerprint SVG, settings table, keyword chips, source link, and a badge row `[Film Sim] [DR] [warmth] [punch]` using `warmthClass`/`punchClass`. Card shows expanded when it has class `.open`.
+- `makeOmCard(r, div)` (`recipes-ui.js`) — OM-specific card renderer: pill row from `contrast/sharpness/highlights/shadows/midtones/exposure_compensation` plus any non-zero `color_wheel` channels, settings table from the full OM field set (including monochrome fields when present), badges `[recipe_type] [warmth] [punch]`, and a Compare button wired to the shared `onCompareCardClick()`.
+- `openRecipeModal(name)` (defined in `index.html`'s trailing script) — looks up recipe by exact `name` in `activeRecipes()`, calls `makeCard(r)`, shows it in the `#recipe-modal` overlay. Called from custom slot sim items and single-slot "View recipe details" buttons.
+- `goRecipe(name)` (`recipes-ui.js`) — navigates to Camera Settings ▸ Recipes and filters by exact recipe name.
+- `fingerprint(r)` (`recipes-ui.js`) — generates inline SVG radar visual for a recipe's numeric settings (5-axis Fuji radar: `highlight/shadow/color/color_chrome_effect/color_chrome_fx_blue`). Fuji-only — never called when `activeGen === 'OM'`, since `makeCard()` delegates to `makeOmCard()` before reaching it.
+- `wbMiniGrid(r)` (`recipes-ui.js`) — Fuji WB-shift diamond grid (reads `wb_shift_red/blue`); returns `''` when `activeGen === 'OM'`.
+
+### Photography realm (`personal-ui.js`)
+
 - `renderCustomSlots()` — renders `MY_CUSTOM_SLOTS` with a C1–C7 sub-tab bar; one pane visible at a time.
 - `renderGear()` — reads `MY_CAMERAS` / `MY_LENSES`; prepends `<img class="gear-img">` when `item.image` is set.
 
-### Explore tab functions (`docs/explore.md` has the full design)
-- `initExplore()` — builds the entire Explore tab once, guarded by `exploreBuilt`. Called by `switchTab('explore')`.
+### Explore tab functions (`recipes-ui.js`; `docs/explore.md` has the full design)
+- `initExplore()` — builds the entire Explore tab once, guarded by `exploreBuilt`. Invoked via `NAV_RENDER.explore` (`nav.js`) when Camera Settings ▸ Explore becomes active.
 - `computeSimilarity(t)` — returns `activeRecipes()` sorted by normalized Euclidean distance from `t`. Pure function.
 - `recipeToT(r)` — maps a recipe object to the `T` state shape (numeric values, 0/1/2 for CC/grain, etc).
 - `buildRadarPane()` — builds the 5-axis draggable radar (HL, SH, COL, CCE, CCB). Zero-centered scale: middle ring = 0, outer = max positive, center = max negative.
@@ -220,11 +308,11 @@ Each slot in `MY_CUSTOM_SLOTS` is either `type: "multi"` or `type: "single"`:
 ## MY_CUSTOM_SETUPS structure
 
 `MY_CUSTOM_SETUPS` (`gear.js`) is an object keyed by exact `MY_CAMERAS[].name` strings (e.g. `"Fujifilm X-T50"`, `"Olympus PEN-F"`, `"Fujifilm X-M5"`). Each entry has a `type`:
-- `"fuji-slots"` — delegates to the unchanged `renderCustomSlots()` (X-T50, uses `MY_CUSTOM_SLOTS`)
-- `"om-dial"` — PEN-F: `modes`/`colorProfiles`/`monoProfiles` rendered by `renderMyCustomSetup()`/`renderSetupCameraPane()` (`index.html`); each color/mono profile card is built via `buildOmVisual()`
+- `"fuji-slots"` — delegates to the unchanged `renderCustomSlots()` (X-T50, uses `MY_CUSTOM_SLOTS`; `personal-ui.js`)
+- `"om-dial"` — PEN-F: `modes`/`colorProfiles`/`monoProfiles` rendered by `renderMyCustomSetup()`/`renderSetupCameraPane()` (`personal-ui.js`); each color/mono profile card is built via `buildOmVisual()` (`recipes-ui.js`)
 - `"empty"` — placeholder (X-M5, no custom setup yet)
 
-`buildOmVisual(obj)` (`index.html`) is the shared OM display standard — 12-point color wheel + WB box + tone rows — used both by real `RECIPES_OM` cards (`makeOmCard()`) and by hand-authored PEN-F profile objects in `MY_CUSTOM_SETUPS`.
+`buildOmVisual(obj)` (`recipes-ui.js`) is the shared OM display standard — 12-point color wheel + WB box + tone rows — used both by real `RECIPES_OM` cards (`makeOmCard()`) and by hand-authored PEN-F profile objects in `MY_CUSTOM_SETUPS`.
 
 ## Gear images
 
@@ -263,9 +351,9 @@ The viewport is locked to `100vh` (`html, body, .app { height: 100vh; overflow: 
 - Sidebar content is wrapped in `.sb-inner` (scrollable). The collapse button is a full-width strip pinned to the bottom with a top border.
 - Info popovers on filter labels (Warmth, Punch, Mood, Scenario, Era) are wired in `initBadgeFormula()` via `[data-formula]` buttons.
 
-## View toggle (Recipes tab)
+## View toggle (Recipes view)
 
-The **Visual / Cheatsheet** toggle (`#tabs-end-toggle`) lives in the right end of the main tab bar. It is shown/hidden by `switchTab()` — only visible when the Recipes tab is active. Cheatsheet mode adds `.cheatsheet` to `#grid`, which hides `.card-img-fp`, `.cpills`, `.cnarr` and forces `.cexpand` visible.
+The **Visual / Cheatsheet** toggle (`#header-view-toggle`) lives in the header, right of the stats pill. `applyNav()` (`nav.js`) shows it only when `NAV.view === 'recipes'` (Camera Settings ▸ Recipes); it is hidden for every other view. Cheatsheet mode adds `.cheatsheet` to `#grid`, which hides `.card-img-fp`, `.cpills`, `.cnarr` and forces `.cexpand` visible.
 
 ## Responsive breakpoints
 
@@ -274,14 +362,14 @@ The **Visual / Cheatsheet** toggle (`#tabs-end-toggle`) lives in the right end o
 
 ## Key conventions
 
-- All DOM queries use `const $ = id => document.getElementById(id)`.
-- Filter logic lives entirely in `matches(r)`.
-- `filtered()` is `() => activeRecipes().filter(matches)` — called fresh on every render.
-- Build-once flags (`gearBuilt`, `mySetupBuilt`) prevent re-rendering personal tabs on every switch.
+- All DOM queries use `const $ = id => document.getElementById(id)` (defined in `index.html`'s first inline `<script>` block, before `recipes-ui.js`/`personal-ui.js` load, since both modules use `$` at call time).
+- Filter logic lives entirely in `matches(r)` (`recipes-ui.js`).
+- `filtered()` is `() => activeRecipes().filter(matches)` (`recipes-ui.js`) — called fresh on every render.
+- Build-once flags (`galleryBuilt`, `gearBuilt`, `mySetupBuilt` in `personal-ui.js`; `settingsBuilt`, `exploreBuilt`, `compareBuilt` in `recipes-ui.js`) prevent re-rendering a view's DOM on every visit; `switchGen()` resets the Camera Settings ones so switching families rebuilds.
 - **User data lives in `gear.js`**, not in `index.html`.
-- Adding a new tab: HTML pane div + tab entry in `.tabs` + `renderXxx()` function + case in `switchTab()`. If the tab has no inner-subtabs, add class `pane-no-subtabs` for correct top padding. If the tab has inner-subtabs, wire them through `switchInnerTab()` instead (see current tabs for the pattern).
-- Adding a new filter facet: chip container in sidebar + key in `S` + `buildChips()` call in `initChips()` + condition in `matches()`.
-- Adding a new recipe family/generation: create `recipes-<gen>.js` defining `var RECIPES_<GEN> = [...]`, add `<option value="<GEN>">` to `#gen-select`, and leave it out of the eager `RECIPE_POOLS` literal so `loadGen()`'s existing lazy-load path picks it up unchanged. If the new family's schema diverges from Fuji's (as OM's does), branch on `activeGen === '<GEN>'` in `makeCard()`/`fingerprint()`/`wbMiniGrid()` and add "not available" guards to any Fuji-shaped analysis tab rather than trying to make one schema fit both.
+- Adding a new view: add a `<div class="tab" data-view="...">` inside the right section's `.view-tabs` bar, an entry in `NAV_VIEWS[section]` (`nav.js`), a `.pane pane-no-subtabs` div (or a `.pane` with `.inner-subtabs`/`.inner-pane`s if it needs subviews), a `renderXxx()` function in `recipes-ui.js` or `personal-ui.js`, and a matching entry in `NAV_RENDER` (`nav.js`). There is no `switchTab()`/`switchInnerTab()` to add a case to — `navigate()` and `NAV_RENDER` replace both.
+- Adding a new filter facet: chip container in sidebar + key in `S` + `buildChips()` call in `initChips()` + condition in `matches()` (all `recipes-ui.js`).
+- Adding a new recipe family/generation: create `recipes-<gen>.js` defining `var RECIPES_<GEN> = [...]`, add `<option value="<GEN>">` to `#gen-select`, add a `{ id, label, count }` entry to `RECIPE_FAMILIES` (`nav.js`), and leave it out of the eager `RECIPE_POOLS` literal (`recipes-ui.js`) so `loadGen()`'s existing lazy-load path picks it up unchanged. If the new family's schema diverges from Fuji's (as OM's does), branch on `activeGen === '<GEN>'` in `makeCard()`/`fingerprint()`/`wbMiniGrid()` and add "not available" guards to any Fuji-shaped analysis view rather than trying to make one schema fit both.
 - Sidebar filter sections are collapsible — `.sb-section` divs with a `.chips` child get a ▾/▸ toggle via `initCollapsibleFilters()`. Sections without `.chips` (e.g. Search) must have class `no-collapse` on their `.sb-label` to suppress the chevron CSS.
 
 ## Skills
@@ -297,11 +385,13 @@ Skills live in `.claude/skills/` (invocable by Claude Code) and are mirrored as 
 `.gitignore` blocks these — do not force-add them:
 - `.claude/settings.local.json` — machine-local Claude Code settings (may contain personal permissions)
 - `PLAN-*.md` — local planning documents
+- `.superpowers/` — SDD scratch (task ledgers, briefs, review packages) for this Claude Code workflow
+- `__pycache__/` — Python bytecode from `tools/`
 
 Note: `.claude/settings.json` (shared plugin config) and `.claude/skills/` **are** committed — only
 `settings.local.json` is ignored.
 
-Note: `recipes-v.js`, `recipes-iv.js`, `recipes-iii.js`, `recipes-ii.js`, `recipes-i.js`, `recipes-om.js`, `om-analysis.js`, and `gallery.js` are **committed** to the repo — they are not gitignored. Do not add them to `.gitignore`. `gallery.js` is generated by `tools/build_gallery.py`; commit it, but never hand-edit it.
+Note: `recipes-v.js`, `recipes-iv.js`, `recipes-iii.js`, `recipes-ii.js`, `recipes-i.js`, `recipes-om.js`, `corr-data.js`, `om-analysis.js`, `gallery.js`, `nav.js`, `recipes-ui.js`, and `personal-ui.js` are **committed** to the repo — they are not gitignored. Do not add them to `.gitignore`. `gallery.js` is generated by `tools/build_gallery.py`; commit it, but never hand-edit it.
 
 ## Git / PR workflow
 
@@ -309,4 +399,3 @@ Note: `recipes-v.js`, `recipes-iv.js`, `recipes-iii.js`, `recipes-ii.js`, `recip
 - Git identity: set in local git config (not committed)
 - **Do not use the `gh` CLI on this machine** — it is authenticated to a different GitHub account. Push branches with plain `git` and let Jin open the PR.
 - Main branch deploys automatically to GitHub Pages
-- `feature/keyword-tags-revision` — PR open: two computed badge system (warmth/punch), collapsible sidebar filters, Settings Guide formula section
