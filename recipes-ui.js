@@ -33,10 +33,18 @@ function loadGen(gen) {
   })
 }
 
+// Bumped on every switchGen() call so a slow load that resolves after a newer
+// switch has started can be discarded. Without it, switching A -> B where B is
+// cached and A is still fetching lets A's late resolution overwrite B's
+// display with stale data — silently, since both "succeeded".
+let genRequestSeq = 0
+
 function switchGen(gen) {
   const sel = document.getElementById('gen-select')
   if (sel) { sel.disabled = true; sel.value = gen }
+  const seq = ++genRequestSeq
   loadGen(gen).then(() => {
+    if (seq !== genRequestSeq) return   // superseded by a newer switch
     activeGen = gen
     S.q = ''
     S.f.sim.clear(); S.f.warmth.clear(); S.f.punch.clear()
@@ -60,8 +68,20 @@ function switchGen(gen) {
     $('s-sims').textContent=new Set(activeRecipes().map(r=>r.film_simulation).filter(Boolean)).size
     if (sel) sel.disabled = false
   }).catch(err => {
+    if (seq !== genRequestSeq) return   // superseded; a newer switch owns the UI
     console.error(err)
     if (sel) { sel.disabled = false; sel.value = activeGen }
+    // Put NAV.family back in step with the family actually displayed. Without
+    // this, navigate()'s "NAV.family !== activeGen" trigger stays true forever,
+    // so every later click in Camera Settings re-appends a <script> tag and
+    // re-fails — an invisible retry storm — and the URL keeps advertising a
+    // family that never loaded.
+    if (typeof NAV === 'object' && NAV) {
+      NAV.family = activeGen
+      if (typeof navToHash === 'function' && location.hash !== navToHash()) {
+        history.replaceState(null, '', navToHash())
+      }
+    }
   })
 }
 const pn = v => { if(v==null||String(v).trim()===''||v==='N/A') return null; const n=parseFloat(String(v)); return isNaN(n)?null:n }

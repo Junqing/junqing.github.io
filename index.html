@@ -1125,7 +1125,12 @@ function init(){
   // DOM which pane is actually active — NAV defaults to 'home' but no .on
   // class exists yet without a navigate() call to apply it.
   window.addEventListener('hashchange', applyHash)
-  if (location.hash) applyHash(); else navigate(NAV.section, NAV.view, NAV.subview)
+  // Always route through applyHash, including when there is no hash: it sets
+  // the canonicalising flag so the initial '#/' is written with replaceState
+  // rather than pushed. Pushing it would put a hash-less entry behind the
+  // visitor, and their first Back press — the one meant to leave the site —
+  // would land there and render nothing.
+  applyHash()
 }
 
 init()

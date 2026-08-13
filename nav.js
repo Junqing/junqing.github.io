@@ -167,9 +167,27 @@ function navigate(section, view, subview, family) {
   // applyHash() and calls navigate() again — but by then navToHash() already
   // matches location.hash, so that second pass is a single harmless no-op,
   // not a loop.
+  //
+  // push vs replace matters for the Back button. A plain `location.hash =`
+  // always pushes a history entry, so canonicalising a URL the user did not
+  // type (an absent hash on first load, or a correction like #/nonsense ->
+  // #/) would leave a junk entry behind: pressing Back returns to the bad
+  // URL, which corrects forward again, and Back appears broken. Worse, the
+  // entry created by canonicalising an absent hash means a visitor's first
+  // Back press — the one meant to leave the site — lands on the hash-less
+  // entry and renders nothing. So only genuine user navigation pushes;
+  // canonicalisation replaces.
   const newHash = navToHash()
-  if (location.hash !== newHash) location.hash = newHash
+  if (location.hash !== newHash) {
+    if (navCanonicalising) history.replaceState(null, '', newHash)
+    else location.hash = newHash
+  }
 }
+
+// Set while applyHash() is reconciling the URL the browser gave us, so the
+// hash write above replaces rather than pushes. Not re-entrant by design:
+// applyHash() is only ever called from a hashchange or from init().
+let navCanonicalising = false
 
 // Hash routing, not pushState: GitHub Pages serves static files with no
 // rewrite rules, so a real path like /camera/explore would 404 on refresh or
@@ -191,7 +209,16 @@ function applyHash() {
   const fam = segs.find(s => s.startsWith('f='))
   const rest = segs.filter(s => !s.startsWith('f='))
   const [section, view, subview] = rest
-  navigate(section || 'home', view, subview, fam && fam.slice(2))
+  // Anything we derive here came from the URL, not from a click, so the
+  // resulting hash write is a canonicalisation — replace, never push.
+  // An absent or unrecognised hash falls back to Home rather than leaving
+  // every pane hidden; navigate() validates section/view/subview itself.
+  navCanonicalising = true
+  try {
+    navigate(section || 'home', view, subview, fam && fam.slice(2))
+  } finally {
+    navCanonicalising = false
+  }
 }
 
 // Toggles DOM classes to match NAV. Reads NAV; never the reverse.
