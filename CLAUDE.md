@@ -96,7 +96,11 @@ Note the deliberate field-name divergence even where a concept overlaps: OM uses
 
 **State** — a single `S` object holds active filter state (search query + chip selections). Filter sets: `S.f.sim`, `S.f.warmth`, `S.f.punch`, `S.f.mood`, `S.f.scene`, `S.f.era`, plus the OM-only `S.f.type` and `S.f.hue` — note `S.f.dir` no longer exists (replaced by warmth + punch).
 
-`activeGen` (string, default `"V"`) tracks the currently selected recipe family/generation — one of `V`, `IV`, `III`, `II`, `I`, `OM`. `activeRecipes()` returns `RECIPE_POOLS[activeGen] || []`. A `<select id="gen-select">` dropdown in the header (labeled "Recipe family") lets the user switch; switching calls `switchGen(gen)` which lazy-loads the file if needed, resets `S` state, clears `exploreBuilt`, and re-renders.
+`activeGen` (string, default `"V"`) tracks the currently selected recipe family/generation — one of `V`, `IV`, `III`, `II`, `I`, `OM`. `activeRecipes()` returns `RECIPE_POOLS[activeGen] || []`.
+
+A `<select id="gen-select">` dropdown lets the user switch. It lives **inside the Camera Settings `.view-tabs` bar**, not in the global header — it is meaningless in Home and Photography, and having it globally visible previously caused a real bug (changing family while on the Gallery tab re-showed recipe filter sections over a gallery-only sidebar). Its `onchange` calls `navigate(NAV.section, NAV.view, NAV.subview, this.value)` rather than `switchGen()` directly, so the family becomes part of the URL; `navigate()` then calls `switchGen(gen)` only when the family actually changed.
+
+`switchGen(gen)` lazy-loads the file if needed, resets `S` state, clears `exploreBuilt`/`compareBuilt`, and re-renders. It carries a `genRequestSeq` guard so a slow load resolving after a newer switch is discarded, and on failure it resets `NAV.family` back to `activeGen` (otherwise `navigate()`'s change-detection stays permanently true and retries the failed load on every subsequent click).
 
 **Rendering pipeline**:
 1. `index.html`'s trailing inline `<script>` wires the section/view/subview tab click listeners (they all call `navigate(...)`) and calls `init()`.
@@ -196,7 +200,10 @@ Explore (`initOmExplore`) makes the 12-point wheel the primary draggable control
 
 Compare (`initOmCompare`) has the same three views against OM data. `C.a`/`C.b`/`compareSlots` are **shared** with the Fuji implementation, so `switchGen()` clears them — a Fuji recipe must never end up compared against an OM one.
 
-Charts tab and `renderCharts()` / `renderSaveSlots()` still exist in the codebase but are not in the tab bar. Do not remove the code — just leave it unused.
+`renderCharts()` and the `#pane-charts` div still exist in the codebase but are
+not reachable from any section or view. Leave them unused rather than removing
+them. (`renderSaveSlots()` was named here previously — it no longer exists
+anywhere in the code, and was removed before this file was written.)
 
 ## Gallery
 
