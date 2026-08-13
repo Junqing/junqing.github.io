@@ -313,7 +313,6 @@ function renderOmCorrelations(filterQ) {
       <div class="dr-pills">${typePills}</div>`
 
     card.addEventListener('click', () => {
-      navigate('camera', 'recipes')
       navigate('camera', 'recipes', 'keywords')
     })
     grid.appendChild(card)

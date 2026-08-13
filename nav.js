@@ -10,6 +10,25 @@
 // until switchGen() is taught to update it.
 const NAV = { section: 'home', view: null, subview: null, family: 'V' }
 
+// Declared totals for the Home door stat — deliberately NOT derived from
+// RECIPE_POOLS. RECIPE_POOLS only contains whatever families have been
+// loaded so far (V/IV/III/II/I are eager, OM is lazy via loadGen()), so a
+// cold load with no prior navigation would read "407 recipes · 5 families"
+// instead of the true "473 recipes · 6 families" until the user happened to
+// visit OM. These counts are fixed data — recipes-*.js files are static and
+// committed — so hardcoding them here is correct, not a shortcut: it needs
+// no runtime probing and stays right even if load order changes. Update
+// this list (and only this list) if a recipe family file gains/loses
+// entries or a new family is added.
+const RECIPE_FAMILIES = [
+  { id: 'V',   label: 'X-Trans V',   count: 113 },
+  { id: 'IV',  label: 'X-Trans IV',  count: 202 },
+  { id: 'III', label: 'X-Trans III', count: 47 },
+  { id: 'II',  label: 'X-Trans II',  count: 32 },
+  { id: 'I',   label: 'X-Trans I',   count: 13 },
+  { id: 'OM',  label: 'OM System',   count: 66 },
+]
+
 // section -> its views, first is the default
 const NAV_VIEWS = {
   home:        [],
@@ -71,10 +90,8 @@ function renderHome() {
   const recent = [...photos].sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 6)
 
   const photoCount = photos.length
-  const recipeCount = (typeof RECIPE_POOLS === 'object' && RECIPE_POOLS)
-    ? Object.values(RECIPE_POOLS).reduce((sum, pool) => sum + (pool ? pool.length : 0), 0)
-    : 0
-  const familyCount = (typeof RECIPE_POOLS === 'object' && RECIPE_POOLS) ? Object.keys(RECIPE_POOLS).length : 0
+  const recipeCount = RECIPE_FAMILIES.reduce((sum, f) => sum + f.count, 0)
+  const familyCount = RECIPE_FAMILIES.length
 
   const photoStripHtml = recent.length
     ? `<div class="home-section-label">Recent photos</div>

@@ -814,7 +814,6 @@ function renderCorrelations(filterQ) {
       <div class="dr-pills">${drPills}</div>`
 
     card.addEventListener('click',()=>{
-      navigate('camera', 'recipes')
       navigate('camera', 'recipes', 'keywords')
     })
     grid.appendChild(card)
