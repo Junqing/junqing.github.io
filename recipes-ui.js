@@ -46,6 +46,13 @@ function switchGen(gen) {
   loadGen(gen).then(() => {
     if (seq !== genRequestSeq) return   // superseded by a newer switch
     activeGen = gen
+    // index.html applies RECIPE_META_PATCHES once at load, against whichever
+    // pool is active then (V). Without repeating it here, an override keyed to
+    // a IV/III/II/I/OM recipe would silently never apply. Harmless to redo —
+    // Object.assign with the same values is idempotent.
+    if (typeof RECIPE_META_PATCHES !== 'undefined') {
+      activeRecipes().forEach(r => Object.assign(r, RECIPE_META_PATCHES[r.name] || {}))
+    }
     S.q = ''
     S.f.sim.clear(); S.f.warmth.clear(); S.f.punch.clear()
     S.f.mood.clear(); S.f.scene.clear(); S.f.era.clear()

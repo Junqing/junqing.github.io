@@ -90,7 +90,7 @@ function layoutGallery() {
 
   const containerW = grid.clientWidth
   // A hidden pane has zero width; laying out now would size every cell to 0.
-  // switchTab() calls us again on entry, so bail rather than poison the DOM.
+  // applyNav() calls us again on entry, so bail rather than poison the DOM.
   if (containerW <= 0) return
 
   // Widths are floored to whole pixels, so a justified row hands the remainder
