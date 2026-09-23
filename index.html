@@ -234,7 +234,10 @@ main{display:flex;flex:1;min-height:0}
 .gal-item.dead img{display:none}
 .gal-credit{text-align:center;color:var(--text3);font-size:11px;padding:18px 0 8px}
 .gal-count{color:var(--text3);font-size:12px;padding:0 0 10px}
-#rmodal-body .gal-photo{display:block;width:100%;height:auto;background:var(--surf2)}
+/* Keep the entire photo inside the viewport. In particular, portrait images
+   must size from both available width and height rather than inheriting the
+   modal's full 760px width and becoming taller than the browser window. */
+#rmodal-body .gal-photo{display:block;width:auto;height:auto;max-width:100%;max-height:calc(100vh - 100px);max-height:calc(100dvh - 100px);margin:0 auto;object-fit:contain;background:var(--surf2)}
 #rmodal-body .gal-meta{padding:10px 14px;color:var(--text2);font-size:12px;text-align:center;line-height:1.7}
 /* Mobile is one photo per row — see GAL_PHONE_BP in layoutGallery(). */
 .corr-search{width:100%;background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:7px 10px;color:var(--text);font-size:12px;outline:none;margin-bottom:14px}
