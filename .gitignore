@@ -1,5 +1,5 @@
-# Claude Code local settings — keep off GitHub
-.claude/settings.local.json
+# Legacy Claude Code harness and machine-local settings
+.claude/
 
 # Local planning docs
 PLAN-*.md

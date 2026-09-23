@@ -1,10 +1,9 @@
 ---
 name: gallery
-description: Review the photo gallery and add or remove Lightroom albums through conversation. Regenerates gallery.js via tools/build_gallery.py.
-trigger: /gallery
+description: Review, health-check, refresh, add, or remove public Lightroom albums and regenerate gallery.js. Use for gallery maintenance or when Lightroom album contents changed.
 ---
 
-# /gallery
+# Gallery maintenance
 
 Review the current photo gallery and manage which Adobe Lightroom shared albums
 appear on the site. All changes go through `tools/build_gallery.py` — never
@@ -115,11 +114,12 @@ Then tell the user to review the Gallery tab locally before committing:
 python3 -m http.server 8000 --bind 127.0.0.1
 ```
 
-### Step 5 — Offer to commit
+### Step 5 — Commit only when requested
 
-Ask whether to commit `gallery.js` (and `tools/build_gallery.py` if the album
-list changed). Do not push. Do not use the `gh` CLI — it is authenticated to a
-different GitHub account on this machine.
+If the user asked for a commit, commit `gallery.js` (and `tools/build_gallery.py`
+if the album list changed). Otherwise, offer to commit. Do not push. Do not use
+the `gh` CLI — it is authenticated to a different GitHub account on this
+machine.
 
 ## Rules
 

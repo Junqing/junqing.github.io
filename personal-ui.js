@@ -142,7 +142,7 @@ function renderGallery() {
   if (!photos.length) {
     container.innerHTML = '<div class="empty"><div class="big">🖼️</div>' +
       '<p>No gallery data yet. Run <strong>python3 tools/build_gallery.py</strong> ' +
-      'or use the <strong>/gallery</strong> skill to add a Lightroom album.</p></div>'
+      'or use Pi\'s <strong>/skill:gallery</strong> workflow to add a Lightroom album.</p></div>'
     return
   }
 

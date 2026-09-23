@@ -1,10 +1,9 @@
 ---
 name: sync-recipes
-description: Fetch fujixweekly.com recipe lists, diff against the relevant recipes-[gen].js file, and produce a ready-to-paste JS patch for new or changed recipes.
-trigger: /sync-recipes
+description: Fetch Fujixweekly recipe lists, diff them against the relevant recipes-[gen].js file, and prepare patches for new or changed recipes. Use when syncing any supported X-Trans generation.
 ---
 
-# /sync-recipes
+# Sync Fujifilm recipes
 
 Compare the live fujixweekly.com recipe catalogue for a chosen X-Trans sensor generation against the corresponding `recipes-[gen].js` file. Output a ready-to-paste JS patch for every recipe that is new or has changed settings.
 
@@ -36,7 +35,7 @@ Also note the line number where the array ends (closing `]`) — you will need i
 
 ### Step 3 — Fetch the recipe index page
 
-Use WebFetch on the catalogue URL for the chosen generation. Extract every recipe link — these are typically `<a>` tags pointing to individual recipe posts on fujixweekly.com.
+Fetch the catalogue URL for the chosen generation with an available web-fetch tool or `curl`. Extract every recipe link — these are typically `<a>` tags pointing to individual recipe posts on fujixweekly.com.
 
 Print:
 ```
@@ -66,7 +65,7 @@ Wait for confirmation before proceeding.
 
 ### Step 5 — Fetch individual recipe pages
 
-For each recipe in "new" + "possibly changed", use WebFetch on the individual post URL. Parse the settings table. Extract every field that maps to the RECIPES schema:
+For each recipe in "new" + "possibly changed", fetch the individual post URL with an available web-fetch tool or `curl`. Parse the settings table. Extract every field that maps to the RECIPES schema:
 
 | Site field | RECIPES key |
 |---|---|
