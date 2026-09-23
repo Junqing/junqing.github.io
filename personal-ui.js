@@ -21,22 +21,59 @@ function photoCaption(p) {
 
 // Photos cannot go through openRecipeModal() — that looks up a recipe by name
 // and builds a recipe card. This reuses the same modal shell only.
-function openPhotoModal(p) {
+let photoModalPhotos = []
+let photoModalIndex = -1
+
+function renderPhotoModal() {
+  const p = photoModalPhotos[photoModalIndex]
+  if (!p) return
+
   const modal = $('recipe-modal')
   const body  = $('rmodal-body')
   body.innerHTML = ''
+
+  const stage = document.createElement('div')
+  stage.className = 'gal-photo-stage'
   const img = document.createElement('img')
   img.className = 'gal-photo'
   img.src = p.src
   img.alt = photoCaption(p) || 'Photograph'
   if (p.w && p.h) img.style.aspectRatio = p.w + ' / ' + p.h
+  stage.appendChild(img)
+
+  if (photoModalPhotos.length > 1) {
+    ;[['prev', 'Previous photo', -1, '‹'], ['next', 'Next photo', 1, '›']].forEach(([side, label, delta, glyph]) => {
+      const button = document.createElement('button')
+      button.type = 'button'
+      button.className = 'gal-nav gal-nav-' + side
+      button.setAttribute('aria-label', label)
+      button.textContent = glyph
+      button.addEventListener('click', () => navigatePhotoModal(delta))
+      stage.appendChild(button)
+    })
+  }
+
   const meta = document.createElement('div')
   meta.className = 'gal-meta'
-  meta.textContent = photoCaption(p) || ''
-  body.appendChild(img)
+  meta.textContent = [photoCaption(p), (photoModalIndex + 1) + ' / ' + photoModalPhotos.length]
+    .filter(Boolean).join(' · ')
+  body.appendChild(stage)
   body.appendChild(meta)
-  modal.classList.add('open')
+  modal.classList.add('photo-open', 'open')
   modal.scrollTop = 0
+}
+
+function navigatePhotoModal(delta) {
+  if (photoModalPhotos.length < 2) return
+  photoModalIndex = (photoModalIndex + delta + photoModalPhotos.length) % photoModalPhotos.length
+  renderPhotoModal()
+}
+
+function openPhotoModal(p) {
+  photoModalPhotos = galleryPhotos()
+  photoModalIndex = photoModalPhotos.indexOf(p)
+  if (photoModalIndex < 0) return
+  renderPhotoModal()
 }
 
 function renderGalleryGrid() {

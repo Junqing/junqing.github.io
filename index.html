@@ -234,8 +234,15 @@ main{display:flex;flex:1;min-height:0}
 .gal-item.dead img{display:none}
 .gal-credit{text-align:center;color:var(--text3);font-size:11px;padding:18px 0 8px}
 .gal-count{color:var(--text3);font-size:12px;padding:0 0 10px}
-#rmodal-body .gal-photo{display:block;width:100%;height:auto;background:var(--surf2)}
+/* Keep the entire photo inside the viewport. In particular, portrait images
+   must size from both available width and height rather than inheriting the
+   modal's full 760px width and becoming taller than the browser window. */
+#rmodal-body .gal-photo-stage{position:relative;display:flex;align-items:center;justify-content:center;min-height:120px}
+#rmodal-body .gal-photo{display:block;width:auto;height:auto;max-width:100%;max-height:calc(100vh - 100px);max-height:calc(100dvh - 100px);margin:0 auto;object-fit:contain;background:var(--surf2)}
 #rmodal-body .gal-meta{padding:10px 14px;color:var(--text2);font-size:12px;text-align:center;line-height:1.7}
+.gal-nav{position:absolute;top:50%;z-index:5;width:42px;height:56px;display:flex;align-items:center;justify-content:center;transform:translateY(-50%);border:1px solid rgba(255,255,255,.32);border-radius:var(--r);background:rgba(0,0,0,.58);color:#fff;font-size:34px;line-height:1;cursor:pointer}
+.gal-nav:hover{background:rgba(0,0,0,.8)}
+.gal-nav-prev{left:10px}.gal-nav-next{right:10px}
 /* Mobile is one photo per row — see GAL_PHONE_BP in layoutGallery(). */
 .corr-search{width:100%;background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:7px 10px;color:var(--text);font-size:12px;outline:none;margin-bottom:14px}
 .corr-search:focus{border-color:var(--accent)}
@@ -971,14 +978,29 @@ $('clear-btn').addEventListener('click',()=>{
   const modal  = $('recipe-modal')
   const body   = $('rmodal-body')
   const close  = $('rmodal-close')
-  function closeModal() { modal.classList.remove('open'); body.innerHTML = '' }
+  function closeModal() {
+    modal.classList.remove('open', 'photo-open')
+    body.innerHTML = ''
+    photoModalPhotos = []
+    photoModalIndex = -1
+  }
   close.addEventListener('click', closeModal)
   modal.addEventListener('click', e => { if (e.target === modal) closeModal() })
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) closeModal() })
+  document.addEventListener('keydown', e => {
+    if (!modal.classList.contains('open')) return
+    if (e.key === 'Escape') closeModal()
+    if (modal.classList.contains('photo-open') && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+      e.preventDefault()
+      navigatePhotoModal(e.key === 'ArrowLeft' ? -1 : 1)
+    }
+  })
 
   window.openRecipeModal = function(recipeName) {
     const r = activeRecipes().find(x => x.name === recipeName)
     if (!r) return
+    modal.classList.remove('photo-open')
+    photoModalPhotos = []
+    photoModalIndex = -1
     body.innerHTML = ''
     const card = makeCard(r)
     card.classList.add('open')
