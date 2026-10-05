@@ -12,8 +12,26 @@
 // STATE
 // ══════════════════════════════════════════
 let activeGen = 'V'
-const RECIPE_POOLS = { V: RECIPES_V, IV: RECIPES_IV, III: RECIPES_III, II: RECIPES_II, I: RECIPES_I }
+const RECIPE_POOLS = {}
+function initRecipePools() {
+  if (typeof RECIPES_V !== 'undefined') RECIPE_POOLS.V = RECIPES_V
+}
 function activeRecipes() { return RECIPE_POOLS[activeGen] || [] }
+
+// Identity uses metadata only. OM legitimately has same-name recipes from
+// different authors; do not rename/delete those records or unify schemas.
+function recipeIdentity(recipe, family = activeGen) {
+  return family === 'OM' ? JSON.stringify([recipe.name, recipe.author || '']) : recipe.name
+}
+function recipeLabel(recipe, family = activeGen) {
+  return family === 'OM' && recipe.author ? recipe.name + ' — ' + recipe.author : recipe.name
+}
+function resolveRecipe(reference, family = activeGen) {
+  const pool = RECIPE_POOLS[family] || []
+  if (reference && typeof reference === 'object') return pool.includes(reference) ? reference : null
+  return pool.find(recipe => recipeIdentity(recipe, family) === reference || recipeLabel(recipe, family) === reference)
+    || pool.find(recipe => recipe.name === reference) || null
+}
 
 const S = {
   q: '',
@@ -22,15 +40,26 @@ const S = {
   chartFilter: null,  // {field, value} for histogram clicks
 }
 
+const familyLoads = new Map()
 function loadGen(gen) {
   if (RECIPE_POOLS[gen]) return Promise.resolve()
-  return new Promise((resolve, reject) => {
-    const s = document.createElement('script')
-    s.src = 'recipes-' + gen.toLowerCase() + '.js'
-    s.onload = () => { RECIPE_POOLS[gen] = window['RECIPES_' + gen] || []; resolve() }
-    s.onerror = () => reject(new Error('Failed to load recipes-' + gen.toLowerCase() + '.js'))
-    document.head.appendChild(s)
-  })
+  if (familyLoads.has(gen)) return familyLoads.get(gen)
+  const loading = new Promise((resolve, reject) => {
+    const script = document.createElement('script')
+    const version = typeof SITE_ASSET_VERSION !== 'undefined' ? '?v=' + encodeURIComponent(SITE_ASSET_VERSION) : ''
+    script.src = 'recipes-' + gen.toLowerCase() + '.js' + version
+    script.onload = () => {
+      const records = window['RECIPES_' + gen]
+      script.remove()
+      if (!Array.isArray(records)) { reject(new Error('Invalid recipe data for ' + gen)); return }
+      RECIPE_POOLS[gen] = records
+      resolve()
+    }
+    script.onerror = () => { script.remove(); reject(new Error('Failed to load recipes-' + gen.toLowerCase() + '.js')) }
+    document.head.appendChild(script)
+  }).finally(() => familyLoads.delete(gen))
+  familyLoads.set(gen, loading)
+  return loading
 }
 
 // Bumped on every switchGen() call so a slow load that resolves after a newer
@@ -38,12 +67,26 @@ function loadGen(gen) {
 // cached and A is still fetching lets A's late resolution overwrite B's
 // display with stale data — silently, since both "succeeded".
 let genRequestSeq = 0
+let pendingGen = null
+let familySwitchPromise = null
+function familySwitchPending() { return pendingGen !== null }
 
 function switchGen(gen) {
   const sel = document.getElementById('gen-select')
+  if (gen === activeGen) {
+    // Back/Forward can return to the active pool before another load finishes.
+    // Invalidate that request even though no data switch is needed.
+    ++genRequestSeq
+    pendingGen = null
+    familySwitchPromise = null
+    if (sel) { sel.disabled = false; sel.value = gen }
+    return Promise.resolve()
+  }
+  if (pendingGen === gen) return familySwitchPromise
+  pendingGen = gen
   if (sel) { sel.disabled = true; sel.value = gen }
   const seq = ++genRequestSeq
-  loadGen(gen).then(() => {
+  familySwitchPromise = loadGen(gen).then(() => {
     if (seq !== genRequestSeq) return   // superseded by a newer switch
     activeGen = gen
     // index.html applies RECIPE_META_PATCHES once at load, against whichever
@@ -54,6 +97,11 @@ function switchGen(gen) {
       activeRecipes().forEach(r => Object.assign(r, RECIPE_META_PATCHES[r.name] || {}))
     }
     S.q = ''
+    S.chartFilter = null
+    if (activeGen !== 'OM') {
+      if (T.seedName && !activeRecipes().some(recipe => recipe.name === T.seedName)) T.seedName = null
+      if (T.film_sim_filter && !activeRecipes().some(recipe => recipe.film_simulation === T.film_sim_filter)) T.film_sim_filter = ''
+    }
     S.f.sim.clear(); S.f.warmth.clear(); S.f.punch.clear()
     S.f.mood.clear(); S.f.scene.clear(); S.f.era.clear()
     S.f.type.clear(); S.f.hue.clear()
@@ -69,14 +117,27 @@ function switchGen(gen) {
     if (document.getElementById('q')) document.getElementById('q').value = ''
     initChips()
     syncSidebarFacets()
-    render()
-    $('s-total').textContent=activeRecipes().length
-    $('s-total-x').textContent=activeRecipes().length
-    $('s-sims').textContent=new Set(activeRecipes().map(r=>r.film_simulation).filter(Boolean)).size
+    syncChips()
+    updateBadgeFormula()
+    const count = activeRecipes().length
+    ;['s-total','s-total-x','s-show','s-show-x'].forEach(id => { const element = $(id); if (element) element.textContent = count })
+    $('s-sims').textContent = activeGen === 'OM'
+      ? new Set(activeRecipes().map(recipe => recipe.recipe_type)).size
+      : new Set(activeRecipes().map(recipe => recipe.film_simulation).filter(Boolean)).size
+    const simsLabel = $('s-sims-label')
+    if (simsLabel) simsLabel.textContent = activeGen === 'OM' ? 'Recipe types' : 'Film sims'
+    pendingGen = null
+    familySwitchPromise = null
     if (sel) sel.disabled = false
+    // Rebuild the ACTUAL view, not only the hidden recipe grid. This matters
+    // when a cold/deferred load completes after the URL hashchange event.
+    if (typeof renderCurrentView === 'function') renderCurrentView()
+    if (typeof syncSiteShell === 'function') syncSiteShell()
   }).catch(err => {
     if (seq !== genRequestSeq) return   // superseded; a newer switch owns the UI
     console.error(err)
+    pendingGen = null
+    familySwitchPromise = null
     if (sel) { sel.disabled = false; sel.value = activeGen }
     // Put NAV.family back in step with the family actually displayed. Without
     // this, navigate()'s "NAV.family !== activeGen" trigger stays true forever,
@@ -90,6 +151,7 @@ function switchGen(gen) {
       }
     }
   })
+  return familySwitchPromise
 }
 const pn = v => { if(v==null||String(v).trim()===''||v==='N/A') return null; const n=parseFloat(String(v)); return isNaN(n)?null:n }
 const clamp = (v,lo,hi) => Math.max(lo,Math.min(hi,v))
@@ -116,11 +178,11 @@ function wbKelvin(wb) {
   return 5200
 }
 
-function recipeWarmth(r) {
+function recipeWarmth(r, family = activeGen) {
   if (typeof RECIPE_META_PATCHES !== 'undefined' && RECIPE_META_PATCHES[r.name]?.warmth_override) {
     return RECIPE_META_PATCHES[r.name].warmth_override
   }
-  if (activeGen === 'OM') return typeof recipeWarmthOm === 'function' ? recipeWarmthOm(r) : 'neutral'
+  if (family === 'OM') return typeof recipeWarmthOm === 'function' ? recipeWarmthOm(r) : 'neutral'
   if (BW_SIMS.has(r.film_simulation) || r.color === null || r.color === undefined) return 'neutral'
   const wbNorm    = (wbKelvin(r.white_balance) - 5200) / 2300
   const shiftNorm = ((parseInt(r.wb_shift_red) || 0) - (parseInt(r.wb_shift_blue) || 0)) / 9
@@ -131,11 +193,11 @@ function recipeWarmth(r) {
   return 'neutral'
 }
 
-function recipePunch(r) {
+function recipePunch(r, family = activeGen) {
   if (typeof RECIPE_META_PATCHES !== 'undefined' && RECIPE_META_PATCHES[r.name]?.punch_override) {
     return RECIPE_META_PATCHES[r.name].punch_override
   }
-  if (activeGen === 'OM') return typeof recipePunchOm === 'function' ? recipePunchOm(r) : 'balanced'
+  if (family === 'OM') return typeof recipePunchOm === 'function' ? recipePunchOm(r) : 'balanced'
   const colorVal = (BW_SIMS.has(r.film_simulation) || r.color === null || r.color === undefined) ? 0 : (r.color || 0)
   const score = colorVal * 0.5 + (r.clarity || 0) * 0.25 - (Math.abs(r.highlight || 0) + Math.abs(r.shadow || 0)) * 0.1
   if (score > 1.2)  return 'punchy'
@@ -145,8 +207,8 @@ function recipePunch(r) {
 
 const WARMTH_CLASS = { warm: 'b-warm', neutral: 'b-neutral', cool: 'b-cool' }
 const PUNCH_CLASS  = { punchy: 'b-punchy', balanced: 'b-neutral', flat: 'b-flat' }
-function warmthClass(r) { return WARMTH_CLASS[recipeWarmth(r)] }
-function punchClass(r)  { return PUNCH_CLASS[recipePunch(r)] }
+function warmthClass(r, family = activeGen) { return WARMTH_CLASS[recipeWarmth(r, family)] }
+function punchClass(r, family = activeGen)  { return PUNCH_CLASS[recipePunch(r, family)] }
 
 // ══════════════════════════════════════════
 // FILTER
@@ -256,8 +318,13 @@ function initCollapsibleFilters() {
 // ══════════════════════════════════════════
 // RECIPE FINGERPRINT SVG
 // ══════════════════════════════════════════
-function wbMiniGrid(r) {
-  if (activeGen === 'OM') return ''
+function wbMiniGrid(r, family = activeGen) {
+  if (family === 'OM') return ''
+  return fujiWbMiniGrid(r)
+}
+
+// Fuji-only, independent of the currently selected recipe family.
+function fujiWbMiniGrid(r) {
   const rx = pn(r.wb_shift_red)  ?? 0
   const ry = -(pn(r.wb_shift_blue) ?? 0)
   let html = ''
@@ -325,14 +392,32 @@ function fingerprint(r) {
 // ══════════════════════════════════════════
 // RECIPE CARD
 // ══════════════════════════════════════════
-function makeCard(r) {
-  const div=document.createElement('div'); div.className='card'
-  if (activeGen === 'OM') return makeOmCard(r, div)
+// Fuji image-quality controls only: FS recipe memory is not an ISO/EV preset.
+function fujiImageQualitySettings(r) {
+  return [
+    ['Film Sim', r.film_simulation], ['Grain', r.grain_effect],
+    ['Color Chrome', r.color_chrome_effect], ['CC FX Blue', r.color_chrome_fx_blue],
+    ['White Balance', r.white_balance],
+    ['WB Shift', (r.wb_shift_red || r.wb_shift_blue) ? `R:${r.wb_shift_red || 0} / B:${r.wb_shift_blue || 0}` : null],
+    ['Dynamic Range', r.dynamic_range], ['Highlight', r.highlight], ['Shadow', r.shadow],
+    ['Color', r.color], ['Sharpness', r.sharpness], ['Clarity', r.clarity],
+  ].filter(([, value]) => value != null && value !== 'N/A' && value !== '')
+}
+
+// One display standard for Fuji cards AND X-T50 custom slots. It intentionally
+// never reads activeGen, so Photography remains Fuji-shaped after visiting OM.
+function buildFujiVisual(r) {
   const drBadge = r.dynamic_range && r.dynamic_range !== 'N/A'
     ? `<div class="mr-detail-row"><span class="badge b-dr">${r.dynamic_range}</span></div>` : ''
   const wbMode = r.white_balance
     ? `<div class="mr-detail-row"><span class="mr-detail-label">WB</span><span class="mr-detail-val">${r.white_balance}</span></div>` : ''
-  const imgHtml=`<div class="card-img-fp"><div class="card-fp-inner">${fingerprint(r)}</div><div class="card-drwb">${wbMode}${wbMiniGrid(r)}${drBadge}</div></div>`
+  return `<div class="card-img-fp fuji-visual"><div class="card-fp-inner">${fingerprint(r)}</div><div class="card-drwb">${wbMode}${fujiWbMiniGrid(r)}${drBadge}</div></div>`
+}
+
+function makeCard(r, family = activeGen) {
+  const div=document.createElement('div'); div.className='card'
+  if (family === 'OM') return makeOmCard(r, div)
+  const imgHtml=buildFujiVisual(r)
 
   function pill(lbl, val) {
     if (val == null || val === '' || val === 'N/A') return ''
@@ -357,12 +442,7 @@ function makeCard(r) {
   const scenK=(r.scenario_keywords||[]).map(k=>`<span class="kw">${k}</span>`).join('')
 
   const settings=[
-    ['Film Sim',r.film_simulation],['Grain',r.grain_effect],
-    ['Color Chrome',r.color_chrome_effect],['CC FX Blue',r.color_chrome_fx_blue],
-    ['White Balance',r.white_balance],
-    ['WB Shift',(r.wb_shift_red||r.wb_shift_blue)?`R:${r.wb_shift_red||0} / B:${r.wb_shift_blue||0}`:null],
-    ['Dynamic Range',r.dynamic_range],['Highlight',r.highlight],['Shadow',r.shadow],
-    ['Color',r.color],['Sharpness',r.sharpness],['Clarity',r.clarity],
+    ...fujiImageQualitySettings(r),
     ['ISO',r.iso_max?`Auto up to ${r.iso_max}`:null],['Exposure',r.exposure_compensation],
   ].filter(([,v])=>v!=null&&v!=='N/A'&&v!=='')
    .map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('')
@@ -377,8 +457,8 @@ function makeCard(r) {
   <div class="cbadges">
     <span class="badge b-sim">${r.film_simulation||'?'}</span>
     ${r.dynamic_range&&r.dynamic_range!=='N/A'?`<span class="badge b-dr">${r.dynamic_range}</span>`:''}
-    <span class="badge ${warmthClass(r)}">${recipeWarmth(r)}</span>
-    <span class="badge ${punchClass(r)}">${recipePunch(r)}</span>
+    <span class="badge ${warmthClass(r, family)}">${recipeWarmth(r, family)}</span>
+    <span class="badge ${punchClass(r, family)}">${recipePunch(r, family)}</span>
   </div>
 </div>
 <div class="cpills">${pillsHtml}</div>
@@ -390,12 +470,12 @@ function makeCard(r) {
   // Compare button
   const cmpBtn = document.createElement('button')
   cmpBtn.className = 'cmp-card-btn'
-  cmpBtn.dataset.recipe = r.name
+  cmpBtn.dataset.recipe = recipeIdentity(r, family)
   cmpBtn.textContent = 'Compare'
-  if (compareSlots[0] && compareSlots[0].name === r.name) { cmpBtn.textContent = 'A ✕'; cmpBtn.className = 'cmp-card-btn slot-a' }
-  if (compareSlots[1] && compareSlots[1].name === r.name) { cmpBtn.textContent = 'B ✕'; cmpBtn.className = 'cmp-card-btn slot-b' }
+  if (compareSlots[0] === r) { cmpBtn.textContent = 'A ✕'; cmpBtn.className = 'cmp-card-btn slot-a' }
+  if (compareSlots[1] === r) { cmpBtn.textContent = 'B ✕'; cmpBtn.className = 'cmp-card-btn slot-b' }
   cmpBtn.style.cssText = 'margin:4px 12px 8px;display:block'
-  cmpBtn.addEventListener('click', e => { e.stopPropagation(); onCompareCardClick(r) })
+  cmpBtn.addEventListener('click', e => { e.stopPropagation(); compareRecipeFromFamily(r, family) })
   div.appendChild(cmpBtn)
 
   return div
@@ -529,8 +609,8 @@ function makeOmCard(r, div) {
   <div class="cnarr">${r.author?'by '+r.author:''}</div>
   <div class="cbadges">
     <span class="badge b-sim">${r.recipe_type||'?'}</span>
-    <span class="badge ${warmthClass(r)}">${recipeWarmth(r)}</span>
-    <span class="badge ${punchClass(r)}">${recipePunch(r)}</span>
+    <span class="badge ${warmthClass(r, 'OM')}">${recipeWarmth(r, 'OM')}</span>
+    <span class="badge ${punchClass(r, 'OM')}">${recipePunch(r, 'OM')}</span>
   </div>
 </div>
 <div class="cpills">${pillsHtml}</div>
@@ -541,12 +621,12 @@ function makeOmCard(r, div) {
 
   const cmpBtn = document.createElement('button')
   cmpBtn.className = 'cmp-card-btn'
-  cmpBtn.dataset.recipe = r.name
+  cmpBtn.dataset.recipe = recipeIdentity(r, 'OM')
   cmpBtn.textContent = 'Compare'
-  if (compareSlots[0] && compareSlots[0].name === r.name) { cmpBtn.textContent = 'A ✕'; cmpBtn.className = 'cmp-card-btn slot-a' }
-  if (compareSlots[1] && compareSlots[1].name === r.name) { cmpBtn.textContent = 'B ✕'; cmpBtn.className = 'cmp-card-btn slot-b' }
+  if (compareSlots[0] === r) { cmpBtn.textContent = 'A ✕'; cmpBtn.className = 'cmp-card-btn slot-a' }
+  if (compareSlots[1] === r) { cmpBtn.textContent = 'B ✕'; cmpBtn.className = 'cmp-card-btn slot-b' }
   cmpBtn.style.cssText = 'margin:4px 12px 8px;display:block'
-  cmpBtn.addEventListener('click', e => { e.stopPropagation(); onCompareCardClick(r) })
+  cmpBtn.addEventListener('click', e => { e.stopPropagation(); compareRecipeFromFamily(r, 'OM') })
   div.appendChild(cmpBtn)
 
   return div
@@ -562,7 +642,21 @@ function renderGrid() {
   $('rcount').innerHTML=`Showing <strong>${fr.length}</strong> of <strong>${activeRecipes().length}</strong> recipes`
   const grid=$('grid'); grid.innerHTML=''
   $('empty').style.display=fr.length?'none':'block'
-  fr.forEach(r=>grid.appendChild(makeCard(r)))
+  fr.forEach(recipe => {
+    const card = makeCard(recipe)
+    const actions = document.createElement('div')
+    actions.className = 'recipe-actions'
+    const details = document.createElement('button')
+    details.type = 'button'
+    details.className = 'recipe-details-btn'
+    details.textContent = 'View details'
+    details.addEventListener('click', () => openRecipeModal(recipe))
+    actions.appendChild(details)
+    const compare = card.querySelector('.cmp-card-btn')
+    if (compare) { compare.style.cssText = ''; actions.appendChild(compare) }
+    card.appendChild(actions)
+    grid.appendChild(card)
+  })
 }
 
 // ══════════════════════════════════════════
@@ -784,13 +878,53 @@ const FIELD_LABEL={highlight:'Highlight',shadow:'Shadow',color:'Color',sharpness
 const FIELD_COLOR_POS={highlight:'#e8c05a',shadow:'#e07842',color:'#4caf7d',sharpness:'#9b7fe8',clarity:'#4db8aa'}
 const FIELD_COLOR_NEG={highlight:'#5b9af0',shadow:'#5b9af0',color:'#5b9af0',sharpness:'#5b9af0',clarity:'#5b9af0'}
 
+// Fuji-only group deltas, computed from the current generation's committed
+// data rather than a stale snapshot. Missing settings are not treated as zero.
+function computeFujiCorrelations(recipes, minCount = 2) {
+  const fields = Object.keys(FIELD_LABEL)
+  const mean = (rows, field) => {
+    const values = rows.map(recipe => pn(recipe[field])).filter(Number.isFinite)
+    return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null
+  }
+  const globalMeans = Object.fromEntries(fields.map(field => [field, mean(recipes, field)]).filter(([, value]) => value !== null))
+  const numericFields = fields.filter(field => globalMeans[field] != null)
+  const groups = new Map()
+  recipes.forEach(recipe => {
+    const keywords = new Set([...(recipe.mood_keywords || []), ...(recipe.scenario_keywords || [])])
+    keywords.forEach(keyword => {
+      if (!groups.has(keyword)) groups.set(keyword, [])
+      groups.get(keyword).push(recipe)
+    })
+  })
+  const correlations = {}
+  ;[...groups].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0])).forEach(([keyword, rows]) => {
+    if (rows.length < minCount) return
+    const means = {}, deltas = {}, sims = {}, dr = {}
+    numericFields.forEach(field => {
+      const value = mean(rows, field)
+      if (value !== null) { means[field] = value; deltas[field] = value - globalMeans[field] }
+    })
+    rows.forEach(recipe => {
+      if (recipe.film_simulation) sims[recipe.film_simulation] = (sims[recipe.film_simulation] || 0) + 1
+      if (recipe.dynamic_range) dr[recipe.dynamic_range] = (dr[recipe.dynamic_range] || 0) + 1
+    })
+    correlations[keyword] = { count: rows.length, means, deltas, dr,
+      top_sims: Object.entries(sims).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([name]) => name) }
+  })
+  return { correlations, global_means: globalMeans, numeric_fields: numericFields }
+}
+
 function renderCorrelations(filterQ) {
   const grid=$('corr-grid'); grid.innerHTML=''
+  const summary = $('corr-summary')
+  if (summary) summary.hidden = activeGen === 'OM'
   if (activeGen === 'OM') {
     if (typeof renderOmCorrelations === 'function') return renderOmCorrelations(filterQ)
     grid.innerHTML='<div class="empty">Correlation analysis is not available for the OM recipe family yet.</div>'; return
   }
-  const entries=Object.entries(CORR.correlations)
+  const dataSet = computeFujiCorrelations(activeRecipes())
+  if (summary) summary.textContent = 'Current family averages: ' + dataSet.numeric_fields.map(field => FIELD_LABEL[field] + ' ' + dataSet.global_means[field].toFixed(2)).join(' · ') + '. Groups have at least 2 recipes; unavailable settings are omitted.'
+  const entries=Object.entries(dataSet.correlations)
   const fq=(filterQ||'').toLowerCase()
   const shown=entries.filter(([kw])=>!fq||kw.includes(fq))
 
@@ -802,7 +936,7 @@ function renderCorrelations(filterQ) {
   shown.forEach(([kw,data])=>{
     const card=document.createElement('div'); card.className='corr-card'
     const deltas=data.deltas||{}
-    const fields=CORR.numeric_fields||['highlight','shadow','color','sharpness','clarity']
+    const fields=dataSet.numeric_fields
 
     // Insight: find strongest signal
     const strongest=fields.filter(f=>deltas[f]!=null).sort((a,b)=>Math.abs(deltas[b])-Math.abs(deltas[a]))[0]
@@ -853,8 +987,8 @@ function buildInsight(kw, field, delta, mean) {
   const sign=delta>0?'higher':'lower'
   const mag=Math.abs(delta)
   const desc={
-    highlight: delta>0?'brighter highlight rolloff (lifted tones)':'crushed highlights (more contrast in highs)',
-    shadow: delta>0?'lifted shadow floor (details in dark areas)':'deeper shadows / crushed blacks',
+    highlight: delta>0?'brighter, harder highlight contrast':'softer highlight contrast / more restrained bright tones',
+    shadow: delta>0?'deeper, harder shadows':'softer, lighter shadow rendering',
     color: delta>0?'pushed color saturation':'desaturated / muted color palette',
     sharpness: delta>0?'sharper rendering':'softer rendering (less edge accentuation)',
     clarity: delta>0?'higher local contrast / texture clarity':'reduced micro-contrast (smoother, creamier)',
@@ -867,7 +1001,8 @@ function syncChips(){
   document.querySelectorAll('.chip').forEach(c=>{
     const id=c.closest('.chips').id
     const fk=id.replace('f-','')
-    c.classList.toggle('on',S.f[fk]?.has(c.dataset.v))
+    if (!S.f[fk]) return // gallery album chips own a different filter state
+    c.classList.toggle('on',S.f[fk].has(c.dataset.v))
   })
 }
 
@@ -892,29 +1027,6 @@ function render(){
     })
     requestAnimationFrame(drawParallel)
   }
-}
-
-// ══════════════════════════════════════════
-// SAVE SLOTS
-// ══════════════════════════════════════════
-
-// Descriptions of what each film simulation contributes when you swap it in
-const SIM_CHARACTER = {
-  'Classic Negative':   'Faded greens, lifted shadows, distinctive teal/orange split — the most "filmic" of the negative sims',
-  'Nostalgic Neg.':     'Warm magenta-leaning highlights, softer contrast than Classic Neg — portrait-flattering, golden-hour ready',
-  'Classic Chrome':     'Desaturated, documentary, subdued reds/greens — closest to a pro color negative look',
-  'Reala Ace':          'Neutral-leaning with accurate color rendition — clean, versatile, closest to "correct"',
-  'PRO Neg. Hi':        'Higher contrast than Std, fine skin tones, slight highlight compression — portrait workhorse',
-  'PRO Neg. Std':       'Flat, low-saturation base — maximum editing headroom, clean documentary',
-  'Astia/Soft':         'Pastel-soft, gentle on skin tones, slightly pink-biased highlights',
-  'Eterna/Cinema':      'Very low saturation, filmic highlight rolloff — the cinematic flat look',
-  'Eterna Bleach Bypass': 'Desaturated, high-contrast silver-retention look — gritty and dramatic',
-  'Velvia/Vivid':       'Punchy, oversaturated, high contrast — landscape and nature specialist',
-  'Provia/STD':         'Neutral starting point, no strong character — clean base for all subjects',
-  'Provia/Standard':    'Neutral starting point, no strong character — clean base for all subjects',
-  'Acros':              'True B&W with grain simulation — superior tonal separation and sharpness',
-  'Monochrome':         'Flat B&W, less contrast than Acros — good base for custom toning in post',
-  'Sepia':              'Monochrome with warm brown tint — vintage print aesthetic',
 }
 
 // ══════════════════════════════════════════
@@ -999,7 +1111,7 @@ const SETTINGS_DATA = [
           { dir: 'down', label: 'Negative (−0.5 to −2)', text: '<strong>Compressed, filmy highlights.</strong> Clouds stay white with detail. Skies don\'t blow. The "Fuji look" that makes JPEGs usable in bright sun.' },
           { dir: 'up', label: 'Positive (+1 to +4)', text: '<strong>Brighter, more luminous highlights.</strong> Useful for high-key portraits, intentional glow, or when shooting in flat/overcast light that needs lifting.' },
         ],
-        tip: '<strong>−1 to −1.5</strong> is the most common setting across this recipe set. Going below −2 can make highlights look compressed and "flat" rather than naturally roll-off.',
+        tip: '<strong>−1 to −1.5</strong> is a common soft-highlight choice in modern Fuji recipes. At −2, assess whether the bright tones are becoming flatter than you intend; supported ranges and step sizes depend on the body.',
         visual: {
           stops: [
             { label: '−2', color: '#3a4050', textLabel: '−2 compressed' },
@@ -1015,18 +1127,18 @@ const SETTINGS_DATA = [
         icon: '🌑',
         iconBg: 'rgba(60,60,90,.5)',
         range: '−2 to +4 (step 0.5)',
-        desc: 'Controls the lower tonal range (roughly the bottom 1–2 stops). Negative values crush blacks — deepening shadows, increasing apparent contrast. Positive values lift shadows, reducing contrast and revealing more detail in dark areas.',
+        desc: 'Controls shadow tone contrast. On Fujifilm, positive values deepen/harden dark tones; negative values soften/lighten the shadows. This is the opposite of interpreting the dial as a simple brightness lift.',
         effects: [
-          { dir: 'down', label: 'Negative (−0.5 to −2)', text: '<strong>Deep, crushed blacks.</strong> Increases perceived contrast dramatically. Creates the inky shadow look common in street and moody photography.' },
-          { dir: 'up', label: 'Positive (+1 to +4)', text: '<strong>Lifted, open shadows.</strong> Reduces harsh contrast. Useful for portraits in backlit or high-contrast situations where you want face detail in shade.' },
+          { dir: 'down', label: 'Negative (−0.5 to −2)', text: '<strong>Softer, lighter shadows.</strong> Reduces shadow contrast and can help keep dark areas open in a JPEG.' },
+          { dir: 'up', label: 'Positive (+1 to +4)', text: '<strong>Deeper, harder shadows.</strong> Increases shadow contrast for a stronger dark-tone treatment. Check that important detail is not lost.' },
         ],
-        tip: 'Shadow and Highlight work as a pair. The classic "Fuji film" curve is <strong>Highlight −1 / Shadow −1</strong> — mild compression at both ends for a natural S-curve with soft roll-off.',
+        tip: 'Highlight and Shadow work as a pair: <strong>negative values soften contrast at both ends; positive values increase tonal contrast</strong>. These JPEG controls do not recover detail that was already clipped in the capture.',
         visual: {
           stops: [
-            { label: '−2', color: '#080810', textLabel: '−2 crushed' },
-            { label: '−1', color: '#1a1a28', textLabel: '−1' },
+            { label: '−2', color: '#707090', textLabel: '−2 softened' },
+            { label: '−1', color: '#505068', textLabel: '−1' },
             { label: '0', color: '#3a3a50', textLabel: '0' },
-            { label: '+2', color: '#707090', textLabel: '+2 lifted' },
+            { label: '+2', color: '#080810', textLabel: '+2 deeper' },
           ]
         }
       },
@@ -1344,12 +1456,12 @@ function buildSgCard(item) {
     usageHtml = `<div class="sg-recipes-note"><strong>In this recipe set:</strong><div class="sg-presets" style="margin-top:5px">${parts}</div></div>`
   } else if (item.name === 'High ISO NR') {
     const nrCounts = {}
-    activeRecipes().forEach(r => { const v = String(r.high_iso_nr||'?'); nrCounts[v] = (nrCounts[v]||0)+1 })
+    activeRecipes().forEach(r => { if (r.high_iso_nr == null) return; const v = String(r.high_iso_nr); nrCounts[v] = (nrCounts[v]||0)+1 })
     const total = activeRecipes().length
     const parts = Object.entries(nrCounts).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,v]) =>
       `<span class="sg-preset ${parseFloat(k)<0?'lo':'hi'}">${k}: ${v} recipes</span>`
     ).join('')
-    usageHtml = `<div class="sg-recipes-note"><strong>In this recipe set:</strong><div class="sg-presets" style="margin-top:5px">${parts}</div></div>`
+    if (parts) usageHtml = `<div class="sg-recipes-note"><strong>In this recipe set:</strong><div class="sg-presets" style="margin-top:5px">${parts}</div></div>`
   } else if (item.name === 'Sharpness') {
     const sh = {}
     activeRecipes().forEach(r => { const v = String(r.sharpness??'?'); sh[v] = (sh[v]||0)+1 })
@@ -1390,7 +1502,7 @@ function renderSettingsGuide() {
   if (settingsBuilt) return
   settingsBuilt = true
 
-  container.innerHTML = ''
+  container.innerHTML = '<p class="sec-desc">General Fujifilm reference: available controls, limits and step sizes vary by camera/generation. Use the selected recipe and your camera manual for exact availability; missing settings are not inferred as zero.</p>'
 
   SETTINGS_DATA.forEach(section => {
     const secDiv = document.createElement('div')
@@ -1518,9 +1630,9 @@ let compareBuilt = false
 function updateCompareCardButtons() {
   document.querySelectorAll('.cmp-card-btn').forEach(btn => {
     const name = btn.dataset.recipe
-    if (compareSlots[0] && compareSlots[0].name === name) {
+    if (compareSlots[0] && recipeIdentity(compareSlots[0]) === name) {
       btn.textContent = 'A ✕'; btn.className = 'cmp-card-btn slot-a'
-    } else if (compareSlots[1] && compareSlots[1].name === name) {
+    } else if (compareSlots[1] && recipeIdentity(compareSlots[1]) === name) {
       btn.textContent = 'B ✕'; btn.className = 'cmp-card-btn slot-b'
     } else {
       btn.textContent = 'Compare'; btn.className = 'cmp-card-btn'
@@ -1528,8 +1640,17 @@ function updateCompareCardButtons() {
   })
 }
 
+async function compareRecipeFromFamily(r, family) {
+  if (family !== activeGen) {
+    await switchGen(family)
+    if (activeGen !== family) return // a newer family request won
+    navigate(NAV.section, NAV.view, NAV.subview, family)
+  }
+  onCompareCardClick(r)
+}
+
 function onCompareCardClick(r) {
-  const idxA = compareSlots.findIndex(s => s && s.name === r.name)
+  const idxA = compareSlots.findIndex(recipe => recipe === r)
   if (idxA !== -1) {
     compareSlots[idxA] = null
     updateCompareCardButtons()
@@ -1689,7 +1810,7 @@ function cmpSimCard(r) {
   const div = document.createElement('div')
   div.className = 'cmp-sim-card'
   div.innerHTML = `<span class="cmp-sim-name">${r.name}</span><span class="badge b-sim" style="flex-shrink:0">${r.film_simulation||'?'}</span><span class="badge ${warmthClass(r)}" style="flex-shrink:0">${recipeWarmth(r)}</span><span class="badge ${punchClass(r)}" style="flex-shrink:0">${recipePunch(r)}</span>`
-  div.addEventListener('click', () => openRecipeModal(r.name))
+  div.addEventListener('click', () => openRecipeModal(r))
   return div
 }
 
@@ -2119,7 +2240,7 @@ function renderExploreResults() {
         ${allDiffs?`<div class="exp-diff-row">${allDiffs}</div>`:''}
         ${kws?`<div class="exp-kws">${kws}</div>`:''}
       </div>`
-    card.addEventListener('click', () => openRecipeModal(r.name))
+    card.addEventListener('click', () => openRecipeModal(r))
     const expCmpBtn = document.createElement('button')
     expCmpBtn.className = 'cmp-card-btn'
     expCmpBtn.dataset.recipe = r.name
@@ -2521,13 +2642,6 @@ function buildWbGrid() {
   updateWbDot()
 }
 
-function pillSvg(x, y, text, strokeColor, bgColor, textColor) {
-  const w = text.length * 1.1 + 2
-  const cx = clamp(x, -8.8, 9 - w)
-  return `<rect x="${cx}" y="${y}" width="${w}" height="2.6" rx=".8" fill="${bgColor}" stroke="${strokeColor}" stroke-width=".3"/>` +
-         `<text x="${cx + w/2}" y="${y + 1.9}" font-size="1.5" fill="${textColor}" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">${text}</text>`
-}
-
 function updateWbDot() {
   const dot = document.getElementById('exp-wb-dot')
   if (dot) dot.setAttribute('points', diamondPoints(T.wb_shift_red, -T.wb_shift_blue, 1.1))
@@ -2567,57 +2681,6 @@ let _expTimer = null
 function expDebounce() {
   clearTimeout(_expTimer)
   _expTimer = setTimeout(() => { renderExploreResults(); updateExploreViews() }, 80)
-}
-
-function buildSliderPane() {
-  const pane = document.getElementById('exp-pane-sliders')
-  if (!pane) return
-
-  const tonal  = T_PARAMS.filter(p => ['highlight','shadow'].includes(p.key))
-  const style  = T_PARAMS.filter(p => !['highlight','shadow'].includes(p.key))
-
-  function makeGroup(title, params) {
-    const g = document.createElement('div')
-    g.className = 'slider-group'
-    g.innerHTML = `<div class="slider-group-title">${title}</div>`
-    params.forEach(p => {
-      const row = document.createElement('div')
-      row.className = 'slider-row'
-      const dotColor = n => n < 0.33 ? 'var(--blue)' : n < 0.67 ? 'var(--teal)' : 'var(--accent)'
-      row.innerHTML = `
-        <span class="slider-dot" id="exp-dot-${p.key}" style="background:${dotColor(p.norm(T[p.key]))}"></span>
-        <span class="slider-label">${p.label}</span>
-        <input type="range" class="exp-range" id="exp-sl-${p.key}"
-          min="${p.min}" max="${p.max}" step="${p.step}" value="${T[p.key]}">
-        <span class="slider-val" id="exp-slv-${p.key}">${T[p.key]}</span>`
-      const inp = row.querySelector('input')
-      inp.addEventListener('input', () => {
-        T[p.key] = parseFloat(inp.value)
-        document.getElementById('exp-slv-' + p.key).textContent = T[p.key]
-        const dot = document.getElementById('exp-dot-' + p.key)
-        if (dot) dot.style.background = dotColor(p.norm(T[p.key]))
-        expDebounce()
-      })
-      g.appendChild(row)
-    })
-    return g
-  }
-
-  const sliders = document.createElement('div')
-  sliders.className = 'exp-sliders'
-  sliders.appendChild(makeGroup('Tonal', tonal))
-  sliders.appendChild(makeGroup('Style', style))
-  pane.appendChild(sliders)
-
-  // Radar overlay for Sliders sub-tab
-  const owrap = document.createElement('div')
-  owrap.className = 'exp-overlay-wrap'
-  owrap.innerHTML = '<div class="exp-overlay-title">Shape vs closest match</div>'
-  const svgWrap = document.createElement('div')
-  svgWrap.className = 'exp-radar-wrap'
-  svgWrap.innerHTML = '<svg id="exp-overlay-svg" class="exp-radar-svg" width="220" height="220" viewBox="0 0 80 80"></svg>'
-  owrap.appendChild(svgWrap)
-  pane.appendChild(owrap)
 }
 
 function buildCompactControls() {
@@ -2781,10 +2844,9 @@ function initExplore() {
     return
   }
   if (exploreBuilt) return
-  // Restore Fuji markup if an OM build (or the empty state) replaced it.
-  if (pane && !document.getElementById('exp-seed-input') && fujiExploreHTML !== null) {
-    pane.innerHTML = fujiExploreHTML
-  }
+  // Fresh controls on EVERY rebuild: do not append duplicate options or
+  // reattach handlers to retained nodes after switching Fuji generations.
+  if (pane && fujiExploreHTML !== null) pane.innerHTML = fujiExploreHTML
 
   // Seed picker
   const seedInput = document.getElementById('exp-seed-input')
@@ -2820,6 +2882,7 @@ function initExplore() {
       })
       seedDropdown.style.display = (matches.length > 0 || q === '') ? 'block' : 'none'
     }
+    seedInput.value = T.seedName || ''
     seedInput.addEventListener('focus', () => showDropdown(seedInput.value))
     seedInput.addEventListener('input', () => showDropdown(seedInput.value))
     seedInput.addEventListener('blur', () => setTimeout(() => { seedDropdown.style.display = 'none' }, 150))
@@ -2828,12 +2891,14 @@ function initExplore() {
   // Film sim filter — populate options from dataset
   const filmSimSel = document.getElementById('exp-film-sim')
   if (filmSimSel) {
+    filmSimSel.innerHTML = '<option value="">— any —</option>'
     const sims = [...new Set(activeRecipes().map(r => r.film_simulation).filter(Boolean))].sort()
     sims.forEach(s => {
       const opt = document.createElement('option')
       opt.value = s; opt.textContent = s
       filmSimSel.appendChild(opt)
     })
+    filmSimSel.value = T.film_sim_filter
     filmSimSel.addEventListener('change', () => {
       T.film_sim_filter = filmSimSel.value
       renderExploreResults()
@@ -2847,7 +2912,7 @@ function initExplore() {
   const wbSel = document.getElementById('exp-wb-mode')
   if (wbSel) {
     wbSel.innerHTML = ''
-    const wbVals = [...new Set(activeRecipes().map(r => r.white_balance).filter(Boolean))].sort()
+    const wbVals = [...new Set([T.white_balance, ...activeRecipes().map(recipe => recipe.white_balance)].filter(Boolean))].sort()
     wbVals.forEach(v => {
       const opt = document.createElement('option')
       opt.value = v; opt.textContent = v
@@ -2905,14 +2970,20 @@ function punchFormulaHTML() {
   </div>`
 }
 
+function updateBadgeFormula() {
+  const body = document.querySelector('.badge-formula-details .bfd-body')
+  if (body) body.innerHTML = `${warmthFormulaHTML()}${punchFormulaHTML()}<div style="font-size:11px;color:var(--text3);border-top:1px solid var(--border);padding-top:10px">Computed automatically from camera settings. Override a recipe via <code>RECIPE_META_PATCHES</code> in gear.js.</div>`
+}
+
 function initBadgeFormula() {
   // Collapsible above the Recipes grid
   const listPane = $('inner-recipes-list')
   if (listPane) {
     const details = document.createElement('details')
     details.className = 'badge-formula-details'
-    details.innerHTML = `<summary>How badges are scored</summary><div class="bfd-body">${warmthFormulaHTML()}${punchFormulaHTML()}<div style="font-size:11px;color:var(--text3);border-top:1px solid var(--border);padding-top:10px">Computed automatically from camera settings. Override a recipe via <code>RECIPE_META_PATCHES</code> in gear.js.</div></div>`
+    details.innerHTML = '<summary>How badges are scored</summary><div class="bfd-body"></div>'
     listPane.insertBefore(details, listPane.firstChild)
+    updateBadgeFormula()
   }
 
   // Sidebar info popovers
@@ -2922,10 +2993,10 @@ function initBadgeFormula() {
   function keywordInfoHTML(type) {
     if (type === 'mood') return `<h4>Mood Keywords</h4>
 <p>Descriptive adjectives for the <em>emotional tone</em> of the recipe — how the final image feels. Examples: vintage, cinematic, dreamy, punchy, muted, ethereal.</p>
-<p>Assigned by the recipe author based on intended aesthetic. Selecting multiple moods shows recipes that match <em>any</em> of them.</p>`
+<p>Curated from recipe descriptions and intended aesthetics; these are reference labels, not camera settings. Selecting multiple moods matches <em>any</em> selected mood.</p>`
     if (type === 'scenario') return `<h4>Scenario Keywords</h4>
 <p>The <em>shooting situations</em> the recipe is built for. Examples: street, portrait, landscape, golden hour, indoor, travel.</p>
-<p>Based on author recommendations and the recipe's tonal characteristics. A recipe can suit multiple scenarios.</p>`
+<p>Curated from descriptions, shooting recommendations and tonal characteristics. These labels are not necessarily supplied verbatim by the original recipe author. A recipe can suit multiple scenarios.</p>`
     if (type === 'hue') return `<h4>Hue Emphasis</h4>
 <p>Which hue family the 12-point colour wheel pushes hardest — the mean of the warm (Y/O/OR/R), cool (B/BC/C), green (GC/G/YG) and magenta (M/V/R) groups, with the winner taken. "Neutral" means no group exceeds +0.5.</p>
 <p><strong>This is not a colour cast.</strong> In OM's Color Creator a positive channel boosts <em>that hue's saturation</em> — it does not tint the image. A recipe can be <span class="badge b-warm">warm</span> on Warmth while showing <em>cool</em> emphasis here: "OMTC Warm" runs Amber +4 (genuinely warm) yet pushes Blue +4 and Cyan +5 (cool emphasis). Both readings are true at once.</p>

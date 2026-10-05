@@ -4,9 +4,9 @@ This file provides repository guidance to Pi and other coding agents working in 
 
 ## Overview
 
-This is **Jin's personal homepage**, a GitHub Pages site with no build process. It has three top-level sections: **Home** (a landing page introducing the author), **Photography** (Jin's own gallery, gear, custom camera setup, and shooting notes), and **Camera Settings** (a recipe explorer for two distinct camera recipe families — **Fujifilm X-Trans** film simulation recipes and **OM System/Olympus** color-wheel recipes from om-recipes.com). Photography and the recipe explorer are two facets of one site, not two products bolted together — see `docs/superpowers/specs/2026-08-12-layout-reorg-design.md` for the rationale.
+This is **Jin's personal homepage**, a GitHub Pages site with no build process. It has three top-level sections: **Home** (a landing page introducing the author), **Photography** (Jin's own gallery, gear, custom camera setup, shooting notes, and learning guides), and **Camera Settings** (a recipe explorer for two distinct camera recipe families — **Fujifilm X-Trans** film simulation recipes and **OM System/Olympus** color-wheel recipes from om-recipes.com). Photography and the recipe explorer are two facets of one site, not two products bolted together — see `docs/superpowers/specs/2026-08-12-layout-reorg-design.md` for the rationale.
 
-The shell lives in `index.html` (served at the site root by GitHub Pages), which loads four hand-written JS modules (`nav.js`, `recipes-ui.js`, `personal-ui.js`, `om-analysis.js`) plus data files: recipe data in per-generation/family files (`recipes-v.js`, `recipes-om.js`, etc.), personal gear/setup data in `gear.js`, and gallery data in `gallery.js`.
+The shell lives in `index.html` (served at the site root by GitHub Pages), which loads four hand-written JS modules (`nav.js`, `recipes-ui.js`, `personal-ui.js`, `om-analysis.js`) plus data files: recipe data in per-generation/family files (`recipes-v.js`, `recipes-om.js`, etc.), personal gear/setup data in `gear.js`, gallery data in `gallery.js`, and author-edited learning topics in `learn.js`.
 
 **The two recipe families are architecturally separate and must stay that way.** Fuji recipes (`RECIPES_V/IV/III/II/I`) use a film-simulation-based schema; OM recipes (`RECIPES_OM`) use a 12-point color-wheel schema. They share zero field names by design. Do not merge, cross-reference, or generalize the two schemas — when adding recipe-family-aware code, branch explicitly on `activeGen === 'OM'` rather than trying to unify field access.
 
@@ -21,13 +21,22 @@ python3 -m http.server 8000
 
 No package.json, no npm, no bundler.
 
+## Opt-in refreshed design preview
+
+The existing `index.html` remains the default site. `refreshed.html` is a separate, opt-in editorial redesign with the **same shared data and functional renderers**. Do not promote it over the original unless the author explicitly approves.
+
+- Preview locally at `http://localhost:8000/refreshed.html`; its **Original ↗** link preserves the current route when returning to `index.html`.
+- Iterate on `refreshed.css` and `refreshed.js`, which are loaded only by the preview. The preview rebinds Home and wraps `applyNav` inside its own page; `NAV` remains the routing source of truth. It does not change either recipe schema or personal setup data.
+- `refreshed.html` and `refreshed-base.css` are **generated compatibility snapshots**. Do not hand-edit them. After original shell/CSS/entry changes, run `python3 tools/build_refreshed_preview.py`; shared JS/data changes are picked up without regeneration. This is author-time maintenance, not a deployment build step.
+- See `docs/refreshed-design.md` for design/isolation details. Checks: `node --test tools/test_photography_ui.cjs tools/test_refreshed_preview.cjs`.
+
 ## Architecture
 
 `index.html` contains inline CSS (`<style>`), inline HTML structure (the shell, header, nav, and empty pane containers), and one small inline `<script>` block — the app's actual entry point. Everything else is split into four modules, each loaded via `<script src>`:
 
 - **`nav.js`** — owns navigation state (`NAV`) and routing. The only place that knows "where am I". Loaded last because it calls into both realms below.
 - **`recipes-ui.js`** — the Camera Settings realm: recipe grid, keywords, insights, explore, compare, sidebar facets, and the `S`/`T`/`C` filter-and-tool state.
-- **`personal-ui.js`** — the Photography realm: gallery, gear, custom setup, and scenario-notes rendering.
+- **`personal-ui.js`** — the Photography realm: gallery, gear, custom setup, scenario notes, and Learn topic rendering (including the interactive multiple-exposure illustration).
 - **`om-analysis.js`** — OM-specific analysis (unchanged by the layout reorg; see its own section below).
 
 Current script load order in `index.html`:
@@ -41,6 +50,7 @@ Current script load order in `index.html`:
 <script src="corr-data.js"></script>
 <script src="om-analysis.js"></script>
 <script src="gallery.js"></script>
+<script src="learn.js"></script>        <!-- author-edited learning topics -->
 <script>const $ = id => document.getElementById(id)</script>
 <script src="recipes-ui.js"></script>   <!-- realm renderers -->
 <script src="personal-ui.js"></script>
@@ -52,7 +62,7 @@ Current script load order in `index.html`:
 **Load-order rule:** every module (and the small `const $` block) is *declarations only* — nothing in a module may touch another module's or another script's globals at parse time, only inside function bodies. Anything that actually needs to run at load time (event listeners, `init()`, the initial `applyHash()` call) lives in `index.html`'s trailing inline `<script>`, which runs after all four modules have parsed. This is what keeps each module usable as a pure, importable library regardless of `<script>` tag order, and is why `nav.js` — which calls into `recipes-ui.js` and `personal-ui.js` — can safely load after them without those two ever needing to call back into `nav.js` at parse time.
 
 **`gear.js`** defines five plain globals:
-- `MY_CAMERAS` — camera bodies with specs and `image` field pointing to `images/gear/`. Includes both Fuji bodies and the Olympus PEN-F.
+- `MY_CAMERAS` — camera bodies with specs and `image` field pointing to `images/gear/`. Includes both Fuji bodies, the Olympus PEN-F, and the OM System OM-3.
 - `MY_LENSES` — lenses with specs and `image` field. Each entry has a `mount` field: `"X"` (Fuji X-mount, 7 lenses) or `"M43"` (Micro Four Thirds, 4 lenses). `renderGear()` splits the Lenses section into X-mount/M43 sub-tabs based on this field.
 - `MY_CUSTOM_SLOTS` — C1–C7 custom recipe slots (see below). Fuji-only — `recipe_name` references must match a Fuji `RECIPES_*` entry.
 - `MY_RECIPES` — currently empty `[]`; reserved for future use
@@ -116,7 +126,7 @@ Top-level navigation is driven entirely by `NAV` (`nav.js`), not by DOM inspecti
 | Section | `data-section` | Views (`data-view`) | Subviews (`data-subview`) | Render function(s) |
 |---|---|---|---|---|
 | Home | `home` | — (landing only) | — | `renderHome()` (`nav.js`) |
-| Photography | `photography` | Gallery (`gallery`), Gear (`gear`), My Setup (`setup`), Notes (`notes`) | — | `renderGallery()`, `renderGear()`, `renderMyCustomSetup()`, `renderScenarios()` (all `personal-ui.js`, except `renderMyCustomSetup`'s OM delegate `buildOmVisual()` which is in `recipes-ui.js`) |
+| Photography | `photography` | Gallery (`gallery`), Gear (`gear`), My Setup (`setup`), Notes (`notes`), Learn (`learn`) | — | `renderGallery()`, `renderGear()`, `renderMyCustomSetup()`, `renderScenarios()`, `renderLearn()` (all `personal-ui.js`, except `renderMyCustomSetup`'s OM delegate `buildOmVisual()` which is in `recipes-ui.js`) |
 | Camera Settings | `camera` | Recipes (`recipes`), Insights (`insights`), Explore (`explore`), Compare (`compare`) | Recipes: list (default)/keywords; Insights: settings (default)/directions/correlations | `renderGrid()`/`renderClouds()`, `renderSettingsGuide()`/`renderDirections()`/`renderCorrelations()`, `initExplore()`, `initCompare()`/`renderCompare()` (all `recipes-ui.js`) |
 
 The family picker (`<select id="gen-select">`) lives inside Camera Settings' view-tabs bar only — it has no meaning in Photography or Home, so it is scoped there rather than shown globally.
@@ -138,6 +148,7 @@ Navigation is hash-based, owned entirely by `nav.js`. There is no `pushState`-ba
 #/photography/gear          Photography ▸ Gear
 #/photography/setup         Photography ▸ My Setup
 #/photography/notes         Photography ▸ Notes
+#/photography/learn         Photography ▸ Learn
 #/camera                    Camera Settings (defaults to Recipes, current family)
 #/camera/recipes            Camera Settings ▸ Recipes
 #/camera/insights           Camera Settings ▸ Insights
@@ -265,6 +276,17 @@ recipe card.
 - `renderCustomSlots()` — renders `MY_CUSTOM_SLOTS` with a C1–C7 sub-tab bar; one pane visible at a time.
 - `renderGear()` — reads `MY_CAMERAS` / `MY_LENSES`; prepends `<img class="gear-img">` when `item.image` is set.
 
+### Learn (`learn.js` data; `personal-ui.js` rendering)
+
+- `LEARN_TOPICS` — author-edited array of `{ id, title, subtitle, tags, body, demo?, scenarios? }`. `body` is trusted HTML, not fetched or user-submitted content. Add topics here, not in recipe files or generated `gallery.js`.
+- `renderLearn()` — native `<details>` disclosure per topic, first topic expanded initially; `learnBuilt` preserves disclosure and demo state across navigation. No sidebar facets or recipe-family picker.
+- `initMultiExposureDemo(topic)` — local canvas drawings of a silhouette and botanical texture, with clean/colored-textured first-frame backgrounds, blend-mode selection, and per-frame exposure controls. Source pixels are retained separately, so changing scenes/exposure never compounds edits. No remote image dependencies.
+- `blendExposureValue(a, b, mode)` — pure conceptual RGB sum/mean/max/min; explicitly not a Fujifilm rendering simulator. The first lesson links the official X-T50/X-M5 manuals for controls and limits.
+- `METERING_DEMO_SCENES` (`learn.js`) — invented linear-light subject/background/shadow tone zones for backlit, snow, and night scenes. `initMeteringDemo(topic)` renders a scoped two-canvas lesson with Average/Center-weighted/Spot, spot-target selection, and compensation. It deliberately does not simulate proprietary Multi/ESP algorithms.
+- `meteringDemoReading(scene, mode, target)` / `meteringDemoExposure(reading, compensation)` — pure fixed teaching weights and stop-based adjustment toward an illustrative 18% midtone. The Metering lesson documents Fuji detection/spot-linking caveats and OM-3 access/Spot Hi/SH separately.
+- `renderExposureScenarios(topic, scenarios)` — fills the topic’s `[data-exposure-scenarios]` container with native collapsible cards. Each authored entry has `{ id, title, intent, mode, aperture, shutter, iso, af, area, drive, extras, adjust[] }`. The Exposure for Scenarios lesson offers starting points for street, portraits, groups, kids/pets, sports, indoor events, night (people/static/tripod), landscapes, panning, water blur, and wildlife. These are educational suggestions, not saved personal C slots or recipe-family fields; preserve that distinction.
+- Dependency-free regression checks: `node --test tools/test_photography_ui.cjs`.
+
 ### Explore tab functions (`recipes-ui.js`; `docs/explore.md` has the full design)
 - `initExplore()` — builds the entire Explore tab once, guarded by `exploreBuilt`. Invoked via `NAV_RENDER.explore` (`nav.js`) when Camera Settings ▸ Explore becomes active.
 - `computeSimilarity(t)` — returns `activeRecipes()` sorted by normalized Euclidean distance from `t`. Pure function.
@@ -307,12 +329,14 @@ Each slot in `MY_CUSTOM_SLOTS` is either `type: "multi"` or `type: "single"`:
 
 ## MY_CUSTOM_SETUPS structure
 
-`MY_CUSTOM_SETUPS` (`gear.js`) is an object keyed by exact `MY_CAMERAS[].name` strings (e.g. `"Fujifilm X-T50"`, `"Olympus PEN-F"`, `"Fujifilm X-M5"`). Each entry has a `type`:
+`MY_CUSTOM_SETUPS` (`gear.js`) is an object keyed by exact `MY_CAMERAS[].name` strings (e.g. `"Fujifilm X-T50"`, `"Olympus PEN-F"`, `"OM System OM-3"`, `"Fujifilm X-M5"`). Each entry has a `type`:
 - `"fuji-slots"` — delegates to the unchanged `renderCustomSlots()` (X-T50, uses `MY_CUSTOM_SLOTS`; `personal-ui.js`)
-- `"om-dial"` — PEN-F: `modes`/`colorProfiles`/`monoProfiles` rendered by `renderMyCustomSetup()`/`renderSetupCameraPane()` (`personal-ui.js`); each color/mono profile card is built via `buildOmVisual()` (`recipes-ui.js`)
+- `"om-dial"` — PEN-F and OM-3: `modes`/`colorProfiles`/`monoProfiles` rendered by `renderMyCustomSetup()`/`renderSetupCameraPane()` (`personal-ui.js`); each color/mono profile card uses `buildOmVisual()` (`recipes-ui.js`), with a settings table for monochrome filter/grain details. Optional `intro`, `instructions[]`, `source_url`, and `source_label` provide camera-specific guidance. Without them, the existing PEN-F consistency note is used.
 - `"empty"` — placeholder (X-M5, no custom setup yet)
 
-`buildOmVisual(obj)` (`recipes-ui.js`) is the shared OM display standard — 12-point color wheel + WB box + tone rows — used both by real `RECIPES_OM` cards (`makeOmCard()`) and by hand-authored PEN-F profile objects in `MY_CUSTOM_SETUPS`.
+The OM-3 has five C modes and four COLOR/four MONO profiles. Its current setup is explicitly a **suggested starter**, not a record of the author's saved camera settings or factory profile values. Keep that distinction until the author supplies actual settings. The PEN-F keeps its separate four-mode/three-color/three-mono setup.
+
+`buildOmVisual(obj)` (`recipes-ui.js`) is the shared OM display standard — 12-point color wheel + WB box + tone rows — used both by real `RECIPES_OM` cards (`makeOmCard()`) and by hand-authored PEN-F/OM-3 profile objects in `MY_CUSTOM_SETUPS`.
 
 ## Gear images
 
@@ -365,7 +389,7 @@ The **Visual / Cheatsheet** toggle (`#header-view-toggle`) lives in the header, 
 - All DOM queries use `const $ = id => document.getElementById(id)` (defined in `index.html`'s first inline `<script>` block, before `recipes-ui.js`/`personal-ui.js` load, since both modules use `$` at call time).
 - Filter logic lives entirely in `matches(r)` (`recipes-ui.js`).
 - `filtered()` is `() => activeRecipes().filter(matches)` (`recipes-ui.js`) — called fresh on every render.
-- Build-once flags (`galleryBuilt`, `gearBuilt`, `mySetupBuilt` in `personal-ui.js`; `settingsBuilt`, `exploreBuilt`, `compareBuilt` in `recipes-ui.js`) prevent re-rendering a view's DOM on every visit; `switchGen()` resets the Camera Settings ones so switching families rebuilds.
+- Build-once flags (`galleryBuilt`, `gearBuilt`, `mySetupBuilt`, `learnBuilt` in `personal-ui.js`; `settingsBuilt`, `exploreBuilt`, `compareBuilt` in `recipes-ui.js`) prevent re-rendering a view's DOM on every visit; `switchGen()` resets the Camera Settings ones so switching families rebuilds.
 - **User data lives in `gear.js`**, not in `index.html`.
 - Adding a new view: add a `<div class="tab" data-view="...">` inside the right section's `.view-tabs` bar, an entry in `NAV_VIEWS[section]` (`nav.js`), a `.pane pane-no-subtabs` div (or a `.pane` with `.inner-subtabs`/`.inner-pane`s if it needs subviews), a `renderXxx()` function in `recipes-ui.js` or `personal-ui.js`, and a matching entry in `NAV_RENDER` (`nav.js`). There is no `switchTab()`/`switchInnerTab()` to add a case to — `navigate()` and `NAV_RENDER` replace both.
 - Adding a new filter facet: chip container in sidebar + key in `S` + `buildChips()` call in `initChips()` + condition in `matches()` (all `recipes-ui.js`).

@@ -9,3 +9,6 @@ PLAN-*.md
 
 # Python bytecode from tools/
 __pycache__/
+
+# Finder metadata (portable across contributors, not only a global gitignore)
+.DS_Store

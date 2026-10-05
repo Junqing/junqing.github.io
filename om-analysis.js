@@ -585,7 +585,7 @@ function omRecipeToTom(r) {
   const cw = {}
   OM_WHEEL_ORDER.forEach(k => { cw[k] = (r.color_wheel && r.color_wheel[k]) || 0 })
   return {
-    seedName: r.name,
+    seedName: recipeLabel(r, 'OM'),
     type_filter: TOM.type_filter,
     color_wheel: cw,
     contrast: r.contrast ?? 0,
@@ -634,7 +634,7 @@ function omSeedRecipe(name) {
       exposure_compensation: 0, wb_amber_offset: 0, wb_green_offset: 0,
     })
   } else {
-    const r = activeRecipes().find(x => x.name === name)
+    const r = resolveRecipe(name, 'OM')
     if (r) {
       const t = omRecipeToTom(r)
       OM_WHEEL_ORDER.forEach(k => { TOM.color_wheel[k] = t.color_wheel[k] })
@@ -945,6 +945,7 @@ function renderOmExploreResults() {
     card.innerHTML = `<div class="exp-mini-fp">${mini}</div>
       <div class="exp-result-info">
         <div class="exp-result-name">${r.name}</div>
+        <div class="exp-result-author">${r.author || ''}</div>
         <div class="exp-result-badges">
           <span class="badge b-sim">${r.recipe_type || 'COLOR'}</span>
           <span class="badge ${WARMTH_CLASS[recipeWarmthOm(r)]}">${recipeWarmthOm(r)}</span>
@@ -952,7 +953,7 @@ function renderOmExploreResults() {
         </div>
         <div class="exp-result-badges">${diffs.slice(0, 6).join('')}</div>
       </div>`
-    card.addEventListener('click', () => openRecipeModal(r.name))
+    card.addEventListener('click', () => openRecipeModal(r))
     list.appendChild(card)
   })
 }
@@ -1020,7 +1021,7 @@ function initOmExplore() {
   const seedDropdown = document.getElementById('omexp-seed-dropdown')
   function showDropdown(query) {
     const q = query.trim().toLowerCase()
-    const matches = activeRecipes().filter(r => r.name.toLowerCase().includes(q)).slice(0, 12)
+    const matches = activeRecipes().filter(recipe => recipeLabel(recipe, 'OM').toLowerCase().includes(q)).slice(0, 12)
     seedDropdown.innerHTML = ''
     const neutral = document.createElement('div')
     neutral.textContent = '— neutral —'
@@ -1031,12 +1032,12 @@ function initOmExplore() {
     seedDropdown.appendChild(neutral)
     matches.forEach(r => {
       const opt = document.createElement('div')
-      opt.textContent = r.name
+      opt.textContent = recipeLabel(r, 'OM')
       opt.style.cssText = 'padding:6px 10px;font-size:13px;cursor:pointer;color:var(--text)'
       opt.addEventListener('mouseover', () => opt.style.background = 'var(--surf3)')
       opt.addEventListener('mouseout', () => opt.style.background = '')
       opt.addEventListener('mousedown', e => {
-        e.preventDefault(); omSeedRecipe(r.name); seedInput.value = r.name; seedDropdown.style.display = 'none'
+        e.preventDefault(); omSeedRecipe(r); seedInput.value = recipeLabel(r, 'OM'); seedDropdown.style.display = 'none'
       })
       seedDropdown.appendChild(opt)
     })
@@ -1097,7 +1098,7 @@ function initOmCompare() {
 
   const header = document.createElement('div')
   header.className = 'cmp-header'
-  const sortedNames = activeRecipes().map(r => r.name).slice().sort()
+  const sortedRecipes = activeRecipes().slice().sort((a, b) => recipeLabel(a, 'OM').localeCompare(recipeLabel(b, 'OM')))
 
   function makeSelect(cls, label) {
     const wrap = document.createElement('div')
@@ -1111,9 +1112,9 @@ function initOmCompare() {
     const empty = document.createElement('option')
     empty.value = ''; empty.textContent = '— choose —'
     sel.appendChild(empty)
-    sortedNames.forEach(name => {
+    sortedRecipes.forEach(recipe => {
       const opt = document.createElement('option')
-      opt.value = name; opt.textContent = name
+      opt.value = recipeIdentity(recipe, 'OM'); opt.textContent = recipeLabel(recipe, 'OM')
       sel.appendChild(opt)
     })
     wrap.appendChild(lbl); wrap.appendChild(sel)
@@ -1165,11 +1166,11 @@ function initOmCompare() {
 
   shell.appendChild(header)
   document.getElementById('omcmp-sel-a').addEventListener('change', e => {
-    C.a = activeRecipes().find(r => r.name === e.target.value) || null
+    C.a = resolveRecipe(e.target.value, 'OM')
     renderOmCompare()
   })
   document.getElementById('omcmp-sel-b').addEventListener('change', e => {
-    C.b = activeRecipes().find(r => r.name === e.target.value) || null
+    C.b = resolveRecipe(e.target.value, 'OM')
     renderOmCompare()
   })
   shell.appendChild(subtabs)
@@ -1182,8 +1183,8 @@ function initOmCompare() {
 function syncOmCmpSelects() {
   const selA = document.getElementById('omcmp-sel-a')
   const selB = document.getElementById('omcmp-sel-b')
-  if (selA) selA.value = C.a ? C.a.name : ''
-  if (selB) selB.value = C.b ? C.b.name : ''
+  if (selA) selA.value = C.a ? recipeIdentity(C.a, 'OM') : ''
+  if (selB) selB.value = C.b ? recipeIdentity(C.b, 'OM') : ''
 }
 
 function renderOmCompare() {
@@ -1210,7 +1211,7 @@ function renderOmCmpSideBySide(container) {
 
     const title = document.createElement('div')
     title.className = 'cmp-col-title'
-    title.textContent = r.name
+    title.textContent = recipeLabel(r, 'OM')
     col.appendChild(title)
 
     const badges = document.createElement('div')
