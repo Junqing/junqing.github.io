@@ -1,5 +1,10 @@
+import contextlib
+import io
 import os
+import ssl
+import subprocess
 import tempfile
+import urllib.error
 import unittest
 from unittest import mock
 
@@ -36,6 +41,37 @@ class TestTransforms(unittest.TestCase):
 
     def test_tidy_lens_leaves_clean_names_alone(self):
         self.assertEqual(bg.tidy_lens('M.Zuiko 17mm f/1.8'), 'M.Zuiko 17mm f/1.8')
+
+
+class TestVerifiedFetch(unittest.TestCase):
+    def test_certificate_error_uses_verified_https_only_curl(self):
+        error = urllib.error.URLError(ssl.SSLCertVerificationError('missing local issuer'))
+        response = mock.Mock(stdout=b'while (1) {}{"payload":{"private":false}}')
+        with mock.patch.object(bg.urllib.request, 'urlopen', side_effect=error), \
+             mock.patch.object(bg.shutil, 'which', return_value='/usr/bin/curl'), \
+             mock.patch.object(bg.subprocess, 'run', return_value=response) as run:
+            result = bg.fetch('https://lightroom.adobe.com/test')
+        self.assertFalse(result['payload']['private'])
+        args = run.call_args.args[0]
+        self.assertNotIn('-k', args)
+        self.assertNotIn('--insecure', args)
+        self.assertIn('--proto', args)
+        self.assertIn('=https', args)
+
+    def test_ordinary_network_error_does_not_use_a_different_transport(self):
+        with mock.patch.object(bg.urllib.request, 'urlopen', side_effect=urllib.error.URLError('offline')), \
+             mock.patch.object(bg.subprocess, 'run') as run:
+            with self.assertRaises(urllib.error.URLError):
+                bg.fetch('https://lightroom.adobe.com/test')
+        run.assert_not_called()
+
+    def test_failed_native_fallback_remains_an_abortable_os_error(self):
+        error = urllib.error.URLError(ssl.SSLCertVerificationError('missing local issuer'))
+        with mock.patch.object(bg.urllib.request, 'urlopen', side_effect=error), \
+             mock.patch.object(bg.shutil, 'which', return_value='/usr/bin/curl'), \
+             mock.patch.object(bg.subprocess, 'run', side_effect=subprocess.CalledProcessError(60, ['curl'])):
+            with self.assertRaises(OSError):
+                bg.fetch('https://lightroom.adobe.com/test')
 
 
 class TestPhotoFromAsset(unittest.TestCase):
@@ -122,8 +158,11 @@ class TestMainTimeoutHandling(unittest.TestCase):
         self.tmpdir.cleanup()
 
     def test_timeout_error_is_caught_and_aborts_without_writing(self):
-        with mock.patch.object(bg, 'fetch', side_effect=TimeoutError('timed out')):
+        output, errors = io.StringIO(), io.StringIO()
+        with mock.patch.object(bg, 'fetch', side_effect=TimeoutError('timed out')), \
+             contextlib.redirect_stdout(output), contextlib.redirect_stderr(errors):
             result = bg.main()
+        self.assertIn('NOT modified', errors.getvalue())
         self.assertEqual(result, 1)
         self.assertFalse(os.path.exists(self.out_path))
 

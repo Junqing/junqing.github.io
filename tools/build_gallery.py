@@ -10,7 +10,11 @@ later cannot leak into the published site by oversight.
 
 import json
 import re
+import shutil
+import ssl
+import subprocess
 import sys
+import urllib.error
 import urllib.request
 
 # ── Album declarations — the source of truth. Edit this list, then re-run. ──
@@ -29,9 +33,32 @@ def strip_xssi(text):
 
 
 def fetch(url):
+    """Read public JSON with TLS verification; never bypass certificate checks.
+
+    Some macOS Python installations use a CA store different from the system
+    keychain. Only that certificate error may fall back to native curl, whose
+    own verification remains enabled. Other network failures still abort.
+    """
     req = urllib.request.Request(url, headers={"User-Agent": "build-gallery/1.0"})
-    with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
-        return json.loads(strip_xssi(r.read().decode("utf-8")))
+    try:
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as response:
+            text = response.read().decode("utf-8")
+    except urllib.error.URLError as error:
+        curl = shutil.which("curl")
+        if not isinstance(error.reason, ssl.SSLCertVerificationError) or not curl:
+            raise
+        try:
+            result = subprocess.run(
+                [curl, "--fail", "--silent", "--show-error", "--location",
+                 "--proto", "=https", "--proto-redir", "=https",
+                 "--max-time", str(TIMEOUT), "--user-agent", "build-gallery/1.0",
+                 "--url", url],
+                check=True, capture_output=True, timeout=TIMEOUT + 5,
+            )
+            text = result.stdout.decode("utf-8")
+        except (subprocess.SubprocessError, OSError) as fallback_error:
+            raise OSError("Verified native HTTPS fallback failed") from fallback_error
+    return json.loads(strip_xssi(text))
 
 
 def rational(v):
