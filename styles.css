@@ -853,8 +853,8 @@ body[data-site-section="home"] .content-sticky{display:none}
 .setup-bank-body>.pfm-list:first-child{margin-top:16px}
 .setup-manual-settings{background:var(--surf2);border-radius:var(--r);overflow:hidden}
 .setup-fs-grid{grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
-.setup-fs-card{min-width:0}
-.setup-fs-card .fuji-visual{border-radius:var(--r);margin:14px 0}
+.setup-fs-card,.setup-recipe-card{min-width:0}
+.setup-fs-card .fuji-visual,.setup-recipe-card .fuji-visual{border-radius:var(--r);margin:14px 0}
 .setup-recipe-guidance{padding:12px 14px;background:var(--surf2);border-left:3px solid var(--accent);border-radius:var(--r);font-size:12px;line-height:1.8;margin:16px 0}
 .setup-recipe-guidance strong{color:var(--accent)}
 .setup-recipe-guidance p{margin-top:7px}

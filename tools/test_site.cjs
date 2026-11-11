@@ -92,7 +92,7 @@ test('Fuji visual is identical regardless of which Camera Settings family is act
   assert.equal(context.recipeWarmth(recipe, 'V'), 'warm')
 })
 
-test('X-T50 custom slots always resolve their recipes from X-Trans V', () => {
+test('Fuji custom slots always resolve their recipes from X-Trans V', () => {
   const context = recipeContext()
   context.testRecipe = recipe
   vm.runInContext("RECIPE_POOLS.V = [testRecipe]; RECIPE_POOLS.OM = [{name: 'Test Fuji', recipe_type: 'MONO'}]; activeGen = 'OM'", context)
@@ -115,7 +115,7 @@ test('Every application asset uses the same cache revision, including lazy OM lo
   assert.match(read('recipes-ui.js'), /encodeURIComponent\(SITE_ASSET_VERSION\)/)
 })
 
-test('X-T50 retains all seven settings panes when the shared graph helper is unavailable', () => {
+test('Archived X-T50 data retains all seven settings panes when the shared graph helper is unavailable', () => {
   const context = recipeContext()
   vm.runInContext(read('gear.js'), context)
   context.testRecipe = recipe
@@ -133,34 +133,27 @@ test('X-T50 retains all seven settings panes when the shared graph helper is una
   assert.ok(body.children.some(child => child.tag === 'table' && child.className === 'stbl'))
 })
 
-test('X-E5 separates seven scenario banks from the three requested FS recipes', () => {
+test('X-E5 lists confirmed recipe banks instead of the old scenario suggestions', () => {
   const context = recipeContext()
   vm.runInContext(read('gear.js'), context)
   const setup = vm.runInContext('MY_CUSTOM_SETUPS["Fujifilm X-E5"]', context)
-  assert.ok(setup)
-  assert.equal(setup.type, 'fuji-scenarios')
-  assert.deepEqual(Array.from(setup.modes, mode => mode.slot), ['C1','C2','C3','C4','C5','C6','C7'])
+  assert.equal(setup.type, 'fuji-recipes')
+  assert.deepEqual(Array.from(setup.recipeSlots, slot => slot.id), ['C1','C2','C3','C4'])
   assert.deepEqual(Array.from(setup.filmSlots, slot => slot.id), ['FS1','FS2','FS3'])
-  assert.deepEqual(Array.from(setup.filmSlots, slot => slot.recipe_name), ["Reggie's Portra", 'Kodak Gold 200', 'Kodak Tri-X 400'])
-  for (const mode of setup.modes) {
-    assert.ok(mode.settings.length >= 5)
-    assert.ok(mode.manual_settings.some(([key]) => key === 'Shutter dial'))
-    assert.ok(mode.manual_settings.some(([key]) => key === 'Focus selector'))
-  }
+  assert.deepEqual(Array.from(setup.filmSlots, slot => slot.recipe_name), ["Reggie's Portra", 'Reggies Superia', 'Kodak Tri-X 400'])
+  assert.equal(setup.modes, undefined)
+  assert.equal(setup.autoIso, undefined, 'Do not invent saved exposure profiles')
   assert.equal(vm.runInContext('MY_CUSTOM_SETUPS["Fujifilm X-M5"].type', context), 'empty')
-  assert.equal(vm.runInContext('MY_CUSTOM_SETUPS["Fujifilm X-T50"].type', context), 'fuji-slots')
+  assert.equal(vm.runInContext('MY_CUSTOM_SETUPS["Fujifilm X-T50"]', context), undefined)
 })
 
 test('X-E5 guide includes FS recipe activation, manual control caveats and safe recall checks', () => {
   const context = recipeContext()
   vm.runInContext(read('gear.js'), context)
   const setup = vm.runInContext('MY_CUSTOM_SETUPS["Fujifilm X-E5"]', context)
-  assert.ok(setup)
   const text = JSON.stringify(setup)
-  for (const phrase of ['FS RECIPE', 'ON', 'AUTO UPDATE CUSTOM SETTING', 'DISABLE', 'EDIT/CHECK', 'JPEG', 'DR400', '500', '1600', 'Focus selector']) assert.ok(text.includes(phrase), phrase)
+  for (const phrase of ['FS RECIPE', 'AUTO UPDATE CUSTOM SETTING', 'DISABLE', 'EDIT/CHECK', 'JPEG', 'DR400', '500', '1600', 'Classic Negative']) assert.ok(text.includes(phrase), phrase)
   assert.match(setup.control_note, /physical/)
-  assert.equal(setup.autoIso.length, 3)
-  setup.autoIso.forEach(profile => assert.equal(profile.base, 125))
   assert.equal(setup.filmSlots[0].exposure_guidance, 'Judge each exposure individually; Reggie does not prescribe a fixed compensation.')
 })
 

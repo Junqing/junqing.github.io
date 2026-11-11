@@ -1,7 +1,7 @@
 // Site presentation: Home, page headings, appearance, and scroll restoration.
 // Declarations only; index.html calls initSiteUI() after every module has parsed.
 // Bump this and index.html's ?v= tags together whenever deployed JS/CSS changes.
-const SITE_ASSET_VERSION = 'editorial-5'
+const SITE_ASSET_VERSION = 'editorial-7'
 const SITE_VIEW_COPY = {
   gallery: { title: 'Collected moments.', description: 'A personal photo journal. Places, people, and the light in between.' },
   gear: { title: 'The tools behind the frame.', description: 'The cameras and lenses in my kit. Different tools, the same curiosity.' },
