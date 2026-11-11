@@ -395,7 +395,8 @@ function renderGear() {
 // ══════════════════════════════════════════
 // CUSTOM SLOTS
 // ══════════════════════════════════════════
-// X-T50 C slots belong to X-Trans V, not the current Camera Settings pool.
+// X-E5 recipes (and archived X-T50 slots) belong to X-Trans V,
+// regardless of the current Camera Settings family.
 function customSlotRecipe(name) {
   const pool = typeof RECIPE_POOLS !== 'undefined' ? RECIPE_POOLS.V || [] : typeof RECIPES_V !== 'undefined' ? RECIPES_V : []
   return pool.find(recipe => recipe.name === name) || null
@@ -650,7 +651,7 @@ function renderCustomSlots() {
 // MY RECIPES
 // ══════════════════════════════════════════
 let mySetupBuilt = false
-let activeSetupCamera = 'Fujifilm X-T50'
+let activeSetupCamera = 'Fujifilm X-E5'
 
 function renderMyCustomSetup() {
   const wrap = $('custom-setup-body')
@@ -693,8 +694,8 @@ function renderSetupCameraPane(camName) {
     renderCustomSlots()
     return
   }
-  if (setup.type === 'fuji-scenarios') {
-    renderFujiScenarioSetup(pane, setup)
+  if (setup.type === 'fuji-recipes') {
+    renderFujiRecipeSetup(pane, setup)
     return
   }
   if (setup.type === 'om-dial') {
@@ -766,64 +767,56 @@ function makeSetupModeCard(mode, open = false) {
   return card
 }
 
-function renderFujiScenarioSetup(pane, setup) {
+function renderFujiRecipeSetup(pane, setup) {
   pane.innerHTML = `
     <div class="pfm-consistency">${setup.intro}</div>
-    <div class="learn-callout setup-control-note"><strong>What a C bank does not automate:</strong> ${setup.control_note}</div>
-    <div class="setup-workflow" aria-label="X-E5 shooting workflow">
-      <span><strong>1. C1–C7</strong>Choose the scenario</span><span aria-hidden="true">→</span>
-      <span><strong>2. Physical controls</strong>Set shutter, aperture, S/C/M</span><span aria-hidden="true">→</span>
-      <span><strong>3. FS1–FS3</strong>Choose the look · FS RECIPE ON</span>
-    </div>
-    <details class="setup-guide"><summary>Program the X-E5: baseline, Auto ISO, and recall checks</summary>
-      <h4 class="setup-card-label">Shared baseline</h4>
-      <table class="stbl"><tbody>${setup.baseline.map(([key, value]) => `<tr><td>${key}</td><td>${value}</td></tr>`).join('')}</tbody></table>
-      <h4 class="setup-card-label">Auto ISO profiles</h4>
-      <div class="setup-iso-profiles">${setup.autoIso.map(profile => `<div><strong>${profile.id} · ${profile.name}</strong><p>Base ${profile.base} · Max ${profile.ceiling} · Minimum shutter preference ${profile.min_shutter}</p></div>`).join('')}</div>
-      <p>${setup.auto_iso_note}</p>
+    <div class="learn-callout setup-control-note"><strong>Recall &amp; exposure:</strong> ${setup.control_note}</div>
+    <details class="setup-guide"><summary>X-E5 recipe registration and recall checks</summary>
       <ol>${setup.instructions.map(text => `<li>${text}</li>`).join('')}</ol>
       <div class="learn-sources">${setup.sources.map(([label, url]) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${label} ↗</a>`).join('')}</div>
     </details>
-    <div class="setup-jump-links"><button type="button" data-setup-jump="setup-modes-section">C1–C7 Scenarios ↓</button><button type="button" data-setup-jump="setup-fs-section">FS1–FS3 Recipes ↓</button></div>
-    <section id="setup-modes-section"><div class="sec-title">C1–C7 · Scenario Banks</div>
-      <p class="sec-desc">Expand a bank to see the physical controls and the menu settings separately. These are suggested starting points; confirm the available save/recall options in EDIT/CHECK.</p>
-      <div class="pfm-grid" id="setup-modes-grid"></div>
+    <section><div class="sec-title">C1–C4 · Custom Recipe Banks</div>
+      <p class="sec-desc">My four C-bank assignments, in order. Published X-Trans V settings are shown as a recipe reference.</p>
+      <div class="pfm-grid setup-fs-grid" id="setup-recipes-grid"></div>
     </section>
-    <section id="setup-fs-section"><div class="sec-title">FS1–FS3 · Recipe Dial</div>
-      <p class="sec-desc">Store the image-quality controls with FS RECIPE enabled. ISO selection, exposure compensation and physical focus/exposure controls are separate shooting decisions, not automatic FS recalls.</p>
+    <section><div class="sec-title">FS1–FS3 · Recipe Dial</div>
+      <p class="sec-desc">Full image-quality recipes with FS RECIPE enabled. ISO, exposure compensation and physical exposure/focus controls are separate shooting decisions.</p>
       <div class="pfm-grid setup-fs-grid" id="setup-fs-grid"></div>
     </section>`
-  const modes = pane.querySelector('#setup-modes-grid')
-  setup.modes.forEach((mode, index) => modes.appendChild(makeSetupModeCard(mode, index === 0)))
-  const recipes = pane.querySelector('#setup-fs-grid')
-  setup.filmSlots.forEach(slot => {
-    const recipe = customSlotRecipe(slot.recipe_name)
-    const card = document.createElement('article')
-    card.className = 'pfm-card setup-fs-card'
-    card.dataset.fsSlot = slot.id
-    if (!recipe || typeof fujiImageQualitySettings !== 'function') {
-      card.innerHTML = `<div class="pfm-head"><span class="pfm-slot">${slot.id}</span><span class="pfm-name">${slot.recipe_name}</span></div><p>Recipe data is unavailable. Reload the page to load the X-Trans V settings.</p>`
-      recipes.appendChild(card)
-      return
-    }
-    const settings = [...fujiImageQualitySettings(recipe), ...(slot.image_quality_extras || [])]
-    const display = value => typeof value === 'number' && value > 0 ? '+' + value : value
-    card.innerHTML = `
-      <div class="pfm-head"><span class="pfm-slot">${slot.id}</span><span class="pfm-name">${recipe.name}</span></div>
-      <div class="pfm-role">${slot.role}</div>
-      ${typeof buildFujiVisual === 'function' ? buildFujiVisual(recipe) : ''}
-      <h4 class="setup-card-label">Image-quality settings for this FS position</h4>
-      <table class="stbl setup-fs-quality"><tbody>${settings.map(([key, value]) => `<tr><td>${key}</td><td>${display(value)}</td></tr>`).join('')}</tbody></table>
-      <div class="setup-recipe-guidance"><strong>Outside FS memory — ISO &amp; exposure</strong><p>${slot.iso_guidance}</p><p>${slot.exposure_guidance}</p></div>
-      <ul class="pfm-list">${slot.best_for.map(text => `<li>${text}</li>`).join('')}</ul>
-      <ul class="pfm-list">${slot.notes.map(text => `<li>${text}</li>`).join('')}</ul>
-      <div class="setup-fs-actions"><button type="button">View recipe details →</button><a href="${recipe.source_url}" target="_blank" rel="noopener noreferrer">Recipe source ↗</a>${slot.extra_source_url ? `<a href="${slot.extra_source_url}" target="_blank" rel="noopener noreferrer">X-Trans V note ↗</a>` : ''}</div>`
-    card.querySelector('button').addEventListener('click', () => openRecipeModal(slot.recipe_name, 'V'))
-    recipes.appendChild(card)
-  })
-  pane.querySelectorAll('[data-setup-jump]').forEach(button => button.addEventListener('click', () => {
-    pane.querySelector('#' + button.dataset.setupJump).scrollIntoView({ block: 'start' })
-  }))
+  function renderSlots(selector, slots, isFilmDial) {
+    const grid = pane.querySelector(selector)
+    slots.forEach(slot => {
+      const recipe = customSlotRecipe(slot.recipe_name)
+      const card = document.createElement('article')
+      card.className = 'pfm-card ' + (isFilmDial ? 'setup-fs-card' : 'setup-recipe-card')
+      card.dataset.setupSlot = slot.id
+      if (isFilmDial) card.dataset.fsSlot = slot.id
+      const heading = `<div class="pfm-head"><span class="pfm-slot">${slot.id}</span><span class="pfm-name">${slot.display_name || slot.recipe_name}</span></div>`
+      if (!recipe || typeof fujiImageQualitySettings !== 'function') {
+        card.innerHTML = heading + '<p>Recipe data is unavailable. Reload the page to load the X-Trans V settings.</p>'
+        grid.appendChild(card)
+        return
+      }
+      const settings = fujiImageQualitySettings(recipe)
+      const display = value => typeof value === 'number' && value > 0 ? '+' + value : value
+      const iso = slot.iso_guidance || (recipe.iso_max ? `Published Auto ISO ceiling: ${recipe.iso_max}. Respect the DR minimum and choose a shutter speed for the subject.` : 'No published ISO ceiling; choose ISO for the light and subject.')
+      const exposure = slot.exposure_guidance || (recipe.exposure_compensation && recipe.exposure_compensation !== 'N/A' ? `Published compensation starting point: ${recipe.exposure_compensation} EV. Judge the subject and highlights.` : 'No fixed exposure compensation is prescribed; judge each frame.')
+      card.innerHTML = `
+        ${heading}
+        ${slot.display_name ? `<p class="pfm-role">Catalogue: ${recipe.name}</p>` : ''}
+        <div class="pfm-role">${slot.role}</div>
+        ${typeof buildFujiVisual === 'function' ? buildFujiVisual(recipe) : ''}
+        <h4 class="setup-card-label">Image-quality settings · published recipe reference</h4>
+        <table class="stbl setup-fs-quality"><tbody>${settings.map(([key, value]) => `<tr><td>${key}</td><td>${display(value)}</td></tr>`).join('')}</tbody></table>
+        <div class="setup-recipe-guidance"><strong>Field guidance — ISO &amp; exposure</strong><p>${iso}</p><p>${exposure}</p></div>
+        ${slot.notes?.length ? `<ul class="pfm-list">${slot.notes.map(text => `<li>${text}</li>`).join('')}</ul>` : ''}
+        <div class="setup-fs-actions"><button type="button">View recipe details →</button><a href="${recipe.source_url}" target="_blank" rel="noopener noreferrer">Recipe source ↗</a>${slot.extra_source_url ? `<a href="${slot.extra_source_url}" target="_blank" rel="noopener noreferrer">X-Trans V note ↗</a>` : ''}</div>`
+      card.querySelector('button').addEventListener('click', () => openRecipeModal(slot.recipe_name, 'V'))
+      grid.appendChild(card)
+    })
+  }
+  renderSlots('#setup-recipes-grid', setup.recipeSlots, false)
+  renderSlots('#setup-fs-grid', setup.filmSlots, true)
 }
 
 let scenariosBuilt = false

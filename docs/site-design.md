@@ -60,7 +60,8 @@ kept only for recipe reading; it no longer restricts landscape photographs.
 `buildFujiVisual(r)` in `recipes-ui.js` is the single Fuji visual standard for:
 
 - Camera Settings recipe cards and their modals;
-- X-T50 custom slots C1–C7, both multi-simulation and single-recipe slots.
+- X-E5 C1–C4 and FS1–FS3 recipe assignments;
+- the archived X-T50 custom-slot renderer (not an active My Setup tab).
 
 It emits `.card-img-fp.fuji-visual` with the same dark surface, 120px radar SVG,
 80px WB-shift grid, WB label and DR badge. `.cs-recipe-visual` only constrains the
@@ -68,7 +69,7 @@ setup panel's outer width; it does not restyle or rescale the graphs. If the
 shared graph helper is unavailable, the setup still renders its authored
 settings tables/pills instead of leaving all C slots blank.
 
-`customSlotRecipe(name)` resolves X-T50 recipes specifically from X-Trans V,
+`customSlotRecipe(name)` resolves X-E5 and archived X-T50 recipes specifically from X-Trans V,
 regardless of the family selected in Camera Settings. `fujiWbMiniGrid(r)` is
 Fuji-only and independent of active navigation state. The regular
 `wbMiniGrid(r, family)` still guards the OM path.
@@ -82,29 +83,45 @@ is active explicitly switches families and clears mixed-family selections.
 OM remains separate: `buildOmVisual()` continues to render OM recipes and the
 PEN-F/OM-3 profiles. There is no Fuji/OM field or formula unification.
 
-## X-E5 scenario + FS setup
+## Current gear and X-E5 recipe setup
 
-`MY_CUSTOM_SETUPS["Fujifilm X-E5"]` in `gear.js` uses `type: "fuji-scenarios"`:
-seven authored scenario banks, three Auto ISO profiles, a programming/recall
-checklist and `filmSlots` pointing to the existing X-Trans V recipes.
-`renderFujiScenarioSetup()` in `personal-ui.js` keeps the C-bank recommendations,
-physical dial/selector choices and FS image-quality memories explicitly separate.
-`makeSetupModeCard()` shares only personal-mode presentation with OM setups.
+`gear.js` lists five owned cameras: X-M5, X-E5 (replacing X-T50), X70,
+PEN-F and OM-3. The lens tabs contain eight X-mount and six M43 lenses,
+including the XF 50mm f/2, M.Zuiko 12–45mm f/4 PRO and Lumix 14–140mm II.
+The X70 is a fixed-lens X-Trans II camera, not an interchangeable X-mount body.
+New local product images and their sources are documented in `images/gear/README.md`.
+The Panasonic zoom has no local product photo yet; its card uses the normal icon.
 
-- FS1: Reggie's Portra; FS2: Kodak Gold 200; FS3: Kodak Tri-X 400.
-- `FS RECIPE` must be On. A film-simulation assignment alone is not a full recipe.
-- `fujiImageQualitySettings(r)` omits shooting ISO and exposure compensation;
-  those appear as separate field guidance, not promises about FS recall.
-- High ISO NR -4 is a setup supplement verified against the published recipes,
-  not a mutation of the recipe dataset. Reggie's current source specifies no
-  fixed compensation; retain the original CCB Weak with Off noted as an optional
-  X-Trans V matching adjustment.
-- Physical shutter/aperture/focus controls remain manual. C banks can include
-  image-quality and FS-dial settings: copy a consistent baseline and verify all
-  C/FS combinations instead of assuming complete independence.
-- The X-T50 recipe slots, OM camera profiles and X-M5 placeholder are unchanged.
-  This X-E5 entry is a planned setup guide; it does not assert ownership by adding
-  a new body to `MY_CAMERAS`.
+`MY_CUSTOM_SETUPS["Fujifilm X-E5"]` uses `type: "fuji-recipes"`, with
+`recipeSlots` and `filmSlots` containing `{ id, recipe_name, display_name?, role,
+notes?, iso_guidance?, exposure_guidance?, extra_source_url? }` records.
+`renderFujiRecipeSetup()` displays both groups using the shared Fuji visual
+and `fujiImageQualitySettings()` from the X-Trans V pool.
+
+- C1: Kodak Portra 400 v2; C2: Kodachrome 64; C3: Kodak Gold 200;
+  C4: Pacific Blues (author's shorthand: Pacific Blue). This numbering follows
+  the order supplied by the author; C5–C7 have no supplied assignments.
+- FS1: Reggie's Portra; FS2: Reggies Superia (displayed as Reggie's Superia);
+  FS3: Kodak Tri-X 400 (displayed as Tri-X-400).
+- Recipe references use exact catalogue names. The seven assigned recipes
+  already existed; their assignments were not changed by the subsequent
+  [publisher catalogue refresh](recipe-sync-2026-11-11.md). No recipe-schema change was needed.
+- The assignments are confirmed personal data; the displayed numerical settings
+  are published recipe references, not a claim about unsupplied personal tweaks.
+- `FS RECIPE` must be enabled. FS2 uses Classic Negative, not Classic Chrome.
+  A film-simulation assignment alone is not a full recipe.
+- Shooting ISO and compensation appear as field guidance, outside the
+  image-quality table. No saved Auto ISO, exposure or focus settings are invented.
+- Reggie's Portra retains CCB Weak, with Off only an optional X-Trans V tweak.
+  Its guidance does not prescribe fixed compensation.
+- Physical controls remain manual. C banks can include FS-dial settings:
+  verify recalls rather than assuming complete independence.
+- Only owned cameras have My Setup tabs, with X-E5 selected initially.
+  X70 and X-M5 have empty placeholders. OM profiles remain separate and unchanged;
+  OM-3's numerical setup is still clearly a suggested starter.
+- `MY_CUSTOM_SLOTS` retains the old X-T50 data as a historical archive for
+  scenario notes, but no X-T50 setup tab is shown. The wedding note explicitly
+  labels its old C-slot references as historical, not current X-E5 assignments.
 
 ## GitHub Pages
 
@@ -116,7 +133,7 @@ HTML generator.
   This works at `https://junqing.github.io/` and beneath a project subpath.
 - Hash routing keeps deep links refreshable without server rewrite rules:
   `#/photography/setup`, `#/photography/learn`, `#/camera/explore/f=OM`.
-- All application CSS/JS URLs carry the same `?v=editorial-5` cache revision. `SITE_ASSET_VERSION` in `site-ui.js` applies that revision to every lazy family load too. Bump this constant and all `index.html` asset tags together when deploying code changes, so an old cached renderer cannot be mixed with a newer one.
+- All application CSS/JS URLs carry the same `?v=editorial-7` cache revision. `SITE_ASSET_VERSION` in `site-ui.js` applies that revision to every lazy family load too. Bump this constant and all `index.html` asset tags together when deploying code changes, so an old cached renderer cannot be mixed with a newer one.
 - Lazy families request relative `recipes-<family>.js` paths with that version query.
 - `.nojekyll` stays at the repository root so Jekyll does not omit asset paths.
 - Gallery images remain public Lightroom hotlinks; availability still depends
@@ -153,4 +170,4 @@ the manifest.
 Browser checks should cover root and subpath hosting, all recipe families/views,
 Back/Forward and hard refresh, the former preview redirect, theme persistence,
 mobile filters and safe-area navigation, Learn demos, recipe/photo modals, and
-all seven Fuji setup graphs in light/dark appearances before and after visiting OM.
+all seven X-E5 setup graphs in light/dark appearances before and after visiting OM.

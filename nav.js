@@ -22,8 +22,8 @@ const NAV = { section: 'home', view: null, subview: null, family: 'V' }
 // this list (and only this list) if a recipe family file gains/loses
 // entries or a new family is added.
 const RECIPE_FAMILIES = [
-  { id: 'V',   label: 'X-Trans V',   count: 113 },
-  { id: 'IV',  label: 'X-Trans IV',  count: 202 },
+  { id: 'V',   label: 'X-Trans V',   count: 119 },
+  { id: 'IV',  label: 'X-Trans IV',  count: 208 },
   { id: 'III', label: 'X-Trans III', count: 47 },
   { id: 'II',  label: 'X-Trans II',  count: 32 },
   { id: 'I',   label: 'X-Trans I',   count: 13 },

@@ -19,13 +19,14 @@ test('Family totals match all data files; Fuji names and OM name/author pairs ar
   }
 })
 
-test('Every X-T50/X-E5 recipe reference resolves in X-Trans V', () => {
+test('Every archived X-T50 and current X-E5 recipe reference resolves in X-Trans V', () => {
   const names = new Set(get('RECIPES_V').map(recipe => recipe.name))
   for (const slot of get('MY_CUSTOM_SLOTS')) {
     if (slot.recipe_name) assert.ok(names.has(slot.recipe_name), slot.recipe_name)
     for (const simulation of slot.simulations || []) if (simulation.recipe_name) assert.ok(names.has(simulation.recipe_name), simulation.recipe_name)
   }
-  for (const slot of get('MY_CUSTOM_SETUPS["Fujifilm X-E5"].filmSlots')) assert.ok(names.has(slot.recipe_name), slot.recipe_name)
+  const setup = get('MY_CUSTOM_SETUPS["Fujifilm X-E5"]')
+  for (const slot of [...setup.recipeSlots, ...setup.filmSlots]) assert.ok(names.has(slot.recipe_name), slot.recipe_name)
 })
 
 test('Gallery counts/references agree and its allowlist contains no private identifiers', () => {

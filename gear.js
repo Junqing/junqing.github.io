@@ -32,20 +32,40 @@ const MY_CAMERAS = [
     notes: "Compact, lightweight vlog-friendly body. Great for everyday carry and travel — pairs beautifully with the pancake primes."
   },
   {
-    name: "Fujifilm X-T50",
-    subtitle: "High-resolution primary body",
+    name: "Fujifilm X-E5",
+    subtitle: "High-resolution rangefinder-style primary body",
     icon: "📷",
-    image: "images/gear/x-t50.jpg",
+    image: "images/gear/x-e5.jpg",
+    image_credit: "Product photo: Fujifilm",
     specs: [
-      ["Model",      "X-T50"],
+      ["Model",      "X-E5"],
       ["Sensor",     "40.2MP X-Trans CMOS 5 HR"],
       ["Processor",  "X-Processor 5"],
       ["Mount",      "Fujifilm X"],
-      ["IBIS",       "Up to 7.0 stops"],
-      ["Film Sim Dial", "Yes"],
-      ["Released",   "June 2024"],
+      ["IBIS",       "Up to 7.0 stops (center), 6.0 stops (periphery)"],
+      ["EVF",        "Built-in, 2.36M-dot"],
+      ["Film Sim Dial", "Yes — FS1–FS3 recipe memories"],
+      ["Released",   "August 2025"],
     ],
-    notes: "The main workhorse. 40MP gives headroom to crop, and the dedicated film-simulation dial makes swapping between recipes tactile and fast."
+    notes: "Replaces my X-T50. A compact rangefinder-style body with 40MP crop headroom, IBIS, and a film-simulation dial. My four C-bank looks and three FS recipes are listed in My Setup."
+  },
+  {
+    name: "Fujifilm X70",
+    subtitle: "Fixed-lens wide-angle pocket camera · 28mm equiv.",
+    icon: "📷",
+    image: "images/gear/x70.jpg",
+    image_credit: "Product photo: Fujifilm",
+    specs: [
+      ["Model",      "X70"],
+      ["Sensor",     "16.3MP X-Trans CMOS II"],
+      ["Processor",  "EXR Processor II"],
+      ["Lens",       "Fixed 18.5mm f/2.8 (28mm equiv.)"],
+      ["IBIS",       "None"],
+      ["EVF",        "None"],
+      ["Screen",     "Tilting touchscreen"],
+      ["Released",   "February 2016"],
+    ],
+    notes: "A pocketable fixed-lens alternative for wide-angle everyday and street photography. It uses X-Trans II recipes, not the X-E5’s X-Trans V settings, and does not take interchangeable X-mount lenses."
   },
   {
     name: "Olympus PEN-F",
@@ -170,6 +190,23 @@ const MY_LENSES = [
     notes: "The OG Fuji lens with that distinctive creamy rendering. Slower to focus but the character at f/1.4–f/2 is unmatched in the kit."
   },
   {
+    name: "XF 50mm f/2 R WR",
+    subtitle: "Compact portrait prime · 76mm equiv.",
+    icon: "🔭",
+    image: "images/gear/xf50f2.jpg",
+    image_credit: "Product photo: Fujifilm",
+    mount: "X",
+    specs: [
+      ["Focal length",   "50mm (76mm equiv.)"],
+      ["Max aperture",   "f/2"],
+      ["Type",           "Prime"],
+      ["Weather sealed", "Yes"],
+      ["Filter thread",  "46mm"],
+      ["Weight",         "200g"],
+    ],
+    notes: "A small short-telephoto prime for portraits and details. Adds more subject separation and working distance than the 23mm and 35mm primes without a bulky lens."
+  },
+  {
     name: "XF 16-50mm f/2.8-4.8 R LM WR",
     subtitle: "Standard zoom · 24-76mm equiv.",
     icon: "🔭",
@@ -183,7 +220,7 @@ const MY_LENSES = [
       ["Filter thread",  "58mm"],
       ["Weight",         "240g"],
     ],
-    notes: "The kit lens bundled with the X-T50. Surprisingly capable — covers wide through short tele and is compact enough not to feel burdensome."
+    notes: "Kept from the X-T50 kit. Surprisingly capable — covers wide through short tele and is compact enough not to feel burdensome on the X-E5 or X-M5."
   },
   {
     name: "XF 18-55mm f/2.8-4 R LM OIS",
@@ -201,6 +238,41 @@ const MY_LENSES = [
       ["Weight",         "310g"],
     ],
     notes: "The tried-and-true X-mount kit zoom. Slightly longer reach than the 16-50, and the OIS helps on the X-M5 which lacks IBIS."
+  },
+  {
+    name: "M.Zuiko Digital ED 12-45mm f/4.0 PRO",
+    subtitle: "Compact weather-sealed standard zoom · 24-90mm equiv.",
+    icon: "🔭",
+    image: "images/gear/zuiko12-45f4.webp",
+    image_credit: "Product photo: OM SYSTEM",
+    mount: "M43",
+    specs: [
+      ["Focal length",   "12-45mm (24-90mm equiv.)"],
+      ["Max aperture",   "f/4 (constant)"],
+      ["Type",           "Zoom"],
+      ["Weather sealed", "Dust / splash / freeze resistant"],
+      ["OIS",            "None — uses body stabilization"],
+      ["Filter thread",  "58mm"],
+      ["Weight",         "254g"],
+    ],
+    notes: "Compact everyday PRO zoom for the OM-3, from wide landscapes to portraits and close-up details. A sealed lens complements the OM-3 body; the PEN-F itself remains unsealed."
+  },
+  {
+    name: "Lumix G Vario 14-140mm f/3.5-5.6 II ASPH. POWER O.I.S.",
+    subtitle: "All-in-one travel zoom · 28-280mm equiv.",
+    icon: "🔭",
+    // Add a local product photo here when one is available.
+    mount: "M43",
+    specs: [
+      ["Focal length",   "14-140mm (28-280mm equiv.)"],
+      ["Max aperture",   "f/3.5-5.6"],
+      ["Type",           "Zoom — 10×"],
+      ["Weather sealed", "Dust / splash resistant (II version)"],
+      ["OIS",            "POWER O.I.S."],
+      ["Filter thread",  "58mm"],
+      ["Weight",         "265g"],
+    ],
+    notes: "A single-lens travel option with much more telephoto reach than the standard zooms. This is the II version (H-FSA14140). Panasonic Dual I.S. is not an OM/Olympus feature — choose and test lens OIS versus body stabilization rather than assuming synchronized operation."
   },
   {
     name: "M.Zuiko Digital ED 14-42mm f/3.5-5.6 EZ",
@@ -272,7 +344,9 @@ const MY_LENSES = [
 ];
 
 
-// ─── CUSTOM SLOTS C1–C7 ──────────────────────────────────────
+// ─── HISTORICAL X-T50 CUSTOM SLOTS C1–C7 ─────────────────────
+// Retained as an archive for the authored scenario notes. Not an active camera
+// setup: current X-E5 assignments live in MY_CUSTOM_SETUPS below.
 // type "multi"  → one set of base settings shared across all film simulations.
 //                 Rotate the film dial or change Film Sim in the menu to explore each look.
 // type "single" → one recipe per slot; settings listed below.
@@ -590,168 +664,50 @@ const MY_CUSTOM_SLOTS = [
 
 // ─── My Custom Setup (camera-aware) ───
 // "fuji-slots" cameras render MY_CUSTOM_SLOTS with the shared Fuji visual standard.
-// "fuji-scenarios" cameras separate C-bank menu recommendations, physical controls,
-// and FS recipe memories (X-E5). These do not reuse the X-T50 C1–C7 recipe slots.
+// "fuji-recipes" cameras list confirmed C-bank and FS recipe assignments (X-E5).
+// Recipe settings come from recipes-v.js, not duplicated personal settings tables.
 // "om-dial" cameras render shooting modes + creative color/mono profiles via buildOmVisual().
 // "empty" cameras show a placeholder until the user fills in real data.
 const MY_CUSTOM_SETUPS = {
-  "Fujifilm X-T50": { type: "fuji-slots" },
   "Fujifilm X-E5": {
-    type: "fuji-scenarios",
-    intro: "Planned X-E5 starter setup: C1–C7 recall scenario-related menu settings; FS1–FS3 carry three consistent looks. This is a programming guide, not confirmation that the settings are already saved on the camera. Keep the X-T50 slots and X-M5 placeholder separate.",
-    control_note: "Unlike the OM-3’s mode dial, recalling a Fuji C bank does not move the physical shutter dial, aperture ring/dial, or S/C/M focus selector. Set those controls by hand as shown. The film-simulation dial’s C position is also not the same thing as the C1–C7 custom banks.",
-    baseline: [
-      ["Image quality", "FINE+RAW"], ["File format", "JPEG, not HEIF (HEIF disables Clarity)"],
-      ["D Range Priority", "Off, so the recipe’s DR and tone settings remain available"],
-      ["Auto update custom settings", "DISABLE for repeatable C-bank baselines"],
-      ["FS RECIPE", "ON for FS1, FS2 and FS3"],
-      ["Exposure compensation", "Start at 0, then judge the subject and highlights; not a fixed value for all scenarios"],
-    ],
-    autoIso: [
-      { id: "AUTO1", name: "Everyday / People", base: 125, ceiling: 6400, min_shutter: "1/250" },
-      { id: "AUTO2", name: "Kids / Action", base: 125, ceiling: 12800, min_shutter: "1/1000" },
-      { id: "AUTO3", name: "Low Light", base: 125, ceiling: 12800, min_shutter: "1/125" },
-    ],
-    auto_iso_note: "The minimum-shutter preferences help in aperture-priority shooting, but are not hard floors once ISO reaches its ceiling. In M or S, the manually selected shutter takes priority. ISO 125 is the normal base; FS2’s DR400 requires at least ISO 500, and FS3’s DR200 requires at least ISO 250. Follow the camera’s allowed ISO rather than forcing 125.",
+    type: "fuji-recipes",
+    intro: "My X-E5 recipe assignments: four color looks in C1–C4, plus two everyday color recipes and a monochrome option on FS1–FS3. Only C1–C4 are documented here.",
+    control_note: "C-bank recall does not move the physical shutter dial, aperture ring/dial or S/C/M focus selector. The film-simulation dial’s C position is not itself a numbered C bank. ISO and exposure compensation below are recipe guidance, not a record of my saved exposure settings.",
     instructions: [
-      "Use the still-photo menus. Set FINE+RAW and JPEG first. Under IMAGE QUALITY SETTING → FILM SIMULATION DIAL SETTING, assign FS1 = Classic Chrome, FS2 = Classic Chrome, and FS3 = ACROS (standard/no filter). Set FS RECIPE to ON for each FS position; assigning a film simulation alone does not store a complete recipe.",
-      "Rotate to FS1 and enter its image-quality settings below, then repeat for FS2 and FS3. Keep D Range Priority Off. The X-E5 manual describes separate image-quality registration with FS RECIPE enabled; confirm each position retains the intended WB, WB shift, DR, tone, grain, Color Chrome, sharpness, High ISO NR and Clarity before continuing.",
-      "Configure AUTO1/AUTO2/AUTO3 as listed. These are shooting ISO profiles, not FS recipe memories. ISO ceilings and exposure compensation shown with the recipes below are field guidance, not settings automatically recalled by FS1–FS3.",
-      "Return the film-simulation dial to FS1 after programming all three looks. Build C1’s menu baseline, then save it via IMAGE QUALITY SETTING → EDIT/SAVE CUSTOM SETTING → CREATE NEW C1 → OK. Name it using EDIT CUSTOM NAME. Copy this baseline to C2–C7 before changing the scenario-related menu settings in each bank’s EDIT/CHECK screen. Rename every copied bank (for example STREET, ACTION, PEOPLE, NIGHT PPL, STATIC, LANDSCAPE, MOTION). This helps keep the three FS assignments consistent across all banks.",
-      "Set AUTO UPDATE CUSTOM SETTING to DISABLE. After editing a C bank, use SAVE THE CHANGES to commit it deliberately; red-dot changes are not automatically saved with auto update disabled. Recall banks through SELECT CUSTOM SETTING, or add that selection to your Q menu if desired.",
-      "C banks also contain image-quality and FILM SIMULATION DIAL SETTING entries. Do not assume every C bank excludes the FS configuration: recall all seven banks and rotate through FS1–FS3, checking the expected recipe settings each time. Keep FS RECIPE enabled and synchronize any accidentally different assignments/settings before relying on the setup.",
-      "For each recalled scenario, set the physical shutter dial, lens aperture control and focus selector manually. Use shutter dial A for aperture priority, or T plus the rear command dial for a chosen shutter. P forces Program AE on the X-E5. Always verify the actual exposure mode, shutter, aperture, ISO and AF indication on the display.",
+      "Use the film-simulation dial’s C position for the C-bank looks, then recall C1–C4 through SELECT CUSTOM SETTING. Their image-quality reference settings are shown below; save deliberate edits through EDIT/SAVE CUSTOM SETTING and verify them in EDIT/CHECK.",
+      "Under FILM SIMULATION DIAL SETTING, assign FS1 = Classic Chrome, FS2 = Classic Negative, and FS3 = ACROS (standard/no filter). Enable FS RECIPE for each position and register the full image-quality settings, not just the simulation name.",
+      "Keep D Range Priority Off so the recipes’ DR and tone settings remain available. Use JPEG rather than HEIF if you want the published Clarity settings. High ISO NR -4 is published recipe guidance, not confirmation of an additional saved personal setting.",
+      "Check the C banks and FS positions after saving: C banks can include film-simulation-dial settings, so do not assume all C/FS combinations are independent. AUTO UPDATE CUSTOM SETTING = DISABLE is an optional way to prevent accidental changes; use SAVE THE CHANGES for intentional edits.",
+      "Choose exposure and focus for the subject. On the X-E5, DR200 requires at least ISO 250 and DR400 at least ISO 500. Nonzero Clarity can add a processing pause. Recipe ISO ceilings and compensation are starting points, not automatic FS recalls.",
     ],
     sources: [
       ["X-E5: FS dial and FS RECIPE", "https://fujifilm-dsc.com/en/manual/x-e5/about_this_camera/parts/#fs_dial"],
       ["X-E5: custom banks / image quality", "https://fujifilm-dsc.com/en/manual/x-e5/menu_shooting/image_quality_setting/"],
       ["X-E5: Auto ISO", "https://fujifilm-dsc.com/en/manual/x-e5/taking_photo/iso/"],
-      ["X-E5: exposure controls", "https://fujifilm-dsc.com/en/manual/x-e5/taking_photo/shooting_mode/"],
-      ["X-E5: focus selector", "https://fujifilm-dsc.com/en/manual/x-e5/taking_photo/autofocus/"],
     ],
-    modes: [
-      {
-        slot: "C1", name: "Street / Everyday",
-        purpose: ["Walkaround", "Travel", "Street", "Casual scenes"],
-        settings: [["ISO", "AUTO1"], ["AF MODE", "Single Point; Zone if following movement"],
-                   ["Face/Eye Detection", "Off for precise point placement; enable for people"],
-                   ["Subject Detection", "Off"], ["Drive", "Single"], ["Shutter Type", "Mechanical"],
-                   ["IS Mode", "Shooting Only or Continuous, as preferred"], ["Photometry", "Multi when detection is Off"]],
-        manual_settings: [["Exposure mode", "M + Auto ISO"], ["Shutter dial", "T → 1/250; 1/500 for faster pedestrians"],
-                          ["Aperture ring/dial", "f/4, or f/2.8–f/5.6 to suit the scene"], ["Focus selector", "S for still scenes; C for changing distance"]],
-        why: ["1/250 is a useful starting point for normal walking movement.", "Keep the subject choice deliberate; switch the physical focus selector to C when distance changes."],
-        shortcut: "C1 = everyday movement · FS1 color or FS3 documentary B&W",
-      },
-      {
-        slot: "C2", name: "Kids / Action",
-        purpose: ["Kids", "Pets", "Cyclists", "Quick gestures"],
-        settings: [["ISO", "AUTO2"], ["AF MODE", "Zone"], ["AF-C Custom Settings", "Set 1 as the starting point"],
-                   ["Face/Eye Detection", "On for people"], ["Subject Detection", "Off for people; select the matching animal category for pets"],
-                   ["Drive", "CL: short low-speed bursts"], ["Shutter Type", "Mechanical initially"],
-                   ["IS Mode", "Shooting Only or Continuous"], ["Photometry", "Multi baseline; detection can determine exposure behavior"]],
-        manual_settings: [["Exposure mode", "M + Auto ISO"], ["Shutter dial", "T → 1/1000; 1/1600–1/2000 for faster action"],
-                          ["Aperture ring/dial", "f/2.8–f/4, or widest useful opening"], ["Focus selector", "C (AF-C)"]],
-        why: ["Freeze the movement before trying to minimize ISO noise; allow AUTO2’s 12800 ceiling when necessary.",
-              "Use short bursts with updating AF. FS1 has Clarity 0 and is the simplest responsive default; test FS2/FS3 processing and burst behavior rather than silently changing their recipes."],
-        shortcut: "C2 = unpredictable movement · FS1 first",
-      },
-      {
-        slot: "C3", name: "People / Portraits",
-        purpose: ["Friends and family", "Portraits", "Environmental portraits"],
-        settings: [["ISO", "AUTO1"], ["AF MODE", "Single Point or Wide/Tracking as the subject requires"],
-                   ["Face/Eye Detection", "On; Eye Auto, then confirm the intended eye"], ["Subject Detection", "Off"],
-                   ["Drive", "Single or short CL burst"], ["Shutter Type", "Mechanical"], ["IS Mode", "Shooting Only"],
-                   ["Photometry", "Multi baseline; face detection can take priority"]],
-        manual_settings: [["Exposure mode", "A + Auto ISO"], ["Shutter dial", "A; watch for at least 1/250 with people"],
-                          ["Aperture ring/dial", "f/1.4–f/2.8 if the lens permits; f/4–f/5.6 for groups"],
-                          ["Focus selector", "S for a still pose; C for swaying/walking subjects"]],
-        why: ["Make depth of field the main decision, then check the actual shutter speed.",
-              "If A mode drops below a safe speed at the ISO ceiling, use T → 1/250 with a manual aperture for M + Auto ISO, or add light."],
-        shortcut: "C3 = the face matters · FS1, or FS3 for a gritty portrait",
-      },
-      {
-        slot: "C4", name: "Night / People",
-        purpose: ["Evening streets", "Restaurants", "Available-light people"],
-        settings: [["ISO", "AUTO3"], ["AF MODE", "Single Point; use Zone if following movement"],
-                   ["Face/Eye Detection", "On if reliable; otherwise Off and choose a lit facial detail"], ["Subject Detection", "Off"],
-                   ["Drive", "Single or short CL burst"], ["Shutter Type", "Mechanical; test artificial-light banding"],
-                   ["IS Mode", "Shooting Only or Continuous"], ["Photometry", "Multi baseline; protect important highlights"]],
-        manual_settings: [["Exposure mode", "M + Auto ISO"], ["Shutter dial", "T → 1/125; 1/250 if the person moves"],
-                          ["Aperture ring/dial", "Wide open, typically f/1.4–f/2.8 where available"], ["Focus selector", "S for still people; C if distance changes"]],
-        why: ["IBIS steadies the camera, not a person. Do not default to 1/15 just because stabilization is available.",
-              "AUTO3 can reach ISO 12800. Adjust exposure using the face and highlight warnings, not a blanket negative compensation rule."],
-        shortcut: "C4 = low light, living subjects · FS1 or FS3; avoid FS2 under mixed artificial light",
-      },
-      {
-        slot: "C5", name: "Static / Low Light",
-        purpose: ["Buildings at dusk", "Museums", "Interiors", "Still details"],
-        settings: [["ISO", "AUTO3"], ["AF MODE", "Single Point"], ["Face/Eye Detection", "Off"],
-                   ["Subject Detection", "Off"], ["Drive", "Single"], ["Shutter Type", "Mechanical"],
-                   ["IS Mode", "Shooting Only or Continuous handheld"], ["Photometry", "Multi"]],
-        manual_settings: [["Exposure mode", "M + Auto ISO"], ["Shutter dial", "T → 1/30 initially; test 1/15–1/60 with the lens and stance"],
-                          ["Aperture ring/dial", "f/1.4–f/2.8 if available; use a tripod for more depth of field"],
-                          ["Focus selector", "S; M with magnification if autofocus struggles"]],
-        why: ["The slower shutter is for static subjects only; switch to C4’s speeds when people enter the frame.",
-              "AUTO3’s 1/125 preference does not override a manually chosen 1/30 in M. Check for shake at full magnification; longer lenses may need more speed."],
-        shortcut: "C5 = steady camera, still scene · FS1 or FS3",
-      },
-      {
-        slot: "C6", name: "Landscape / Architecture",
-        purpose: ["Daylight landscape", "Architecture", "Careful compositions"],
-        settings: [["ISO", "AUTO1 for handheld versatility; fixed low ISO is a deliberate alternative"],
-                   ["AF MODE", "Single Point"], ["Face/Eye Detection", "Off"], ["Subject Detection", "Off"],
-                   ["Drive", "Single; use a 2 s self-timer deliberately on a tripod"], ["Shutter Type", "Mechanical"],
-                   ["IS Mode", "On handheld; follow body/lens guidance on a stable tripod"], ["Photometry", "Multi"]],
-        manual_settings: [["Exposure mode", "A + Auto ISO initially"], ["Shutter dial", "A; watch wind movement and handheld sharpness"],
-                          ["Aperture ring/dial", "f/5.6–f/8, then choose focus distance for near-to-far detail"],
-                          ["Focus selector", "S; M for a fixed/tripod composition if useful"]],
-        why: ["AUTO1’s 1/250 preference is a useful handheld baseline, not a mandate to shoot at high ISO.",
-              "FS2 suits sunny daylight, but DR400 needs ISO 500 or above. Avoid forcing ISO 125 with that look; stop down for depth of field, not automatically to f/16."],
-        shortcut: "C6 = compose slowly · FS2 in sun, FS1 in mixed/softer light, FS3 for graphic B&W",
-      },
-      {
-        slot: "C7", name: "Panning / Creative Motion",
-        purpose: ["Cyclists passing", "Moving vehicles", "Intentional background streaks"],
-        settings: [["ISO", "AUTO1 initially; choose the lowest permitted ISO manually in bright light"],
-                   ["AF MODE", "Zone"], ["AF-C Custom Settings", "Set 1 initially"], ["Face/Eye Detection", "Off unless the target is a person"],
-                   ["Subject Detection", "Off or a matching supported category"], ["Drive", "Short CL bursts"],
-                   ["Shutter Type", "Mechanical initially"], ["IS Mode", "Test the result; try Off if stabilization fights the pan"],
-                   ["Photometry", "Multi baseline"]],
-        manual_settings: [["Exposure mode", "S initially"], ["Shutter dial", "T → 1/60; explore 1/30–1/125"],
-                          ["Aperture ring/dial", "A (auto); use M if you need to choose both aperture and shutter"], ["Focus selector", "C (AF-C)"]],
-        why: ["Follow the subject smoothly before, during and after the shot. A slower shutter is a creative choice, not a failed attempt to freeze motion.",
-              "An ND filter may be needed in sun, especially with FS2’s ISO 500 minimum. A manually chosen S-mode shutter is not limited by AUTO1’s 1/250 preference."],
-        shortcut: "C7 = motion is the point · FS1 or FS3; FS2 only when light and ND control allow it",
-      },
+    // C1–C4 follow the order supplied by the author. Exact dataset names are
+    // used for references; display_name preserves the author's shorthand.
+    recipeSlots: [
+      { id: "C1", recipe_name: "Kodak Portra 400 v2", role: "Warm daylight / golden hour / color-negative look" },
+      { id: "C2", recipe_name: "Kodachrome 64", role: "Classic slide-film color / sunny travel scenes" },
+      { id: "C3", recipe_name: "Kodak Gold 200", role: "Warm nostalgic color / sunny daylight" },
+      { id: "C4", recipe_name: "Pacific Blues", display_name: "Pacific Blue", role: "Moody coastal color / outdoor scenes" },
     ],
     filmSlots: [
       {
         id: "FS1", recipe_name: "Reggie's Portra", role: "Everyday color / people / adaptable Auto WB",
-        best_for: ["C1 Street", "C3 People", "C4 Night", "C5 Low Light"],
-        image_quality_extras: [["High ISO NR", "-4"], ["D Range Priority", "Off"]],
-        iso_guidance: "Recipe guidance: Auto ISO up to 6400. The selected C scenario controls ISO; C2/C4 may deliberately permit 12800 to preserve shutter speed.",
         exposure_guidance: "Judge each exposure individually; Reggie does not prescribe a fixed compensation.",
-        notes: ["Keep Color Chrome FX Blue Weak for Reggie’s original recipe. Off is an optional X-Trans V matching tweak, not required; the source confirms Reggie himself keeps Weak.",
-                "Auto WB and Clarity 0 make this the most flexible default. A diffusion filter is optional, not a camera setting or requirement."],
+        notes: ["Keep Color Chrome FX Blue Weak for the original recipe. Off is an optional X-Trans V matching tweak, not a confirmed personal change."],
         extra_source_url: "https://fujixweekly.com/2025/12/03/reggies-portra-in-x-trans-v-cameras/",
       },
       {
-        id: "FS2", recipe_name: "Kodak Gold 200", role: "Warm sunny daylight / travel / nostalgic color",
-        best_for: ["C1 in sunshine", "C6 Landscape", "C3 environmental portraits in suitable daylight"],
-        image_quality_extras: [["High ISO NR", "-4"], ["D Range Priority", "Off"]],
-        iso_guidance: "DR400 needs at least ISO 500 on the X-E5. Recipe guidance caps Auto ISO at 6400; the C-bank ceiling is a separate shooting choice.",
-        exposure_guidance: "Often +2/3 to +1 EV in suitable light, then inspect highlights; not a compulsory value for every frame.",
-        notes: ["Daylight WB with R+4/B-5 is deliberately warm. Do not treat this as the default under tungsten, mixed artificial light, or neutral skin-color requirements.",
-                "Clarity -2 may add a processing pause. Prefer FS1 for rapid response, or deliberately make a Clarity 0 variant and label it as a variation rather than the original recipe."],
+        id: "FS2", recipe_name: "Reggies Superia", display_name: "Reggie's Superia", role: "Everyday Fujicolor / moodier, grainier color / Auto WB",
+        notes: ["Classic Negative, Auto WB and Clarity 0 make this a responsive everyday alternative to FS1, with moodier color and more pronounced grain."],
       },
       {
-        id: "FS3", recipe_name: "Kodak Tri-X 400", role: "Gritty monochrome / street / documentary",
-        best_for: ["C1 Street", "C4 Night", "C5 Low Light", "C7 Motion"],
-        image_quality_extras: [["High ISO NR", "-4"], ["D Range Priority", "Off"]],
-        iso_guidance: "DR200 needs at least ISO 250, but the intended Tri-X character uses ISO 1600–12800. Choose 1600–3200 for cleaner modern texture, or 6400–12800 for rougher grain. FS3 does not raise ISO automatically.",
-        exposure_guidance: "Typically +1/3 to +1 EV as a starting experiment; judge the subject and highlight tradeoff.",
-        notes: ["Assign ACROS standard/no filter to FS3 to match the saved dataset; yellow/red/green filtration is a deliberate alternative that changes tonal separation.",
-                "If you raise ISO manually for grain, return to the scenario’s normal ISO behavior when switching back to FS1/FS2. Clarity +4 can slow response; test before an action shoot."],
+        id: "FS3", recipe_name: "Kodak Tri-X 400", display_name: "Tri-X-400", role: "Gritty monochrome / street / documentary",
+        iso_guidance: "DR200 needs at least ISO 250. For the intended Tri-X texture, try ISO 1600–3200 for cleaner grain or 6400–12800 for rougher grain; FS3 does not raise ISO automatically.",
+        notes: ["ACROS standard/no filter matches the dataset. Yellow/red/green filtration is a deliberate variation, not an assumed saved setting. Clarity +4 can slow response."],
       },
     ],
   },
@@ -1029,6 +985,7 @@ const MY_CUSTOM_SETUPS = {
     ],
   },
   "Fujifilm X-M5": { type: "empty" },
+  "Fujifilm X70": { type: "empty" },
 };
 
 
@@ -1041,7 +998,7 @@ const MY_SCENARIOS = [
     title: "Wedding in DK — July '26",
     date: "2026-07-18",
     tags: ["event", "outdoor", "indoor", "overcast"],
-    background: "Small wedding (~30 guests) in Denmark. Church ceremony followed by villa garden reception. Weather: mostly overcast with occasional sun. Mixed lighting conditions — dim church interior, then soft diffuse outdoor light.",
+    background: "Historical X-T50 setup note — the C-slot numbers below refer to that camera, not my current X-E5. Small wedding (~30 guests) in Denmark. Church ceremony followed by villa garden reception. Weather: mostly overcast with occasional sun. Mixed lighting conditions — dim church interior, then soft diffuse outdoor light.",
     recommendations: [
       {
         slot: "C3",

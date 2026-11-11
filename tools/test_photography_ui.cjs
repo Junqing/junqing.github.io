@@ -67,7 +67,9 @@ test('OM-3 has a real local gear image and its own complete setup', () => {
   }
   setup.monoProfiles.forEach(profile => assert.equal(profile.recipe_type, 'MONO'))
   assert.equal(evaluate(context, 'MY_CUSTOM_SETUPS["Olympus PEN-F"].modes.length'), 4)
-  assert.equal(evaluate(context, 'MY_CUSTOM_SETUPS["Fujifilm X-T50"].type'), 'fuji-slots')
+  assert.equal(evaluate(context, 'MY_CUSTOM_SETUPS["Fujifilm X-E5"].type'), 'fuji-recipes')
+  assert.equal(evaluate(context, 'MY_CUSTOM_SETUPS["Fujifilm X-T50"]'), undefined)
+  assert.equal(evaluate(context, 'MY_CUSTOM_SETUPS["Fujifilm X70"].type'), 'empty')
   assert.equal(evaluate(context, 'MY_CUSTOM_SETUPS["Fujifilm X-M5"].type'), 'empty')
 })
 
